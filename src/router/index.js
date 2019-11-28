@@ -4,7 +4,9 @@ import VueRouter from 'vue-router'
 
 // 路由
 const Login = resolve => require(['@/views/Login'], resolve)
-const none = resolve => require(['@/views/404'], resolve)
+const None = resolve => require(['@/views/None'], resolve)
+const Layout = resolve => require(['@/views/layout/Layout'], resolve)
+// const My = resolve => require(['@/views/layout/my/My'], resolve)
 
 Vue.use(VueRouter)
 
@@ -19,10 +21,16 @@ const routes = [
     component: Login,
   },
   {
+    path: '/Home',
+    name: 'Layout',
+    component: Layout,
+  },
+  {
     path: '*',
     name: '404',
-    component: none,
+    component: None,
   },
+
 ]
 
 const router = new VueRouter({
