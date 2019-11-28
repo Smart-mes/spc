@@ -1,0 +1,15 @@
+.fr {
+    float: right;
+}
+.fl{float: left;}
+.clear {
+    &::after {
+        clear: both;
+        content: "";
+        display: block;
+        width: 0;
+        height: 0;
+    }
+}
+// 颜色
+$white-colour:#fff;

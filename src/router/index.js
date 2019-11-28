@@ -1,22 +1,27 @@
 import Vue from 'vue'
+import store from '@/store/index'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+
+// 路由
+const Login = resolve => require(['@/views/Login'], resolve)
+const none = resolve => require(['@/views/404'], resolve)
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: Home,
+    redirect: '/Login',
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+    path: '/Login',
+    name: 'Login',
+    component: Login,
+  },
+  {
+    path: '*',
+    name: '404',
+    component: none,
   },
 ]
 
@@ -25,5 +30,19 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes,
 })
-
+// 路由拦截
+router.beforeEach((to, from, next) => {
+  if (to.meta.requireAuth) {
+    if (store.state.user_token) {
+      next()
+    } else {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath },
+      })
+    }
+  } else {
+    next()
+  }
+})
 export default router
