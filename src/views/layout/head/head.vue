@@ -12,7 +12,9 @@
   </header>
 </template>
 <script>
-export default {}
+export default {
+  name: 'Head',
+}
 </script>
 <style lang="scss" scoped>
 header {

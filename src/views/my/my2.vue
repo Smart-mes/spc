@@ -1,6 +1,6 @@
 <template>
   <div>
-    我的用户
+    我的用户2
   </div>
 </template>
 <script>

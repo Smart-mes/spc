@@ -2,18 +2,31 @@
   <div class="home">
     <head-top/>
     <div class="wrapper">
-      <div class="wrapper-left">
+      <div class="side">
         <sidebar/>
+      </div>
+      <div class="main">
+        <tags/>
+        <!-- /tags -->
+        <div class="container">
+          <transition name="move" mode="out-in">
+            <keep-alive>
+              <router-view/>
+            </keep-alive>
+          </transition>
+        </div>
+        <!-- /右下 -->
       </div>
     </div>
   </div>
 </template>
 <script>
-import headTop from '@/views/layout/Head'
-import sidebar from '@/views/layout/Sidebar'
+import headTop from '@/views/layout/head/head'
+import sidebar from '@/views/layout/side/sidebar'
+import tags from '@/views/layout/tags/tags'
 export default {
-  components: { headTop, sidebar },
-
+  name: 'Layout',
+  components: { headTop, sidebar, tags },
   data () {
     return {}
   },
@@ -26,12 +39,29 @@ export default {
 }
 .wrapper {
   overflow: hidden;
+  display: flex;
   height: calc(100vh - 50px);
-  .wrapper-left {
-    overflow: hidden;
-    width: 170px;
-    height: 100%;
-    background: #444c63;
+  background: #f3f3f3;
+}
+.side {
+  overflow: hidden;
+  width: 170px;
+  height: 100%;
+  background: #444c63;
+}
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  // .tag {
+  //   height: 40px;
+  // }
+  .container {
+    flex: 1;
+    margin: 15px;
+    overflow-y: auto;
+    background: #fff;
   }
 }
 </style>

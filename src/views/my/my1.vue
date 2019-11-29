@@ -1,11 +1,13 @@
 <template>
-  <div>404</div>
+  <div>
+    我的用户1
+  </div>
 </template>
 <script>
 export default {
-  name: 'None',
+
 }
 </script>
-<style lang="scss" scoped>
+<style lang="sass" scoped>
 
 </style>
