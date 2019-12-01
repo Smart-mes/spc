@@ -1,15 +1,67 @@
-body,ol,ul,h1,h2,h3,h4,h5,h6,p,th,td,dl,dd,form,fieldset,legend,input,textarea,select{margin:0;padding:0}
-a{color:#333;text-decoration:none}
-a:hover{color:#2475c4;text-decoration:none}
-em{font-style:normal}
-li{list-style:none}
-// img{border:0;vertical-align:middle}
-// table{border-collapse:collapse;border-spacing:0}
-// p{word-wrap:break-word}
+body,
+ol,
+ul,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+th,
+td,
+dl,
+dd,
+form,
+fieldset,
+legend,
+input,
+textarea,
+select {
+    margin: 0;
+    padding: 0
+}
+
+a {
+    color: #333;
+    text-decoration: none
+}
+
+a:hover {
+    color: #2475c4;
+    text-decoration: none
+}
+
+em {
+    font-style: normal
+}
+
+li {
+    list-style: none
+}
+
+img {
+    border: 0;
+    vertical-align: middle
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0
+}
+
+p {
+    word-wrap: break-word
+}
+
 .fr {
     float: right;
 }
-.fl{float: left;}
+
+.fl {
+    float: left;
+}
+
 .clear {
     &::after {
         clear: both;
@@ -19,11 +71,11 @@ li{list-style:none}
         height: 0;
     }
 }
+
 // 颜色
 $white-color:#fff;
 $blue-color:#2475c4;
-
 // 文字颜色
 $title-color:#333;
 $font-gray:#666;
-$font-light-gray:#999; 
+$font-light-gray:#999;

@@ -16,7 +16,7 @@
           </el-col>
           <el-col :span="21">
             <el-form-item prop="username">
-              <el-input v-model="ruleForm.username" placeholder="请输入用户名" size="medium" clearable/>
+              <el-input v-model="ruleForm.username" placeholder="请输入用户名" clearable/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -26,13 +26,7 @@
           </el-col>
           <el-col :span="21">
             <el-form-item prop="password">
-              <el-input
-                v-model="ruleForm.password"
-                type="password"
-                placeholder="请输入密码"
-                size="medium"
-                clearable
-              />
+              <el-input v-model="ruleForm.password" type="password" placeholder="请输入密码" clearable/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -40,7 +34,6 @@
           <el-col :span="24">
             <el-button
               type="primary"
-              size="medium"
               :loading="btnLoading"
               @click="submitForm('ruleForm')"
               @keyup.enter.native="submitForm('ruleForm')"
@@ -102,47 +95,45 @@ export default {
   font-size: 45px;
 }
 .login {
-  padding: 60px 40px;
-  width: 280px;
+  padding: 70px 40px;
+  width: 400px;
   border-radius: 5px;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 1);
   h4 {
     margin: 0;
-    padding-bottom: 40px;
+    padding-bottom: 30px;
     font-size: 25px;
     font-weight: normal;
     color: $title-color;
   }
 
   /deep/.el-input__inner {
-    border-radius: 20px;
     color: $title-color;
     // border: 1px solid #999;
-    &::-webkit-input-placeholder {
-      color: #777;
-    }
-    &::-moz-placeholder {
-      color: #777;
-    }
-    &:-ms-input-placeholder {
-      color: #777;
-    }
+    height: 45px;
+    line-height: 45px;
+    font-size: 16px;
+    border-radius: 10px;
   }
-  .el-button--medium {
+
+  /deep/.el-button {
+    padding: 14px;
     width: 100%;
-    background: $blue-color;
-    border: 1px solid $blue-color;
+    font-size: 16px;
+    border-radius: 10px;
+    // height: 40px;
+    // line-height: 40px;
   }
   .iconfont {
-    font-size: 20px;
-    line-height: 36px;
-    color: $font-gray;
+    font-size: 28px;
+    line-height: 40px;
+    color: $font-light-gray;
   }
   .el-row {
     margin-top: 10px;
   }
   .btn-row {
-    margin-top: 40px;
+    margin-top: 15px;
   }
 }
 </style>

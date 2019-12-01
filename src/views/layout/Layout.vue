@@ -45,7 +45,7 @@ export default {
 }
 .side {
   overflow: hidden;
-  width: 170px;
+  width: 200px;
   height: 100%;
   background: #444c63;
 }
