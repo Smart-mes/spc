@@ -5,7 +5,10 @@ import $http from '@/utils/http'
 Vue.use(Vuex)
 
 const state = {
-  token: window.localStorage.getItem('user_token'),
+
+  token: window.localStorage.getItem('user_token') || '',
+  userInfo: window.JSON.parse(window.localStorage.getItem('user_info')) || {},
+  isCollapse: window.JSON.parse(window.localStorage.getItem('user_collapse')) || false,
   isRouter: false,
   menus: [],
 }
@@ -20,9 +23,18 @@ const mutations = {
      * @param state
      * @param payload
      */
-  set_token: (state, payload) => {
-    state.user_token = payload
-    window.localStorage.setItem('user_token', payload)
+  set_user: (state, { token, userInfo }) => {
+    state.user_token = token
+    state.user_info = userInfo
+    state.isCollapse = false
+
+    window.localStorage.setItem('user_token', state.user_token)
+    window.localStorage.setItem('user_info', window.JSON.stringify(state.user_info))
+    window.localStorage.setItem('user-collapse', window.JSON.stringify(state.isCollapse))
+  },
+  set_collapse (state) {
+    state.isCollapse = !state.isCollapse
+    window.localStorage.setItem('user-collapse', window.JSON.stringify(state.isCollapse))
   },
   set_state (state, payload) {
     if (payload && typeof (payload) === 'object') {
@@ -36,6 +48,8 @@ const mutations = {
     state.menus = []
     state.isRouter = false
     window.localStorage.removeItem('user_token')
+    window.localStorage.removeItem('user_info')
+    window.localStorage.removeItem('user_collapse')
   },
 }
 
@@ -47,60 +61,9 @@ const actions = {
     return $http
       .get('http://rap2api.taobao.org/app/mock/238393/meauList')
       .then(({ list }) => {
-        const arr = [{
-          'path': '/my',
-          'meta': {
-            'title': '我的账户',
-          },
-          'component': () =>
-                                import('@/views/layout/layout.vue'),
-          'children': [{
-            'path': '/my/my1',
-            'meta': {
-              'title': '设置账号',
-            },
-            'component': () =>
-                                        import('@/views/my/my1.vue'),
-          },
-          {
-            'path': '/my/my2',
-            'meta': {
-              'title': '我的资产',
-            },
-            'component': () =>
-                                        import('@/views/my/my2.vue'),
-          },
-          ],
-        },
-        {
-          'path': '/data',
-          'meta': {
-            'title': '基础数据',
-          },
-          'component': () =>
-                                import('@/views/layout/layout.vue'),
-          'children': [{
-            'path': '/data/data1',
-            'meta': {
-              'title': '设置账号',
-            },
-            'component': () =>
-                                        import('@/views/data/data1.vue'),
-          },
-          {
-            'path': '/data/data2',
-            'meta': {
-              'title': '我的资产',
-            },
-            'component': () =>
-                                        import('@/views/data/data2.vue'),
-          },
-          ],
-        },
-        ]
         // 提交
         commit('set_state', {
-          menus: arr,
+          menus: list,
           isRouter: true,
         })
       })
@@ -110,13 +73,14 @@ const actions = {
 const getters = {
   routes (state) {
     const menus = state.menus
+
     const formatRoutes = (arr) => {
       return arr.map(v => {
-        v.component = () => {
-          const compPath = v.component === 'Layout' ? '../views/layout/layout.vue' : v.component
-          return import(`../views/${compPath}.vue`)
-        }
+        v.component = v.children && v.children.length ? 'layout' : ''
+        const compPath = v.component === 'layout' ? '/layout/layout' : v.path
+        v.component = () => import(`@/views${compPath}.vue`)
 
+        v.meta = { title: v.title }
         if (v.children && v.children.length) v.children = formatRoutes(v.children)
         return v
       })

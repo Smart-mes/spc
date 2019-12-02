@@ -4,28 +4,51 @@
       <img src="~@/assets/images/logo.png" class="logo-img fl">
       <h1 class="logo-text">数据分析平台</h1>
     </div>
+    <div class="icon fl">
+      <i :class="[isCollapse ? 'iconshouqi' : 'iconzhankai', 'iconfont']" @click="set_collapse"/>
+    </div>
     <div class="user fr">
-      <span>欢迎您，张三</span>
+      <span>欢迎您，{{ userInfo.userName }}</span>
       <span>|</span>
-      <span class="user-out">退出</span>
+      <span>
+        <a @click="loginClear">退出</a>
+      </span>
     </div>
   </header>
 </template>
 <script>
+import { mapState, mapMutations } from 'vuex'
 export default {
   name: 'Head',
+  data () {
+    return {}
+  },
+  computed: {
+    ...mapState({
+      userInfo: state => state.userInfo,
+      isCollapse: state => state.isCollapse,
+    }),
+  },
+  methods: {
+    ...mapMutations(['logout', 'set_collapse']),
+    loginClear () {
+      this.logout()
+      this.$router.push({ path: '/login' })
+    },
+  },
 }
 </script>
 <style lang="scss" scoped>
 header {
   overflow: hidden;
-  padding: 0 10px;
+  padding: 0 20px;
   height: 50px;
   color: $white-color;
   background: $blue-color;
+  line-height: 50px;
 }
 .logo {
-  width: 210px;
+  width: 180px;
   .logo-img {
     margin: 8px 5px 0 0;
     height: 35px;
@@ -33,14 +56,24 @@ header {
   .logo-text {
     margin: 0;
     font-size: 18px;
-    line-height: 50px;
   }
 }
-.user{
-  line-height: 50px;
-  >span{padding-left: 10px;}
-  .user-out{
+.icon {
+  >i{
+    font-size: 18px;
     cursor: pointer;
+  }
+}
+.user {
+  > span {
+    padding-left: 10px;
+  }
+  a {
+    color: $white-color;
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 </style>

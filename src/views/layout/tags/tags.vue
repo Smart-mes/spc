@@ -52,7 +52,6 @@ export default {
     },
   },
   created () {
-    console.log('当前路由this.$route', this.$route)
     this.setTags(this.$route) // 获取页面的路由信息
   },
   methods: {

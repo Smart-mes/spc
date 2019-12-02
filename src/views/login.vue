@@ -47,14 +47,15 @@
   </div>
 </template>
 <script>
+import { mapMutations } from 'vuex'
 export default {
   name: 'Login',
   data () {
     return {
       btnLoading: false,
       ruleForm: {
-        username: '', // 账号
-        password: '', // 密码
+        username: 'admin',
+        password: '123456',
       },
       rules: {
         username: [
@@ -65,10 +66,24 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['set_user']),
     submitForm (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.$message.error('账号密码错误!')
+          this.btnLoading = true
+          this.$http.post('http://rap2api.taobao.org/app/mock/238393/login', {
+            username: this.ruleForm.username,
+            password: this.ruleForm.password,
+          })
+            .then(res => {
+              this.btnLoading = false
+              this.set_user(res)
+              this.$router.push({ path: '/my/my1' })
+            })
+            .catch(error => {
+              this.btnLoading = false
+              console.log(error)
+            })
         } else {
           return false
         }
@@ -110,14 +125,14 @@ export default {
   /deep/.el-input__inner {
     color: $title-color;
     // border: 1px solid #999;
-    height: 45px;
-    line-height: 45px;
+    height: 40px;
+    line-height: 40px;
     font-size: 16px;
     border-radius: 10px;
   }
 
   /deep/.el-button {
-    padding: 14px;
+    padding: 12px;
     width: 100%;
     font-size: 16px;
     border-radius: 10px;

@@ -21,9 +21,6 @@ instance.interceptors.request.use(config => {
 
 // 添加响应拦截器
 instance.interceptors.response.use(response => {
-//   if (response.status === 200) {
-//     return response.data
-//   }
   return response.data
 }, error => {
   const res = error.response

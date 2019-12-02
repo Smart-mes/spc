@@ -19,4 +19,7 @@ body {
     height: 100vh;
     width: 100vw;
 }
+#nprogress .bar {
+      background: #00cc66 !important; //自定义颜色
+    }
 </style>

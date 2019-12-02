@@ -2,7 +2,7 @@
   <div class="home">
     <head-top/>
     <div class="wrapper">
-      <div class="side">
+      <div class="side" :style="{width:isCollapse?'65px':'200px'}">
         <sidebar/>
       </div>
       <div class="main">
@@ -21,6 +21,7 @@
   </div>
 </template>
 <script>
+import { mapState } from 'vuex'
 import headTop from '@/views/layout/head/head'
 import sidebar from '@/views/layout/side/sidebar'
 import tags from '@/views/layout/tags/tags'
@@ -29,6 +30,11 @@ export default {
   components: { headTop, sidebar, tags },
   data () {
     return {}
+  },
+  computed: {
+    ...mapState({
+      isCollapse: state => state.isCollapse,
+    }),
   },
 }
 </script>
@@ -45,7 +51,7 @@ export default {
 }
 .side {
   overflow: hidden;
-  width: 200px;
+  // width: 200px;
   height: 100%;
   background: #444c63;
 }
