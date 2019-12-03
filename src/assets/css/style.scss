@@ -1,3 +1,4 @@
+// 重置代码
 body,
 ol,
 ul,
@@ -71,11 +72,23 @@ p {
         height: 0;
     }
 }
-
+.p-20{padding: 20px;}
 // 颜色
 $white-color:#fff;
-$blue-color:#2475c4;
+$blue-color:#2376c4;
+
 // 文字颜色
 $title-color:#333;
 $font-gray:#666;
 $font-light-gray:#999;
+$font-blue:#2274be;
+
+$line-color:#e5e5e5;
+
+// 公共
+.subtitle{
+    padding: 15px 0;
+    color:$font-blue;
+    >span{ padding-right: 5px;}
+  }
+

@@ -109,7 +109,7 @@ export default {
   align-items: center;
   background: #fff;
   height: 30px;
-  padding: 10px 15px;
+  padding: 5px 15px;
 }
 .tags .tag-box {
   -webkit-flex: 1;

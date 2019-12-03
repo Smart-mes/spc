@@ -68,6 +68,7 @@ export default {
     margin: 15px;
     overflow-y: auto;
     background: #fff;
+    border: 1px solid $line-color;
   }
 }
 </style>
