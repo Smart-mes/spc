@@ -26,6 +26,11 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes,
 })
+// 解决路由跳转不刷新的BUG
+const routerPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push (location) {
+  return routerPush.call(this, location).catch(error => error)
+}
 
 // 路由拦截
 router.beforeEach(async (to, from, next) => {
