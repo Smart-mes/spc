@@ -24,7 +24,7 @@ select {
 }
 
 a {
-    color: #333;
+    color: #666;
     text-decoration: none
 }
 
@@ -72,7 +72,7 @@ p {
         height: 0;
     }
 }
-.p-20{padding: 20px;}
+
 // 颜色
 $white-color:#fff;
 $blue-color:#2376c4;
@@ -87,8 +87,29 @@ $line-color:#e5e5e5;
 
 // 公共
 .subtitle{
-    padding: 15px 0;
-    color:$font-blue;
-    >span{ padding-right: 5px;}
+    overflow: hidden;
+    margin: 20px 0;
+    padding: 8px 15px;
+    background: #f4fee5;
+    h4{
+        padding-left: 5px;
+        border-left: 5px solid $blue-color;
+    }
   }
 
+
+  .wrap{padding:0 20px 20px 20px;}
+  .mt-0{margin-top: 0;}
+
+  .submit-btn{
+    text-align: center;
+    /deep/.el-button--small{
+      padding:10px 30px;
+    }
+  }
+
+  .el-button--primary {
+    color: #FFF;
+    background-color: $blue-color;
+    border-color: $blue-color;
+}

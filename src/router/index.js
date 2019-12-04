@@ -40,6 +40,7 @@ router.beforeEach(async (to, from, next) => {
     const { isRouter } = $store.state
     if (!isRouter) {
       await $store.dispatch('queryMenus')
+      console.log(' $store.getters', $store.getters)
       const { routes } = $store.getters
       router.addRoutes(routes)
       next({ ...to, replace: true })

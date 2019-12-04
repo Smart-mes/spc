@@ -97,7 +97,7 @@ export default {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: url("~@/assets/images/login-bj.jpg") no-repeat;
+  background: url("~@/assets/images/login-bj.png") no-repeat;
   background-size: cover;
   display: flex;
   flex-direction: column;

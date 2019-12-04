@@ -1,9 +1,9 @@
 <template>
   <div>
-    <h2 class="headTitle">设置账号</h2>
-    <div class="p-20">
+    <head-title/>
+    <div class="wrap">
       <el-form ref="customForm" :inline="true" :model="customForm" label-width="80px">
-        <div class="type">
+        <div class="custom-type">
           <el-form-item
             label="分析类型"
             prop="type"
@@ -19,12 +19,12 @@
 
           <el-form-item
             label="入参"
-            prop="type"
+            prop="join"
             :rules="{
               required: true, message: '入参不能为空', trigger: 'change'
             }"
           >
-            <el-select v-model="customForm.type" placeholder="请选择出参">
+            <el-select v-model="customForm.join" placeholder="请选择出参">
               <el-option label="区域一" value="shanghai"/>
               <el-option label="区域二" value="beijing"/>
             </el-select>
@@ -42,57 +42,68 @@
               <el-option label="区域二" value="beijing"/>
             </el-select>
           </el-form-item>
-        <!-- =========================== -->
         </div>
-        <!-- /分析类型 -->
-        <div class="must">
-          <h4 class="subtitle">
-            <span>·</span>必填内容
-          </h4>
-          <el-form-item
-            v-for="(item, i) in customForm.mustFill"
-            :key="i"
-            :label="item.key"
-            :prop="'mustFill.' + i + '.value'"
-            :rules="{
-              required: true, message: '不能为空', trigger: 'blur'
-            }"
-          >
-            <el-input v-model="item.value"/>
-          </el-form-item>
-        </div>
-        <!-- /必填 -->
-        <div class="custom">
-          <h4 class="subtitle">
-            <span>·</span>自定义内容
-          </h4>
-          <div class="add_btn">
-            <el-button type="primary" @click="addCustom">添加<i class="iconfont icontianjiajiahaowubiankuang"/></el-button>
+        <div class="custom-border">
+          <!-- /分析类型 -->
+          <div class="custom-must">
+            <div class="subtitle mt-0">
+              <h4>必填内容</h4>
+            </div>
+            <el-form-item
+              v-for="(item, i) in customForm.mustFill"
+              :key="i"
+              :label="item.key"
+              :prop="'mustFill.' + i + '.value'"
+              :rules="{
+                required: true, message: '不能为空', trigger: 'blur'
+              }"
+            >
+              <el-input v-model="item.value"/>
+            </el-form-item>
           </div>
+          <!-- /必填 -->
+          <div class="custom-content">
+            <div class="subtitle">
+              <h4>自定义内容</h4>
+            </div>
+            <div class="add_btn">
+              <el-button type="primary" @click="addCustom">
+                添加
+                <i class="iconfont icontianjiajiahaowubiankuang"/>
+              </el-button>
+            </div>
 
-          <div v-for="(custom,i) in customForm.custom" :key="i" class="row">
-            <el-form-item label="字段名">
-              <el-input v-model="custom.key"/>
-            </el-form-item>
-            <el-form-item label="属性名">
-              <el-input v-model="custom.value"/>
-            </el-form-item>
-            <el-form-item>
-              <el-button>删除</el-button>
-            </el-form-item>
+            <div v-for="(custom,i) in customForm.custom" :key="i" class="row">
+              <el-form-item label="字段名">
+                <el-input v-model="custom.key"/>
+              </el-form-item>
+              <el-form-item label="属性名">
+                <el-input v-model="custom.value"/>
+              </el-form-item>
+              <el-form-item>
+                <a class="icon-delete" @click="customDelete(i)">
+                  <i class="iconfont iconicon7" title="删除"/>
+                </a>
+              </el-form-item>
+            </div>
           </div>
         </div>
         <!-- /自定义 -->
-        <div class="btn">
-          <el-button type="primary" size="medium" @click="submitForm('customForm')">提交</el-button>
-          <el-button size="medium" @click="resetForm('customForm')">重置</el-button>
+        <div class="submit-btn">
+          <el-button type="primary" @click="submitForm('customForm')">提交</el-button>
+          <el-button @click="resetForm('customForm')">重置</el-button>
         </div>
       </el-form>
     </div>
   </div>
 </template>
 <script>
+import headTitle from '@/components/headTitle/headTitle'
+
 export default {
+  components: {
+    headTitle,
+  },
   data () {
     return {
       customForm: {
@@ -105,11 +116,8 @@ export default {
           { key: '职业', value: '' },
           { key: '收入', value: '' },
         ],
-        custom: [
-          { key: '', value: '' },
-        ],
+        custom: [{ key: '', value: '' }],
       },
-
     }
   },
   methods: {
@@ -117,7 +125,10 @@ export default {
     addCustom () {
       const obj = { key: '', vulue: '' }
       this.customForm.custom.push(obj)
-      // console.log('customForm.custom', this.customForm)
+    },
+    // 自定义删除
+    customDelete (i) {
+      this.customForm.custom.splice(i, 1)
     },
     submitForm (formName) {
       this.$refs[formName].validate(valid => {
@@ -137,29 +148,26 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.headTitle{
-  padding: 0 20px;
-  height: 45px;
-  line-height: 45px;
-  font-size: 16px;
-  color: $blue-color;
-  border-bottom: 1px solid $line-color;
+.custom-type {
+}
+.custom-must {
+}
+.custom-content {
+  .add_btn {
+    padding: 0 20px 10px 20px;
+    .iconfont {
+      font-size: 12px;
+      padding-left: 5px;
+    }
+  }
+  .icon-delete {
+    cursor: pointer;
+  }
 }
 
-.type {
-  border-bottom: 1px solid $line-color;
+.custom-border {
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid $line-color;
 }
-.must{
-  max-width: 1080px;
-}
-.custom{
-  padding-bottom: 20px;
-  .add_btn{
-    padding-bottom: 10px;
-    .iconfont{font-size: 12px; padding-left:5px}
-  }
-  }
- .btn-warp{
-   text-align:center;
- }
 </style>
