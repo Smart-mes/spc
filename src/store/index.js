@@ -62,8 +62,36 @@ const actions = {
       .get('http://rap2api.taobao.org/app/mock/238393/meauList')
       .then(({ list }) => {
         // 提交
+        const data = [
+          {
+            'id': 1,
+            'path': '/custom/custom',
+            'title': '我自定义',
+            'icon': 'el-icon-tickets',
+          },
+          {
+            'id': 2,
+            'path': '',
+            'title': '我的分析',
+            'icon': 'el-icon-tickets',
+            'children': [{
+              'id': 21,
+              'path': '/analyse/analyse',
+              'title': '我自定义1',
+              'icon': 'el-icon-tickets',
+            },
+            {
+              'id': 22,
+              'path': '/analyse/analyse2',
+              'title': '我自定义2',
+              'icon': 'el-icon-tickets',
+            },
+            ],
+          },
+
+        ]
         commit('set_state', {
-          menus: list,
+          menus: data,
           isRouter: true,
         })
       })
@@ -73,12 +101,24 @@ const actions = {
 const getters = {
   routes (state) {
     const menus = state.menus
-
+    // 处理数据
+    const menusData = menus.map((item) => {
+      if (!item.children) {
+        return {
+          component: 'layout',
+          path: '',
+          children: [item],
+        }
+      } else {
+        item.component = 'layout'
+        return item
+      }
+    })
+    // router数据
     const formatRoutes = (arr) => {
       return arr.map(v => {
-        const path = v.path.substr(0, 4) === '/a/a' ? '/my/my2' : v.path
         v.component = v.children && v.children.length ? 'layout' : ''
-        const compPath = v.component === 'layout' ? '/layout/layout' : path
+        const compPath = v.component === 'layout' ? '/layout/layout' : v.path
         v.component = () => import(`@/views${compPath}.vue`)
         v.meta = { title: v.title }
         if (v.children && v.children.length) v.children = formatRoutes(v.children)
@@ -86,7 +126,7 @@ const getters = {
       })
     }
 
-    return formatRoutes(menus)
+    return formatRoutes(menusData)
   },
 }
 

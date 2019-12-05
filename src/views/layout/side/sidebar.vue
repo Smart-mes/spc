@@ -30,7 +30,7 @@
         <el-menu-item v-else :key="item.path" :index="item.path">
           <template>
             <i :class="item.icon"/>
-            <span slot="title">{{ item.path }}</span>
+            <span slot="title">{{ item.title }}</span>
           </template>
         </el-menu-item>
       </template>

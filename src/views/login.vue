@@ -78,7 +78,7 @@ export default {
             .then(res => {
               this.btnLoading = false
               this.set_user(res)
-              this.$router.push({ path: '/my/my1' })
+              this.$router.push({ path: '/custom/custom' })
             })
             .catch(error => {
               this.btnLoading = false
