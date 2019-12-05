@@ -1,18 +1,22 @@
 // const path = require('path');
+const url = 'http://192.168.1.64:8082'
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
 module.exports = {
   // 不加密
   productionSourceMap: false,
-  // 代码
-  // proxy: {
-  //     '/api': {
-  //         target: '',
-  //         ws: true,
-  //         pathRewrite: {
-  //             '^/api': '/api'
-  //         }
-  //     }
-  // },
+  // 代理
+  devServer: {
+    proxy: {
+      '/api': {
+        target: url,
+        changeOrigin: true,
+        ws: true,
+        pathRewrite: {
+          '^/api': '',
+        },
+      },
+    },
+  },
   // 全局配置sass
   css: {
     loaderOptions: {

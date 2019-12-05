@@ -1,4 +1,5 @@
 import axios from 'axios'
+import qs from 'qs'
 import { MessageBox } from 'element-ui'
 import router from '@/router/index'
 
@@ -6,7 +7,9 @@ const instance = axios.create({
   headers: { 'Content-Type': 'application/json;charset=UTF-8' },
   timeout: 10000,
   withCredentials: true,
-
+  paramsSerializer (params) {
+    return qs.stringify(params, { arrayFormat: 'repeat' })
+  },
 })
 
 // 添加请求拦截器
@@ -21,7 +24,13 @@ instance.interceptors.request.use(config => {
 
 // 添加响应拦截器
 instance.interceptors.response.use(response => {
-  return response.data
+  if (
+    response.status === 200 & response.code === 0
+  ) {
+    return response.data
+  } else {
+    return Promise.reject(response.data)
+  }
 }, error => {
   const res = error.response
   const status = res.status

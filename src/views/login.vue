@@ -71,13 +71,13 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.btnLoading = true
-          this.$http.post('http://rap2api.taobao.org/app/mock/238393/login', {
+          this.$http.post('/api/sso/login', {
             username: this.ruleForm.username,
             password: this.ruleForm.password,
           })
             .then(res => {
               this.btnLoading = false
-              this.set_user(res)
+              // this.set_user(res)
               this.$router.push({ path: '/custom/custom' })
             })
             .catch(error => {
