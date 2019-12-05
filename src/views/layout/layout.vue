@@ -10,9 +10,9 @@
         <!-- /tags -->
         <div class="container">
           <transition name="move" mode="out-in">
-            <keep-alive>
-              <router-view/>
-            </keep-alive>
+            <!-- <keep-alive> -->
+            <router-view/>
+            <!-- </keep-alive> -->
           </transition>
         </div>
         <!-- /右下 -->

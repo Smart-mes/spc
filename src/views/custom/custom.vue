@@ -2,7 +2,7 @@
   <div>
     <head-title/>
     <div class="wrap">
-      <el-form ref="customForm" :inline="true" :model="customForm" label-width="80px">
+      <el-form ref="customForm" :inline="true" :model="customForm" label-width="90px">
         <div class="custom-type">
           <el-form-item
             label="分析类型"
@@ -32,12 +32,12 @@
 
           <el-form-item
             label="出参"
-            prop="join"
+            prop="leave"
             :rules="{
               required: true, message: '出参不能为空', trigger: 'change'
             }"
           >
-            <el-select v-model="customForm.join" placeholder="请选择入参">
+            <el-select v-model="customForm.leave" placeholder="请选择入参">
               <el-option label="区域一" value="shanghai"/>
               <el-option label="区域二" value="beijing"/>
             </el-select>
@@ -49,19 +49,50 @@
             <div class="subtitle mt-0">
               <h4>必填内容</h4>
             </div>
-            <el-form-item
-              v-for="(item, i) in customForm.mustFill"
-              :key="i"
-              :label="item.key"
-              :prop="'mustFill.' + i + '.value'"
-              :rules="{
-                required: true, message: '不能为空', trigger: 'blur'
-              }"
-            >
-              <el-input v-model="item.value"/>
-            </el-form-item>
+            <div>
+              <el-form-item
+                v-for="(item, i) in customForm.mustFill"
+                :key="i"
+                :label="item.key"
+                :prop="'mustFill.' + i + '.value'"
+                :rules="{
+                  required: true, message: '不能为空', trigger: 'blur'
+                }"
+              >
+                <el-input v-model="item.value"/>
+              </el-form-item>
+            </div>
+            <!-- /数据库 -->
+            <div>
+              <el-form-item
+                label="数据url"
+                prop="mustUrl"
+                :rules="{
+                  required: true, message: '不能为空', trigger: 'change'
+                }"
+              >
+                <el-input v-model="customForm.mustUrl"/>
+              </el-form-item>
+            </div>
           </div>
-          <!-- /必填 -->
+          <!-- /必填url -->
+          <div>
+            <el-upload
+              class="upload-demo"
+              action="https://jsonplaceholder.typicode.com/posts/"
+              :on-preview="handlePreview"
+              :on-remove="handleRemove"
+              :before-remove="beforeRemove"
+              multiple
+              :limit="3"
+              :on-exceed="handleExceed"
+              :file-list="fileList"
+            >
+              <el-button size="small" type="primary">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            </el-upload>
+          </div>
+          <!-- 上传exl -->
           <div class="custom-content">
             <div class="subtitle">
               <h4>自定义内容</h4>
@@ -116,8 +147,22 @@ export default {
           { key: '职业', value: '' },
           { key: '收入', value: '' },
         ],
+        mustUrl: '',
         custom: [{ key: '', value: '' }],
       },
+      // 上传exl数据
+      fileList: [
+        {
+          name: 'food.jpeg',
+          url:
+            'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
+        },
+        {
+          name: 'food2.jpeg',
+          url:
+            'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
+        },
+      ],
     }
   },
   methods: {
@@ -130,6 +175,24 @@ export default {
     customDelete (i) {
       this.customForm.custom.splice(i, 1)
     },
+    // 上传
+    handleRemove (file, fileList) {
+      console.log(file, fileList)
+    },
+    handlePreview (file) {
+      console.log(file)
+    },
+    handleExceed (files, fileList) {
+      this.$message.warning(
+        `当前限制选择 3 个文件，本次选择了 ${
+          files.length
+        } 个文件，共选择了 ${files.length + fileList.length} 个文件`
+      )
+    },
+    beforeRemove (file, fileList) {
+      return this.$confirm(`确定移除 ${file.name}？`)
+    },
+    // 提交
     submitForm (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -168,6 +231,8 @@ export default {
 .custom-border {
   margin-bottom: 20px;
   padding: 20px;
-  border: 1px solid $line-color;
+  // border: 1px solid $line-color;
+  border-top: 1px dashed $line-color;
+  border-bottom: 1px dashed $line-color;
 }
 </style>

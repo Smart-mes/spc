@@ -76,10 +76,10 @@ const getters = {
 
     const formatRoutes = (arr) => {
       return arr.map(v => {
+        const path = v.path.substr(0, 4) === '/a/a' ? '/my/my2' : v.path
         v.component = v.children && v.children.length ? 'layout' : ''
-        const compPath = v.component === 'layout' ? '/layout/layout' : v.path
+        const compPath = v.component === 'layout' ? '/layout/layout' : path
         v.component = () => import(`@/views${compPath}.vue`)
-
         v.meta = { title: v.title }
         if (v.children && v.children.length) v.children = formatRoutes(v.children)
         return v
