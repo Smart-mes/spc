@@ -68,6 +68,7 @@ export default {
   methods: {
     ...mapMutations(['set_user']),
     submitForm (formName) {
+      this.$router.push({ path: '/custom' })
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.btnLoading = true
@@ -78,11 +79,11 @@ export default {
             .then(res => {
               this.btnLoading = false
               // this.set_user(res)
-              this.$router.push({ path: '/custom/custom' })
+              this.$router.push({ path: '/custom' })
             })
             .catch(error => {
               this.btnLoading = false
-              console.log(error)
+              console.log('error:', error)
             })
         } else {
           return false

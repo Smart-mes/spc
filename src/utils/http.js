@@ -24,13 +24,13 @@ instance.interceptors.request.use(config => {
 
 // 添加响应拦截器
 instance.interceptors.response.use(response => {
-  if (
-    response.status === 200 & response.code === 0
-  ) {
-    return response.data
-  } else {
-    return Promise.reject(response.data)
+  const data = response.data
+  const { message, code } = data
+
+  if (code === 999) {
+    return Promise.reject(message)
   }
+  return data
 }, error => {
   const res = error.response
   const status = res.status

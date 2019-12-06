@@ -107,9 +107,10 @@ export default {
       },
     }
   },
-  mounted () {
+  activated () {
+    // debugger
     this.echartsInt()
-    console.log(' this.$route', this.$route.query)
+    console.log(' this.$route', this.$route)
   },
   methods: {
     customSearch () {

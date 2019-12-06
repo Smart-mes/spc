@@ -6,13 +6,13 @@
         <sidebar/>
       </div>
       <div class="main">
-        <tags/>
+        <!-- <tags/> -->
         <!-- /tags -->
         <div class="container">
           <transition name="move" mode="out-in">
-            <!-- <keep-alive> -->
-            <router-view/>
-            <!-- </keep-alive> -->
+            <keep-alive>
+              <router-view :key="$route.fullPath"/>
+            </keep-alive>
           </transition>
         </div>
         <!-- /右下 -->
@@ -24,10 +24,10 @@
 import { mapState } from 'vuex'
 import headTop from '@/views/layout/head/head'
 import sidebar from '@/views/layout/side/sidebar'
-import tags from '@/views/layout/tags/tags'
+// import tags from '@/views/layout/tags/tags'
 export default {
   name: 'Layout',
-  components: { headTop, sidebar, tags },
+  components: { headTop, sidebar },
   data () {
     return {}
   },

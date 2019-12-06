@@ -65,7 +65,8 @@ const actions = {
         const data = [
           {
             'id': 1,
-            'path': '/custom/custom',
+            'path': '/custom',
+            'componentPath': '/custom/custom',
             'title': '我自定义',
             'icon': 'el-icon-tickets',
           },
@@ -76,14 +77,16 @@ const actions = {
             'icon': 'el-icon-tickets',
             'children': [{
               'id': 21,
-              'path': '/analyse/analyse',
-              'title': '我自定义1',
+              'path': '/analyse/myAnalyse?id=21',
+              'componentPath': '/analyse/analyse',
+              'title': '我自定义',
               'icon': 'el-icon-tickets',
             },
             {
               'id': 22,
-              'path': '/analyse/analyse2',
-              'title': '我自定义2',
+              'path': '/analyse/myAnalyse?id=22',
+              'componentPath': '/analyse/analyse',
+              'title': '我自定义',
               'icon': 'el-icon-tickets',
             },
             ],
@@ -118,7 +121,7 @@ const getters = {
     const formatRoutes = (arr) => {
       return arr.map(v => {
         v.component = v.children && v.children.length ? 'layout' : ''
-        const compPath = v.component === 'layout' ? '/layout/layout' : v.path
+        const compPath = v.component === 'layout' ? '/layout/layout' : v.componentPath
         v.component = () => import(`@/views${compPath}.vue`)
         v.meta = { title: v.title }
         if (v.children && v.children.length) v.children = formatRoutes(v.children)
