@@ -62,36 +62,38 @@ const actions = {
       .get('http://rap2api.taobao.org/app/mock/238393/meauList')
       .then(({ list }) => {
         // 提交
-        const data = [
-          {
-            'id': 1,
-            'path': '/custom',
-            'componentPath': '/custom/custom',
+        const data = [{
+          'id': '1',
+          'path': '/custom',
+          'url': '/custom',
+          'componentPath': '/custom/custom',
+          'title': '我自定义',
+          'icon': 'el-icon-tickets',
+        },
+        {
+          'id': ' 2',
+          'path': '',
+          'url': '',
+          'title': '我的分析',
+          'icon': 'el-icon-tickets',
+          'children': [{
+            'id': '21',
+            'path': '/analyse/myAnalyse',
+            'url': '/analyse/myAnalyse?id=21',
+            'componentPath': '/analyse/analyse',
             'title': '我自定义',
             'icon': 'el-icon-tickets',
           },
           {
-            'id': 2,
-            'path': '',
-            'title': '我的分析',
+            'id': '22',
+            'path': '/analyse/myAnalyse',
+            'url': '/analyse/myAnalyse?id=22',
+            'componentPath': '/analyse/analyse',
+            'title': '我自定义',
             'icon': 'el-icon-tickets',
-            'children': [{
-              'id': 21,
-              'path': '/analyse/myAnalyse?id=21',
-              'componentPath': '/analyse/analyse',
-              'title': '我自定义',
-              'icon': 'el-icon-tickets',
-            },
-            {
-              'id': 22,
-              'path': '/analyse/myAnalyse?id=22',
-              'componentPath': '/analyse/analyse',
-              'title': '我自定义',
-              'icon': 'el-icon-tickets',
-            },
-            ],
           },
-
+          ],
+        },
         ]
         commit('set_state', {
           menus: data,
@@ -122,7 +124,8 @@ const getters = {
       return arr.map(v => {
         v.component = v.children && v.children.length ? 'layout' : ''
         const compPath = v.component === 'layout' ? '/layout/layout' : v.componentPath
-        v.component = () => import(`@/views${compPath}.vue`)
+        v.component = () =>
+                    import(`@/views${compPath}.vue`)
         v.meta = { title: v.title }
         if (v.children && v.children.length) v.children = formatRoutes(v.children)
         return v

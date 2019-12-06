@@ -110,7 +110,7 @@ export default {
   activated () {
     // debugger
     this.echartsInt()
-    console.log(' this.$route', this.$route)
+    // console.log(' this.$route', this.$route)
   },
   methods: {
     customSearch () {

@@ -2,7 +2,6 @@
   <div class="sidebar">
     <el-menu
       :collapse="isCollapse"
-
       class="el-menu-vertical-demo"
       background-color="#444c63"
       text-color="#fff"
@@ -11,7 +10,7 @@
       :default-active="active"
     >
       <template v-for="(item) in menus">
-        <el-submenu v-if="item.children" :key="item.id" :index="item.path">
+        <el-submenu v-if="item.children" :key="item.id" :index="item.url">
           <template slot="title">
             <i :class="item.icon"/>
             <span>{{ item.title }}</span>
@@ -21,14 +20,14 @@
             <el-menu-item
               v-for="(list) in item.children"
               :key="list.id"
-              :index="list.path"
+              :index="list.url"
               @click="toPath(list)"
             >
-              {{ list.title }}---{{ list.id }}
+              {{ list.title }}
             </el-menu-item>
           </el-menu-item-group>
         </el-submenu>
-        <el-menu-item v-else :key="item.id" @click="toPath(item)">
+        <el-menu-item v-else :key="item.id" :index="item.url" @click="toPath(item)">
           <template>
             <i :class="item.icon"/>
             <span slot="title">{{ item.title }}</span>
@@ -54,22 +53,22 @@ export default {
       isCollapse: state => state.isCollapse,
     }),
     active () {
-      return this.$route.path
+      const url = !this.$route.query.id ? this.$route.path : `${this.$route.path}?id=${this.$route.query.id}`
+      return url
     },
   },
   mounted () {
-
+    console.log('this.active', this.active)
   },
   methods: {
     toPath (item) {
-      const path = item.path.split('?')
-      console.log(path[0], path[1])
-
-      // if (path.length !== 2) {
-      //   this.$router.push({ path: item.path })
-      // } else {
-      //   this.$router.push({ path: path[0], params: { id: '1' }})
-      // }
+      const [path, params] = item.url.split('?')
+      if (params) {
+        const paramsId = Number(params.substring(3))
+        this.$router.push({ path: path, query: { id: paramsId }})
+      } else {
+        this.$router.push({ path: path })
+      }
     },
   },
 }
