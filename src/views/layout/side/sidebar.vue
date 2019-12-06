@@ -63,12 +63,13 @@ export default {
   methods: {
     toPath (item) {
       const path = item.path.split('?')
+      console.log(path[0], path[1])
 
-      if (path.length !== 2) {
-        this.$router.push({ path: item.path })
-      } else {
-        this.$router.push({ path: path[0], params: { id: 'a' }})
-      }
+      // if (path.length !== 2) {
+      //   this.$router.push({ path: item.path })
+      // } else {
+      //   this.$router.push({ path: path[0], params: { id: '1' }})
+      // }
     },
   },
 }
