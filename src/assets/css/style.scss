@@ -82,11 +82,22 @@ $title-color:#333;
 $font-gray:#666;
 $font-light-gray:#999;
 $font-blue:#2274be;
-
-$line-color:#e5e5e5;
+$line-color:#ddd;
 
 // 公共
-.subtitle{
+  .wrap{padding:0 20px 20px 20px;}
+  .mt-0{margin-top: 0;}
+  button{
+    .iconfont{font-size: 12px;padding-right: 5px;}
+  }
+
+  .el-button--primary {
+    color: #FFF;
+    background-color: $blue-color;
+    border-color: $blue-color;
+}
+// 标题
+.largeTitle{
     overflow: hidden;
     margin: 20px 0;
     padding: 8px 15px;
@@ -96,20 +107,13 @@ $line-color:#e5e5e5;
         border-left: 5px solid $blue-color;
     }
   }
+  .subtitle{
+      margin: 15px 0;
+      line-height: 20px;
+      color: $blue-color;
+      .icon-circle{
+          font-size: 12px;
+          padding-right: 3px;
+      }
 
-
-  .wrap{padding:0 20px 20px 20px;}
-  .mt-0{margin-top: 0;}
-
-  .submit-btn{
-    text-align: center;
-    /deep/.el-button--small{
-      padding:10px 30px;
-    }
   }
-
-  .el-button--primary {
-    color: #FFF;
-    background-color: $blue-color;
-    border-color: $blue-color;
-}

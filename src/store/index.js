@@ -8,7 +8,7 @@ const state = {
 
   token: window.localStorage.getItem('user_token') || '',
   userInfo: window.JSON.parse(window.localStorage.getItem('user_info')) || {},
-  isCollapse: window.JSON.parse(window.localStorage.getItem('user_collapse')) || false,
+  isCollapse: window.JSON.parse(window.localStorage.getItem('user-collapse')),
   isRouter: false,
   menus: [],
 }
@@ -30,7 +30,7 @@ const mutations = {
 
     window.localStorage.setItem('user_token', state.user_token)
     window.localStorage.setItem('user_info', window.JSON.stringify(state.user_info))
-    window.localStorage.setItem('user-collapse', window.JSON.stringify(state.isCollapse))
+    window.localStorage.setItem('user-collapse', state.isCollapse)
   },
   set_collapse (state) {
     state.isCollapse = !state.isCollapse
@@ -64,10 +64,10 @@ const actions = {
         // 提交
         const data = [{
           'id': '1',
-          'path': '/custom',
-          'url': '/custom',
-          'componentPath': '/custom/custom',
-          'title': '我自定义',
+          'path': '/dataModel',
+          'url': '/dataModel',
+          'componentPath': '/model/dataModel',
+          'title': '数据模型',
           'icon': 'el-icon-tickets',
         },
         {
@@ -86,9 +86,9 @@ const actions = {
           },
           {
             'id': '22',
-            'path': '/analyse/myAnalyse',
-            'url': '/analyse/myAnalyse?id=22',
-            'componentPath': '/analyse/analyse',
+            'path': '/analyse/demo',
+            'url': '/analyse/demo?id=22',
+            'componentPath': '/analyse/demo',
             'title': '我自定义',
             'icon': 'el-icon-tickets',
           },

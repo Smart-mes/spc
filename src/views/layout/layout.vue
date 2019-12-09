@@ -5,7 +5,7 @@
       <div class="side" :style="{width:isCollapse?'65px':'200px'}">
         <sidebar/>
       </div>
-      <div class="main">
+      <div class="main" :style="{left:isCollapse?'65px':'200px'}">
         <!-- <tags/> -->
         <!-- /tags -->
         <div class="container">
@@ -31,10 +31,14 @@ export default {
   data () {
     return {}
   },
+
   computed: {
     ...mapState({
       isCollapse: state => state.isCollapse,
     }),
+  },
+  mounted () {
+    console.log('isCollapse', this.isCollapse)
   },
 }
 </script>
@@ -45,26 +49,33 @@ export default {
 }
 .wrapper {
   overflow: hidden;
-  display: flex;
+  position: relative;
+  // display: flex;
   height: calc(100vh - 50px);
   background: #f3f3f3;
 }
 .side {
   overflow: hidden;
-  // width: 200px;
+  position: absolute;
+   top: 0;
+   left: 0;
   height: 100%;
   background: #444c63;
 }
 .main {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  // flex: 1;
   // .tag {
   //   height: 40px;
   // }
+  position: absolute;
+  top: 0;
+  left:200px;
+  right: 0;
+  height: 100%;
   .container {
-    flex: 1;
+     flex: 1;
     margin: 15px;
     overflow-y: auto;
     background: #fff;

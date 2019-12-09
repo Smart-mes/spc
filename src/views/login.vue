@@ -68,7 +68,7 @@ export default {
   methods: {
     ...mapMutations(['set_user']),
     submitForm (formName) {
-      this.$router.push({ path: '/custom' })
+      this.$router.push({ path: '/dataModel' })
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.btnLoading = true
