@@ -139,8 +139,8 @@
             </div>
             <div v-for="(custom,i) in modelForm.custom" :key="i" class="custom-list">
               <div class="custom-list-add">
-                <el-button type="primary"><i class="iconfont icontianjia"/>添加</el-button>
-                <el-button type="danger"><i class="iconfont iconicon7" @click="customDelete"/>删除</el-button>
+                <el-button type="primary" title="添加"><i class="iconfont icontianjia"/></el-button>
+                <el-button type="danger" title="删除"><i class="iconfont iconicon7" @click="customDelete(i)"/></el-button>
               </div>
               <div v-for="(item,j) in custom" :key="j" class="custom-item">
                 <el-form-item
@@ -159,7 +159,7 @@
                   <el-input v-model="item.option"/>
                 </el-form-item>
                 <el-form-item>
-                  <a class="icon-delete" @click="customDelete(i)">
+                  <a class="icon-delete">
                     <el-button type="danger" title="删除"><i class="iconfont iconicon7"/></el-button>
                   </a>
                 </el-form-item>
@@ -286,7 +286,9 @@ export default {
       const customArr = [{ key: '', value: '', option: '' }]
       this.modelForm.custom.push(customArr)
     },
-    customDelete (i) {},
+    customDelete (i) {
+      this.modelForm.custom.splice(i, 1)
+    },
   },
 }
 </script>
@@ -309,22 +311,21 @@ export default {
 }
 .custom{
   .custom-add{
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 .custom-list{
-  margin-bottom: 10px;
-  padding: 10px 0;
+  margin-bottom: 15px;
   border: 1px solid $line-color;
-}
-.custom-item{
-      button{
+        button{
     .iconfont{padding-right: 0;}
   }
 }
 
 .custom-list-add{
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  padding:10px 0;
   padding-left: 35px;
+  background-color: #eee;
 }
 }
 
