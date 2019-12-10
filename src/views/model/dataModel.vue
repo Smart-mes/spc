@@ -304,14 +304,6 @@ export default {
     },
   },
   methods: {
-    // 年龄校验方法
-    rule_customName (rule, value, callback) {
-      if (value.length > 4) {
-        return callback(new Error('长度不能大于四个字符'))
-      }
-
-      callback()
-    },
     // 表格
     tableAdd () {
       this.dialogTitle = '模型添加'
@@ -370,6 +362,14 @@ export default {
       if (!this.modelForm.custom[i].length) {
         this.modelForm.custom.splice(i, 1)
       }
+    },
+    // 自定义表单验证
+    rule_customName (rule, value, callback) {
+      if (value.length > 4) {
+        return callback(new Error('长度不能大于四个字符'))
+      }
+
+      callback()
     },
     // 表单提交
     dialogSubmit () {
