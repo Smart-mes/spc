@@ -3,16 +3,9 @@
     <head-title/>
     <div class="wrap">
       <div class="btn-tool">
-        <el-button type="primary">
-          <i class="icontianjia iconfont"/>添加
-        </el-button>
-        <el-button type="primary">
-          <i class="iconxiugai iconfont"/>修改
-        </el-button>
-        <el-button type="danger">
-          <i class="iconicon7 iconfont"/>删除
-        </el-button>
+        <btn-tool :buttons="btnList"/>
       </div>
+      <!-- /工具条 -->
       <el-table
         :data="tableData"
         highlight-current-row
@@ -41,12 +34,12 @@
         />
       </div>
       <!-- 添加修改弹窗 -->
-      <el-dialog :visible.sync="dialogVisible" width="990px">
+      <el-dialog :visible.sync="dialogVisible" width="860px">
         <div slot="title" class="dialog-header">{{ dialogTitle }}</div>
         <div class="dialog-step">
-          <el-steps :active="1" finish-status="success">
-            <el-step title="步骤1"/>
-            <el-step title="步骤2"/>
+          <el-steps :active="activeStep" finish-status="success">
+            <el-step title="模型参数"/>
+            <el-step title="自定义参数"/>
             <el-step title="完成"/>
           </el-steps>
         </div>
@@ -57,134 +50,184 @@
           :model="modelForm"
           class="demo-form-inline"
         >
-          <el-form-item
-            label="模型名称"
-            prop="name"
-            :rules="{
-              required: true, message: '不能为空', trigger: 'blur'
-            }"
-          >
-            <el-input v-model="modelForm.name"/>
-          </el-form-item>
-          <el-form-item
-            label="入参类型"
-            prop="entryType"
-            :rules="{
-              required: true, message: '不能为空', trigger: 'change'
-            }"
-          >
-            <el-select v-model="modelForm.entryType">
-              <el-option label="区域一" value="shanghai"/>
-              <el-option label="区域二" value="beijing"/>
-            </el-select>
-          </el-form-item>
-          <!--/选择类型 -->
-          <div class="must">
+          <div v-show="activeStep===1" class="must">
+            <el-form-item
+              label="模型名称"
+              prop="name"
+              :rules="{
+                required: true, message: '不能为空', trigger: 'blur'
+              }"
+            >
+              <el-input v-model="modelForm.name" size="mini"/>
+            </el-form-item>
+            <el-form-item
+              label="入参类型"
+              prop="entryType"
+              :rules="{
+                required: true, message: '不能为空', trigger: 'change'
+              }"
+            >
+              <el-select v-model="modelForm.entryType" size="mini">
+                <el-option label="数据库" value="dataDase"/>
+                <el-option label="api" value="api"/>
+                <el-option label="excel" value="excel"/>
+              </el-select>
+            </el-form-item>
+            <!--/选择类型 -->
             <h4 class="subtitle">
               <span class="icon-circle">●</span>必选的内容
             </h4>
-            <div>
-              <el-form-item
-                v-for="(item, i) in modelForm.dataDase"
-                :key="i"
-                :label="item.key"
-                :prop="'dataDase.' + i + '.value'"
-                :rules="{
-                  required: true, message: '不能为空', trigger: 'blur'
-                }"
-              >
-                <el-input v-model="item.value"/>
-              </el-form-item>
-            </div>
-            <!-- /数据库 -->
-            <div v-show="false">
-              <el-form-item
-                label="数据url"
-                prop="dataUrl"
-                :rules="{
-                  required: true, message: '不能为空', trigger: 'change'
-                }"
-              >
-                <el-input v-model="modelForm.mustUrl"/>
-              </el-form-item>
-            </div>
-            <!-- /数据url -->
-            <div v-show="false">
-              <el-upload
-                class="upload-demo"
-                action="https://jsonplaceholder.typicode.com/posts/"
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
-                :before-remove="beforeRemove"
-                multiple
-                :limit="3"
-                :on-exceed="handleExceed"
-                :file-list="fileList"
-              >
-                <el-button size="small" type="primary">点击上传</el-button>
-                <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-              </el-upload>
-            </div>
+            <div class="must-warp">
+              <div v-if="modelForm.entryType==='dataDase'">
+                <el-form-item
+                  v-for="(item, i) in modelForm.dataDase"
+                  :key="i"
+                  :label="item.key"
+                  :prop="'dataDase.' + i + '.value'"
+                  :rules="{
+                    required: true, message: '不能为空', trigger: 'blur'
+                  }"
+                >
+                  <el-input v-model="item.value" size="mini"/>
+                </el-form-item>
+              </div>
+              <!-- /数据库 -->
+              <div v-else-if="modelForm.entryType==='api'">
+                <el-form-item
+                  label="数据url"
+                  prop="apiUrl"
+                  :rules="{
+                    required: true, message: '不能为空', trigger: 'blur'
+                  }"
+                >
+                  <el-input v-model="modelForm.apiUrl" size="mini"/>
+                </el-form-item>
+              </div>
+              <!-- /数据url -->
+              <div v-else-if="modelForm.entryType==='excel'" class="pl-20">
+                <el-upload
+                  class="upload-demo"
+                  action="https://jsonplaceholder.typicode.com/posts/"
+                  :on-preview="handlePreview"
+                  :on-remove="handleRemove"
+                  :before-remove="beforeRemove"
+                  multiple
+                  :limit="3"
+                  :on-exceed="handleExceed"
+                  :file-list="fileList"
+                >
+                  <el-button size="small" type="primary">点击上传</el-button>
+                  <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+                </el-upload>
+              </div>
+              <div v-else class="pl-20">请选择入参类型</div>
             <!-- /上传exl -->
+            </div>
           </div>
           <!-- /必填内容 -->
-          <div class="custom">
+          <div v-show="activeStep===2" class="custom">
             <h4 class="subtitle">
               <span class="icon-circle">●</span>自定义内容
             </h4>
             <div class="custom-add">
-              <el-button type="primary" @click="customAdd">
+              <el-button type="primary" size="mini" @click="customAdd">
                 <i class="icontianjia iconfont"/>添加
               </el-button>
             </div>
             <div v-for="(custom,i) in modelForm.custom" :key="i" class="custom-list">
               <div class="custom-list-add">
-                <el-button type="primary" title="添加"><i class="iconfont icontianjia"/></el-button>
-                <el-button type="danger" title="删除"><i class="iconfont iconicon7" @click="customDelete(i)"/></el-button>
+                <el-button type="primary" title="添加" size="mini" @click="customItemAdd(i)">
+                  <i class="iconfont icontianjia"/>
+                </el-button>
+                <el-button type="danger" title="删除" size="mini" @click="customDelete(i)">
+                  <i class="iconfont iconicon7"/>
+                </el-button>
               </div>
               <div v-for="(item,j) in custom" :key="j" class="custom-item">
                 <el-form-item
                   label="名称"
+                  :prop="'custom.' + j + '.value'"
+                  :rules="{
+                    required: true, message: '不能为空', trigger: 'blur'
+                  }"
                 >
-                  <el-input v-model="item.key"/>
+                  <el-input v-model="item.key" size="mini"/>
                 </el-form-item>
-                <el-form-item
-                  label="值"
-                >
-                  <el-input v-model="item.value"/>
+                <el-form-item label="值">
+                  <el-input v-model="item.value" size="mini"/>
                 </el-form-item>
-                <el-form-item
-                  label="字符"
-                >
-                  <el-input v-model="item.option"/>
+                <el-form-item label="字符">
+                  <el-input v-model="item.option" size="mini"/>
                 </el-form-item>
                 <el-form-item>
                   <a class="icon-delete">
-                    <el-button type="danger" title="删除"><i class="iconfont iconicon7"/></el-button>
+                    <el-button type="danger" title="删除" size="mini" @click="customItemDelete(i,j)">
+                      <i class="iconfont iconicon7"/>
+                    </el-button>
                   </a>
                 </el-form-item>
               </div>
             </div>
+            <div v-if="!modelForm.custom.length" class="pl-20">还没有添加自定义参数</div>
           </div>
           <!-- /自定义 -->
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+          <el-button @click="dialogStep">{{ dialogBtnTxt }}</el-button>
+          <el-button type="primary" @click="dialogSubmit">确 定</el-button>
         </span>
       </el-dialog>
     </div>
   </div>
 </template>
 <script>
-import headTitle from '@/components/headTitle/headTitle'
-
+import headTitle from '@/components/headTitle'
+import btnTool from '@/components/btnTool'
 export default {
+  name: 'DataModel',
   components: {
     headTitle,
+    btnTool,
   },
   data () {
     return {
+      // tool
+      btnList: [
+        {
+          type: 'primary',
+          icon: 'icontianjia',
+          text: '添加',
+          disabled: () => {
+            return false
+          },
+          click: () => {
+            this.tableAdd()
+          },
+        },
+        {
+          type: 'primary',
+          icon: 'iconxiugai',
+          text: '修改',
+          disabled: () => {
+            return false
+          },
+          click: () => {
+            this.tableModify()
+          },
+        },
+        {
+          type: 'danger',
+          icon: 'iconicon7',
+          text: '删除',
+          disabled: () => {
+            return false
+          },
+          click: () => {
+            alert('删除')
+          },
+        },
+      ],
+      // table
       tableData: [
         {
           date: '2016-05-02',
@@ -215,8 +258,8 @@ export default {
       tableSelected: [],
       // 分页
       currentPage: 1,
-      // 弹窗新增修改
-      dialogVisible: true,
+      // 弹窗
+      dialogVisible: false,
       dialogTitle: '模型添加',
       modelForm: {
         name: '',
@@ -227,10 +270,8 @@ export default {
           { key: '职业', value: '' },
           { key: '收入', value: '' },
         ],
-        custom: [
-          [{ key: '', value: '', option: '' }],
-        ],
-        dataUrl: '',
+        custom: [],
+        apiUrl: '',
       },
       // 上传exl数据
       fileList: [
@@ -245,12 +286,33 @@ export default {
             'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
         },
       ],
-      // 测试的数据
-      a: '',
+      // step
+      activeStep: 1,
+      dialogBtnTxt: '取消',
     }
+  },
+  watch: {
+    activeStep (val) {
+      this.dialogBtnTxt = val === 1 ? '取消' : '上一步'
+    },
+    dialogVisible (val) {
+      if (!val) {
+        this.$refs.modelForm.resetFields()
+        this.activeStep = 1
+        this.modelForm.custom = []
+      }
+    },
   },
   methods: {
     // 表格
+    tableAdd () {
+      this.dialogTitle = '模型添加'
+      this.dialogVisible = true
+    },
+    tableModify () {
+      this.dialogTitle = '模型修改'
+      this.dialogVisible = true
+    },
     tableCurrentRow (val) {
       this.currentRow = val
     },
@@ -289,6 +351,42 @@ export default {
     customDelete (i) {
       this.modelForm.custom.splice(i, 1)
     },
+    customItemAdd (i) {
+      const customObj = { key: '', value: '', option: '' }
+      this.modelForm.custom[i].push(customObj)
+    },
+    customItemDelete (i, j) {
+      console.log(this.modelForm.custom[i][j])
+      this.modelForm.custom[i].splice(j, 1)
+
+      if (!this.modelForm.custom[i].length) {
+        this.modelForm.custom.splice(i, 1)
+      }
+    },
+    // 表单提交
+    dialogSubmit () {
+      this.$refs.modelForm.validate(valid => {
+        if (valid) {
+          if (this.activeStep === 2) {
+            console.log('提交代码')
+            return false
+          }
+          this.activeStep += 1
+        } else {
+          return false
+        }
+      })
+    },
+    dialogStep () {
+      switch (this.activeStep) {
+        case 1:
+          this.dialogVisible = false
+          break
+        case 2:
+          this.activeStep = 1
+          break
+      }
+    },
   },
 }
 </script>
@@ -306,27 +404,34 @@ export default {
   color: #303133;
 }
 .dialog-step {
-  margin: 0 auto 20px auto;
-  width: 700px;
+  margin: 0 auto 40px auto;
+  width: 500px;
 }
-.custom{
-  .custom-add{
-  margin-bottom: 15px;
+.must{
+  .must-warp{min-height: 90px;}
+  .must-excel{ padding-left: 20px;}
 }
-.custom-list{
-  margin-bottom: 15px;
-  border: 1px solid $line-color;
-        button{
-    .iconfont{padding-right: 0;}
+.custom {
+  .custom-add {
+    margin-bottom: 15px;
   }
-}
+  .custom-list {
+    padding: 15px 0;
+    border-top: 1px dashed $line-color;
 
-.custom-list-add{
-  margin-bottom: 15px;
-  padding:10px 0;
-  padding-left: 35px;
-  background-color: #eee;
-}
+    button {
+      .iconfont {
+        padding-right: 0;
+      }
+    }
+  }
+  .custom-list-add {
+    margin-bottom: 15px;
+    // padding: 5px 0;
+    padding-left: 35px;
+    // background-color: #eee;
+  }
+
 }
 
 </style>

@@ -54,7 +54,7 @@
   </div>
 </template>
 <script>
-import headTitle from '@/components/headTitle/headTitle'
+import headTitle from '@/components/headTitle'
 export default {
   components: {
     headTitle,

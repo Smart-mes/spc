@@ -10,9 +10,9 @@
         <!-- /tags -->
         <div class="container">
           <transition name="move" mode="out-in">
-            <keep-alive>
-              <router-view :key="$route.fullPath"/>
-            </keep-alive>
+            <!-- <keep-alive> -->
+            <router-view :key="$route.fullPath"/>
+            <!-- </keep-alive> -->
           </transition>
         </div>
         <!-- /右下 -->
@@ -37,9 +37,9 @@ export default {
       isCollapse: state => state.isCollapse,
     }),
   },
-  mounted () {
-    console.log('isCollapse', this.isCollapse)
-  },
+  // mounted () {
+  //   console.log('isCollapse', this.isCollapse)
+  // },
 }
 </script>
 <style lang="scss" scoped>

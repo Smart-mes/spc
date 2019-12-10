@@ -57,9 +57,6 @@ export default {
       return url
     },
   },
-  mounted () {
-    console.log('this.active', this.active)
-  },
   methods: {
     toPath (item) {
       const [path, params] = item.url.split('?')
