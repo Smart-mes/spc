@@ -34,7 +34,7 @@
         />
       </div>
       <!-- 添加修改弹窗 -->
-      <el-dialog :visible.sync="dialogVisible" width="860px">
+      <el-dialog :visible.sync="dialogVisible" width="900px">
         <div slot="title" class="dialog-header">{{ dialogTitle }}</div>
         <div class="dialog-step">
           <el-steps :active="activeStep" finish-status="success">
@@ -121,7 +121,7 @@
                 </el-upload>
               </div>
               <div v-else class="pl-20">请选择入参类型</div>
-            <!-- /上传exl -->
+              <!-- /上传exl -->
             </div>
           </div>
           <!-- /必填内容 -->
@@ -146,9 +146,9 @@
               <div v-for="(item,j) in custom" :key="j" class="custom-item">
                 <el-form-item
                   label="名称"
-                  :prop="'custom.' +i+ '.'+j + '.value'"
+                  :prop="'custom.' +i+'.'+j+'.key'"
                   :rules="{
-                    required: true, message: '不能超过4个字符', trigger: 'blur'
+                    validator: rule_customName,trigger: 'blur'
                   }"
                 >
                   <el-input v-model="item.key" size="mini"/>
@@ -304,6 +304,14 @@ export default {
     },
   },
   methods: {
+    // 年龄校验方法
+    rule_customName (rule, value, callback) {
+      if (value.length > 4) {
+        return callback(new Error('长度不能大于四个字符'))
+      }
+
+      callback()
+    },
     // 表格
     tableAdd () {
       this.dialogTitle = '模型添加'
@@ -407,9 +415,13 @@ export default {
   margin: 0 auto 40px auto;
   width: 500px;
 }
-.must{
-  .must-warp{min-height: 90px;}
-  .must-excel{ padding-left: 20px;}
+.must {
+  .must-warp {
+    min-height: 90px;
+  }
+  .must-excel {
+    padding-left: 20px;
+  }
 }
 .custom {
   .custom-add {
@@ -431,7 +443,5 @@ export default {
     padding-left: 35px;
     // background-color: #eee;
   }
-
 }
-
 </style>
