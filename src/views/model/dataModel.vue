@@ -146,9 +146,9 @@
               <div v-for="(item,j) in custom" :key="j" class="custom-item">
                 <el-form-item
                   label="名称"
-                  :prop="'custom.' + j + '.value'"
+                  :prop="'custom.' +i+ '.'+j + '.value'"
                   :rules="{
-                    required: true, message: '不能为空', trigger: 'blur'
+                    required: true, message: '不能超过4个字符', trigger: 'blur'
                   }"
                 >
                   <el-input v-model="item.key" size="mini"/>
