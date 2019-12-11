@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="model">
     <head-title/>
     <div class="wrap">
       <div class="btn-tool">
@@ -12,7 +12,6 @@
         border
         stripe
         style="width: 100%"
-        height="660"
         @current-change="tableCurrentRow"
         @selection-change="tableSelection"
       >
@@ -34,7 +33,7 @@
         />
       </div>
       <!-- 添加修改弹窗 -->
-      <el-dialog :visible.sync="dialogVisible" width="900px">
+      <el-dialog :visible.sync="dialogVisible" width="850px">
         <div slot="title" class="dialog-header">{{ dialogTitle }}</div>
         <div class="dialog-step">
           <el-steps :active="activeStep" finish-status="success">
@@ -54,18 +53,14 @@
             <el-form-item
               label="模型名称"
               prop="name"
-              :rules="{
-                required: true, message: '不能为空', trigger: 'blur'
-              }"
+              :rules="rule.must"
             >
               <el-input v-model="modelForm.name" size="mini"/>
             </el-form-item>
             <el-form-item
               label="入参类型"
               prop="entryType"
-              :rules="{
-                required: true, message: '不能为空', trigger: 'change'
-              }"
+              :rules="rule.mustSelect"
             >
               <el-select v-model="modelForm.entryType" size="mini">
                 <el-option label="数据库" value="dataDase"/>
@@ -84,9 +79,7 @@
                   :key="i"
                   :label="item.key"
                   :prop="'dataDase.' + i + '.value'"
-                  :rules="{
-                    required: true, message: '不能为空', trigger: 'blur'
-                  }"
+                  :rules="rule.must"
                 >
                   <el-input v-model="item.value" size="mini"/>
                 </el-form-item>
@@ -96,9 +89,7 @@
                 <el-form-item
                   label="数据url"
                   prop="apiUrl"
-                  :rules="{
-                    required: true, message: '不能为空', trigger: 'blur'
-                  }"
+                  :rules="rule.must"
                 >
                   <el-input v-model="modelForm.apiUrl" size="mini"/>
                 </el-form-item>
@@ -146,17 +137,22 @@
               <div v-for="(item,j) in custom" :key="j" class="custom-item">
                 <el-form-item
                   label="名称"
+                  label-width="60px"
                   :prop="'custom.' +i+'.'+j+'.key'"
-                  :rules="{
-                    validator: rule_customName,trigger: 'blur'
-                  }"
+                  :rules="rule.customName"
                 >
                   <el-input v-model="item.key" size="mini"/>
                 </el-form-item>
-                <el-form-item label="值">
+                <el-form-item
+                  label="值"
+                  label-width="60px"
+                >
                   <el-input v-model="item.value" size="mini"/>
                 </el-form-item>
-                <el-form-item label="字符">
+                <el-form-item
+                  label="字符"
+                  label-width="60px"
+                >
                   <el-input v-model="item.option" size="mini"/>
                 </el-form-item>
                 <el-form-item>
@@ -191,6 +187,22 @@ export default {
   },
   data () {
     return {
+      rule: {
+        must: {
+          required: true, message: '不能为空', trigger: 'blur',
+        },
+        mustSelect: {
+          required: true, message: '不能为空', trigger: 'change',
+        },
+        customName: {
+          validator: (rule, value, callback) => {
+            if (value.length > 4) {
+              return callback(new Error('长度不能大于四个字符'))
+            }
+            callback()
+          }, trigger: 'blur',
+        },
+      },
       // tool
       btnList: [
         {
@@ -303,6 +315,12 @@ export default {
       }
     },
   },
+  mounted () {
+    this.$nextTick(() => {
+      // var dom = document.querySelector('.model')
+      // console.log('dom', dom)
+    })
+  },
   methods: {
     // 表格
     tableAdd () {
@@ -362,14 +380,6 @@ export default {
       if (!this.modelForm.custom[i].length) {
         this.modelForm.custom.splice(i, 1)
       }
-    },
-    // 自定义表单验证
-    rule_customName (rule, value, callback) {
-      if (value.length > 4) {
-        return callback(new Error('长度不能大于四个字符'))
-      }
-
-      callback()
     },
     // 表单提交
     dialogSubmit () {
@@ -440,8 +450,15 @@ export default {
   .custom-list-add {
     margin-bottom: 15px;
     // padding: 5px 0;
-    padding-left: 35px;
+    padding-left: 20px;
     // background-color: #eee;
   }
 }
+.wrap{
+  /deep/.el-table__body-wrapper{
+      height: calc(100vh - 300px);
+    overflow-y:auto;
+  }
+}
+
 </style>
