@@ -87,16 +87,23 @@ $line-color:#ddd;
 // 公共
   .wrap{padding:0 20px 20px 20px;}
   .mt-0{margin-top: 0;}
-  .pl-20{padding-left: 20px;}
+  .pl-10{padding-left: 10px;}
   button{
     .iconfont{font-size: 12px;padding-right: 5px;}
   }
 
-  .el-button--primary {
+  /deep/.el-button--primary {
     color: #FFF;
     background-color: $blue-color;
     border-color: $blue-color;
 }
+/deep/.el-button--primary.is-disabled{
+    background-color: #a0cfff;
+    border-color:#a0cfff;;
+}
+.btn-tool {
+    padding: 0 0 10px 0;
+  }
 // 标题
 .largeTitle{
     overflow: hidden;

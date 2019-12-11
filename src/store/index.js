@@ -62,38 +62,47 @@ const actions = {
       .get('http://rap2api.taobao.org/app/mock/238393/meauList')
       .then(({ list }) => {
         // 提交
-        const data = [{
-          'id': '1',
-          'path': '/dataModel',
-          'url': '/dataModel',
-          'componentPath': '/model/dataModel',
-          'title': '数据模型',
-          'icon': 'el-icon-tickets',
-        },
-        {
-          'id': ' 2',
-          'path': '',
-          'url': '',
-          'title': '我的分析',
-          'icon': 'el-icon-tickets',
-          'children': [{
-            'id': '21',
-            'path': '/analyse/myAnalyse',
-            'url': '/analyse/myAnalyse?id=21',
-            'componentPath': '/analyse/analyse',
-            'title': '我自定义',
+        const data = [
+          {
+            'id': '1',
+            'path': '/dataModel',
+            'url': '/dataModel',
+            'componentPath': '/model/dataModel',
+            'title': '数据模型',
             'icon': 'el-icon-tickets',
           },
           {
-            'id': '22',
-            'path': '/analyse/demo',
-            'url': '/analyse/demo?id=22',
-            'componentPath': '/analyse/demo',
-            'title': '我自定义',
+            'id': '2',
+            'path': '/template',
+            'url': '/template',
+            'componentPath': '/template/template',
+            'title': '分析模板',
             'icon': 'el-icon-tickets',
           },
-          ],
-        },
+          {
+            'id': ' 3',
+            'path': '',
+            'url': '',
+            'title': '我的分析',
+            'icon': 'el-icon-tickets',
+            'children': [{
+              'id': '31',
+              'path': '/analyse/myAnalyse',
+              'url': '/analyse/myAnalyse?id=21',
+              'componentPath': '/analyse/analyse',
+              'title': '我自定义',
+              'icon': 'el-icon-tickets',
+            },
+            {
+              'id': '32',
+              'path': '/analyse/demo',
+              'url': '/analyse/demo?id=22',
+              'componentPath': '/analyse/demo',
+              'title': '我自定义',
+              'icon': 'el-icon-tickets',
+            },
+            ],
+          },
         ]
         commit('set_state', {
           menus: data,

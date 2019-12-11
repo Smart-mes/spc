@@ -16,10 +16,10 @@
         @selection-change="tableSelection"
       >
         <el-table-column type="selection" width="55"/>
-        <el-table-column prop="date" label="日期" width="180"/>
-        <el-table-column prop="name" label="姓名" width="180"/>
-        <el-table-column prop="address" label="地址"/>
-        <el-table-column prop="address2" label="地址"/>
+        <el-table-column prop="date" label="ID" width="180"/>
+        <el-table-column prop="name" label="名称" width="180"/>
+        <el-table-column prop="address" label="入参类型"/>
+        <el-table-column prop="address2" label="时间"/>
       </el-table>
       <div class="page">
         <el-pagination
@@ -95,7 +95,7 @@
                 </el-form-item>
               </div>
               <!-- /数据url -->
-              <div v-else-if="modelForm.entryType==='excel'" class="pl-20">
+              <div v-else-if="modelForm.entryType==='excel'" class="pl-10">
                 <el-upload
                   class="upload-demo"
                   action="https://jsonplaceholder.typicode.com/posts/"
@@ -111,7 +111,7 @@
                   <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
                 </el-upload>
               </div>
-              <div v-else class="pl-20">请选择入参类型</div>
+              <div v-else class="pl-10">请选择入参类型</div>
               <!-- /上传exl -->
             </div>
           </div>
@@ -164,7 +164,7 @@
                 </el-form-item>
               </div>
             </div>
-            <div v-if="!modelForm.custom.length" class="pl-20">还没有添加自定义参数</div>
+            <div v-if="!modelForm.custom.length" class="pl-10">还没有添加自定义参数</div>
           </div>
           <!-- /自定义 -->
         </el-form>
@@ -409,9 +409,6 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.btn-tool {
-  padding: 0 0 10px 0;
-}
 .page {
   margin-top: 10px;
 }

@@ -16,7 +16,7 @@ export default {
 </script>
 <style lang="scss" scoped>
  .headTitle{
-    padding:20px;
+    padding:15px;
     font-size: 18px;
     color: $blue-color;
     // border-bottom: 1px solid $line-color;
