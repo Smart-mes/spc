@@ -6,7 +6,7 @@
         <btn-tool :buttons="btnList"/>
       </div>
       <!-- /btnTool -->
-      <choiceLayout/>
+      <choiceLayout box-num="1"/>
     </div>
   </div>
 </template>

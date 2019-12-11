@@ -1,5 +1,5 @@
 <template>
-  <ul class="box box1">
+  <ul :class="['box', getClass(boxNum)]">
     <li>
       <div class="box-item">a</div>
     </li>
@@ -17,8 +17,8 @@ export default {
   data () {
     return {}
   },
-  methods: {
-    getClass () {
+  computed: {
+    className () {
       switch (this.boxNum) {
         case 1:
           return 'box1'
