@@ -17,20 +17,20 @@ export default {
   data () {
     return {}
   },
-  computed: {
-    className () {
-      switch (this.boxNum) {
-        case 1:
-          return 'box1'
-        case 2:
-          return 'box2'
-        case 3:
-          return 'box3'
-        case 4:
-          return 'box4'
-      }
-    },
-  },
+//   computed: {
+//     className () {
+//       switch (this.boxNum) {
+//         case 1:
+//           return 'box1'
+//         case 2:
+//           return 'box2'
+//         case 3:
+//           return 'box3'
+//         case 4:
+//           return 'box4'
+//       }
+//     },
+//   },
 }
 </script>
 <style lang="scss" scoped>
