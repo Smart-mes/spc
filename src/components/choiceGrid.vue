@@ -1,7 +1,7 @@
 <template>
-  <ul :class="['box', getClass(boxNum)]">
-    <li>
-      <div class="box-item">a</div>
+  <ul :class="['box',getClass()]">
+    <li v-for="(item) in gridNum" :key="item">
+      <div class="box-item"/>
     </li>
   </ul>
 </template>
@@ -9,7 +9,7 @@
 export default {
   name: 'ChoiceLayout',
   props: {
-    boxNum: {
+    gridNum: {
       type: Number,
       default: 1,
     },
@@ -17,20 +17,20 @@ export default {
   data () {
     return {}
   },
-//   computed: {
-//     className () {
-//       switch (this.boxNum) {
-//         case 1:
-//           return 'box1'
-//         case 2:
-//           return 'box2'
-//         case 3:
-//           return 'box3'
-//         case 4:
-//           return 'box4'
-//       }
-//     },
-//   },
+  methods: {
+    getClass () {
+      switch (this.gridNum) {
+        case 1:
+          return 'box1'
+        case 2:
+          return 'box2'
+        case 3:
+          return 'box3'
+        case 4:
+          return 'box4'
+      }
+    },
+  },
 }
 </script>
 <style lang="scss" scoped>

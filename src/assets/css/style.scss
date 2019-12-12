@@ -82,7 +82,9 @@ $title-color:#333;
 $font-gray:#666;
 $font-light-gray:#999;
 $font-blue:#2274be;
-$line-color:#ddd;
+// 其他
+$line-color:#ededed;
+$grid-line-color:#bbb;
 
 // 公共
   .wrap{padding:0 20px 20px 20px;}
@@ -101,6 +103,12 @@ $line-color:#ddd;
     background-color: #a0cfff;
     border-color:#a0cfff;;
 }
+// 弹窗修改
+.dialog-header {
+    line-height: 24px;
+    font-size: 18px;
+    color: #303133;
+  }
 .btn-tool {
     padding: 0 0 10px 0;
   }

@@ -272,7 +272,7 @@ export default {
       currentPage: 1,
       // 弹窗
       dialogVisible: false,
-      dialogTitle: '模型添加',
+      dialogTitle: '添加模型',
       modelForm: {
         name: '',
         entryType: '',
@@ -317,18 +317,16 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
-      // var dom = document.querySelector('.model')
-      // console.log('dom', dom)
     })
   },
   methods: {
     // 表格
     tableAdd () {
-      this.dialogTitle = '模型添加'
+      this.dialogTitle = '添加模型'
       this.dialogVisible = true
     },
     tableModify () {
-      this.dialogTitle = '模型修改'
+      this.dialogTitle = '修改模型'
       this.dialogVisible = true
     },
     tableCurrentRow (val) {
@@ -412,12 +410,7 @@ export default {
 .page {
   margin-top: 10px;
 }
-// 弹窗修改
-.dialog-header {
-  line-height: 24px;
-  font-size: 18px;
-  color: #303133;
-}
+
 .dialog-step {
   margin: 0 auto 40px auto;
   width: 500px;
@@ -446,7 +439,6 @@ export default {
   }
   .custom-list-add {
     margin-bottom: 15px;
-    // padding: 5px 0;
     padding-left: 20px;
     // background-color: #eee;
   }
