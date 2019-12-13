@@ -1,18 +1,92 @@
 <template>
-  <ul :class="['box',getClass()]">
-    <li v-for="(item,i) in OptionList" :key="i">
-      <div class="box-item">
-        <div class="operate">
-          <el-button type="primary">
-            <i class="iconfont icontianjia"/>添加配置
-          </el-button>
-          <el-button type="primary">
-            <i class="iconfont iconxiugai"/>修改配置
-          </el-button>
+  <div class="option-wrap">
+    <ul :class="['box',getClass()]">
+      <li v-for="(item,i) in boxNum" :key="i">
+        <div class="box-item">
+          <div class="operate">
+            <el-button type="primary" :disabled="optionList[i]? true:false" @click="add(i)">
+              <i class="iconfont icontianjia"/>添加配置
+            </el-button>
+            <el-button type="primary" :disabled="!optionList[i]?true:false" @click="modify(i)">
+              <i class="iconfont iconxiugai"/>修改配置
+            </el-button>
+          </div>
         </div>
-      </div>
-    </li>
-  </ul>
+      </li>
+    </ul>
+    <!-- /列表 -->
+    <el-dialog
+      :title="dialogTitle"
+      :visible.sync="dialogVisible"
+      label-width="90px"
+      width="700px"
+      class="demo-form-inline"
+    >
+      <el-form
+        ref="formOption"
+        :inline="true"
+        :model="formOption"
+        label-width="90px"
+        class="formInline"
+      >
+        <el-form-item
+          label="数据源"
+          prop="dataSource"
+          :rules="rule.mustSelect"
+        >
+          <el-select v-model="formOption.dataSource">
+            <el-option label="区域一" value="shanghai"/>
+            <el-option label="区域二" value="beijing"/>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="分析模型"
+          prop="model"
+          :rules="rule.mustSelect"
+        >
+          <el-select v-model="formOption.model">
+            <el-option label="区域一" value="shanghai"/>
+            <el-option label="区域二" value="beijing"/>
+          </el-select>
+        </el-form-item>
+        <div class="must">
+          <h4 class="subtitle">
+            <span class="icon-circle">●</span>必选的内容
+          </h4>
+          <el-form-item
+            v-for="(option,i) in formOption.mustList"
+            :key="option.key"
+            :label="option.label"
+            :prop="'mustList.' + i + '.value'"
+            :rules="rule.must"
+          >
+            <el-input v-model="option.value"/>
+          </el-form-item>
+          <div v-if="!formOption.mustList.length" class="pl-20">请选择分析模型类型</div>
+        </div>
+        <el-form-item label="清洗条件" prop="wash">
+          <el-input v-model="formOption.wash"/>
+        </el-form-item>
+        <el-form-item label="自定义" prop="custom">
+          <el-input v-model="formOption.custom"/>
+        </el-form-item>
+        <el-form-item
+          label="图表配置"
+          prop="echartOption"
+          :rules="rule.must"
+          class="textarea"
+        >
+          <el-input v-model="formOption.echartOption" type="textarea" rows="5"/>
+        </el-form-item>
+        <!-- 第一步 -->
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogSubmit">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- /弹窗 -->
+  </div>
 </template>
 <script>
 export default {
@@ -24,40 +98,55 @@ export default {
     },
   },
   data () {
-    return {}
+    return {
+      currentIndex: '',
+      dialogTitle: '添加配置',
+      dialogVisible: false,
+      // form
+      rule: {
+        must: {
+          required: true, message: '不能为空', trigger: 'blur',
+        },
+        mustSelect: {
+          required: true, message: '不能为空', trigger: 'change',
+        },
+      },
+      formOption: {
+        dataSource: '',
+        model: '',
+        mustList: [
+          { label: '姓名', value: '' },
+          { label: '性别', value: '' },
+          { label: '职业', value: '' },
+          { label: '收入', value: '' },
+        ],
+        wash: '',
+        custom: '',
+        echartOption: '',
+
+      },
+      optionList: [],
+    }
   },
   computed: {
     boxNum () {
-      console.log('this.gridNum', this.gridNum)
       if (!this.gridNum) {
         return 0
       }
       return Number(this.gridNum)
     },
-    // 处理获得数据
-    OptionList () {
-      const arrList = []
-      const optionObj = {
-        dataSource: '',
-        model: '',
-        must: [
-          { key: '姓名', value: '' },
-          { key: '性别', value: '' },
-          { key: '职业', value: '' },
-          { key: '收入', value: '' },
-        ],
-        wash: '',
-        echartOption: '',
-        custom: '',
+  },
+  watch: {
+    dialogVisible (val) {
+      if (!val) {
+        this.$refs.formOption.resetFields()
       }
-      for (let i = 0; i < this.boxNum; i++) {
-        arrList.push(optionObj)
-      }
-      return arrList
     },
   },
-  mounted () {},
+  mounted () {
+  },
   methods: {
+    // 获取不同的class
     getClass () {
       switch (this.boxNum) {
         case 1:
@@ -70,10 +159,39 @@ export default {
           return 'box4'
       }
     },
+    add (i) {
+      this.currentIndex = i
+      this.dialogTitle = `添加配置${i + 1}`
+      this.dialogVisible = true
+    },
+    modify (i) {
+      this.currentIndex = i
+      this.dialogTitle = `修改配置${i + 1}`
+
+      this.formOption = Object.assign({}, this.optionList[i])
+      this.dialogVisible = true
+    },
+    // 表单提交
+    dialogSubmit () {
+      console.log(this.formOption)
+      this.$refs.formOption.validate((valid) => {
+        if (valid) {
+          this.optionList[this.currentIndex] = JSON.parse(JSON.stringify(this.formOption))
+          this.dialogVisible = false
+        } else {
+          return false
+        }
+      })
+    },
   },
 }
+
+// 克隆对象
 </script>
 <style lang="scss" scoped>
+.option-wrap {
+  height: 100%;
+}
 .box {
   display: -webkit-flex;
   display: flex;
@@ -94,7 +212,7 @@ export default {
     display: flex;
     flex-direction: column;
     flex: auto;
-    align-items: center; /*由于flex-direction: column，因此align-items代表的是水平方向*/
+    align-items: center;
     justify-content: center;
     border: 1px solid $grid-line-color;
   }
@@ -132,5 +250,14 @@ export default {
     width: 50%;
     height: 50%;
   }
+}
+// step
+.dialog-step {
+  margin: 0 auto 40px auto;
+  width: 500px;
+}
+.must {
+  margin-bottom: 20px;
+  border-bottom: 1px dashed $line-color;
 }
 </style>

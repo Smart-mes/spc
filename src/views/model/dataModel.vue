@@ -33,8 +33,11 @@
         />
       </div>
       <!-- 添加修改弹窗 -->
-      <el-dialog :visible.sync="dialogVisible" width="850px">
-        <div slot="title" class="dialog-header">{{ dialogTitle }}</div>
+      <el-dialog
+        :title="dialogTitle"
+        :visible.sync="dialogVisible"
+        width="820px"
+      >
         <div class="dialog-step">
           <el-steps :active="activeStep" finish-status="success">
             <el-step title="模型参数"/>
@@ -44,10 +47,10 @@
         </div>
         <el-form
           ref="modelForm"
-          label-width="85px"
+          label-width="90px"
           :inline="true"
           :model="modelForm"
-          class="demo-form-inline"
+          class="formInline"
         >
           <div v-show="activeStep===1" class="must">
             <el-form-item
@@ -63,7 +66,7 @@
               :rules="rule.mustSelect"
             >
               <el-select v-model="modelForm.entryType" size="mini">
-                <el-option label="数据库" value="dataDase"/>
+                <el-option label="数据库" value="mustList"/>
                 <el-option label="api" value="api"/>
                 <el-option label="excel" value="excel"/>
               </el-select>
@@ -73,12 +76,12 @@
               <span class="icon-circle">●</span>必选的内容
             </h4>
             <div class="must-warp">
-              <div v-if="modelForm.entryType==='dataDase'">
+              <div v-if="modelForm.entryType==='mustList'">
                 <el-form-item
-                  v-for="(item, i) in modelForm.dataDase"
+                  v-for="(item, i) in modelForm.mustList"
                   :key="i"
                   :label="item.key"
-                  :prop="'dataDase.' + i + '.value'"
+                  :prop="'mustList.' + i + '.value'"
                   :rules="rule.must"
                 >
                   <el-input v-model="item.value" size="mini"/>
@@ -95,7 +98,7 @@
                 </el-form-item>
               </div>
               <!-- /数据url -->
-              <div v-else-if="modelForm.entryType==='excel'" class="pl-10">
+              <div v-else-if="modelForm.entryType==='excel'" class="pl-20">
                 <el-upload
                   class="upload-demo"
                   action="https://jsonplaceholder.typicode.com/posts/"
@@ -111,7 +114,7 @@
                   <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
                 </el-upload>
               </div>
-              <div v-else class="pl-10">请选择入参类型</div>
+              <div v-else class="pl-20">请选择入参类型</div>
               <!-- /上传exl -->
             </div>
           </div>
@@ -164,7 +167,7 @@
                 </el-form-item>
               </div>
             </div>
-            <div v-if="!modelForm.custom.length" class="pl-10">还没有添加自定义参数</div>
+            <div v-if="!modelForm.custom.length" class="pl-20">还没有添加自定义参数</div>
           </div>
           <!-- /自定义 -->
         </el-form>
@@ -276,7 +279,7 @@ export default {
       modelForm: {
         name: '',
         entryType: '',
-        dataDase: [
+        mustList: [
           { key: '姓名', value: '' },
           { key: '性别', value: '' },
           { key: '职业', value: '' },
@@ -413,7 +416,7 @@ export default {
 
 .dialog-step {
   margin: 0 auto 40px auto;
-  width: 500px;
+  width: 600px;
 }
 .must {
   .must-warp {
@@ -449,5 +452,9 @@ export default {
     overflow-y:auto;
   }
 }
-
+.formInline{
+    /deep/.el-input__inner{
+        width: 160px;
+    }
+}
 </style>

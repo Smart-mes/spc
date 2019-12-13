@@ -12,8 +12,12 @@
       <!-- /btnTool -->
     </div>
     <!-- 弹窗 -->
-    <el-dialog :visible.sync="dialogGridVisible" width="710px">
-      <div slot="title" class="dialog-header">{{ dialogGridTitle }}</div>
+    <el-dialog
+      :title="dialogGridTitle"
+      :visible.sync="dialogGridVisible"
+      label-width="90px"
+      width="710px"
+    >
       <el-form ref="gridForm" :model="gridForm" :rules="gridRules" class="gridFrom">
         <el-form-item label="布局类型" prop="type">
           <el-radio-group v-model="gridForm.type">
@@ -112,7 +116,7 @@ export default {
   watch: {
     dialogGridVisible (val) {
       if (!val) {
-        this.resetForm('gridForm')
+        this.$refs.gridForm.resetFields()
       }
     },
   },
@@ -137,15 +141,12 @@ export default {
         }
       })
     },
-    // 重置表单
-    resetForm (formName) {
-      this.$refs[formName].resetFields()
-    },
   },
 }
 </script>
 <style lang="scss" scoped>
 .gridFrom {
+  margin: 30px 0;
   /deep/.el-form-item__label {
     line-height: 90px;
   }
