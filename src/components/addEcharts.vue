@@ -130,10 +130,7 @@ export default {
   },
   computed: {
     boxNum () {
-      if (!this.gridNum) {
-        return 0
-      }
-      return Number(this.gridNum)
+      return !this.gridNum ? 0 : Number(this.gridNum)
     },
   },
   watch: {
@@ -141,6 +138,9 @@ export default {
       if (!val) {
         this.$refs.formOption.resetFields()
       }
+    },
+    boxNum () {
+      this.optionList = []
     },
   },
   mounted () {
@@ -177,6 +177,7 @@ export default {
       this.$refs.formOption.validate((valid) => {
         if (valid) {
           this.optionList[this.currentIndex] = JSON.parse(JSON.stringify(this.formOption))
+          this.$emit('optionData', this.optionList)
           this.dialogVisible = false
         } else {
           return false

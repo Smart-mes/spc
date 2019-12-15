@@ -1,6 +1,6 @@
 <template>
   <ul :class="['box',getClass()]">
-    <li v-for="(item) in gridNum" :key="item">
+    <li v-for="(item) in boxNum" :key="item">
       <div class="box-item"/>
     </li>
   </ul>
@@ -10,16 +10,21 @@ export default {
   name: 'ChoiceLayout',
   props: {
     gridNum: {
-      type: Number,
-      default: 1,
+      type: String,
+      default: '',
     },
   },
   data () {
     return {}
   },
+  computed: {
+    boxNum () {
+      return !this.gridNum ? 0 : Number(this.gridNum)
+    },
+  },
   methods: {
     getClass () {
-      switch (this.gridNum) {
+      switch (this.boxNum) {
         case 1:
           return 'box1'
         case 2:

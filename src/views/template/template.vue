@@ -6,7 +6,10 @@
         <btn-tool :buttons="btnList"/>
       </div>
       <div class="tempLayout">
-        <add-echarts :grid-num="layoutType"/>
+        <add-echarts
+          :grid-num="layoutType"
+          @optionData="getChart"
+        />
         <!-- layoutType -->
       </div>
       <!-- /btnTool -->
@@ -22,16 +25,16 @@
         <el-form-item label="布局类型" prop="type">
           <el-radio-group v-model="gridForm.type">
             <el-radio label="1">
-              <choice-grid :grid-num="1"/>
+              <choice-grid grid-num="1"/>
             </el-radio>
             <el-radio label="2">
-              <choice-grid :grid-num="2"/>
+              <choice-grid grid-num="2"/>
             </el-radio>
             <el-radio label="3">
-              <choice-grid :grid-num="3"/>
+              <choice-grid grid-num="3"/>
             </el-radio>
             <el-radio label="4">
-              <choice-grid :grid-num="4"/>
+              <choice-grid grid-num="4"/>
             </el-radio>
           </el-radio-group>
         </el-form-item>
@@ -76,7 +79,7 @@ export default {
           icon: 'iconxiugai',
           text: '修改布局',
           disabled: () => {
-            return true
+            return !this.layoutType
           },
           click: () => {
             this.gridmodify()
@@ -86,9 +89,21 @@ export default {
           type: 'success',
           icon: 'iconbaocun',
           text: '保存模板',
-          disabled: false,
+          disabled: () => {
+            const layoutLen = !this.layoutType ? 0 : Number(this.layoutType)
+            const chartArr = this.chartList.filter(v => {
+              if (v) {
+                return v
+              }
+            })
+            if (!layoutLen && !chartArr.length) {
+              return true
+            } else {
+              return layoutLen !== chartArr.length
+            }
+          },
           click: () => {
-            console.log('打印模板')
+            console.log('点击保持模版！')
           },
         },
       ],
@@ -105,14 +120,13 @@ export default {
           },
         ],
       },
-      layoutType: '3',
+      layoutType: '',
       dialogGridVisible: false,
       dialogGridTitle: '添加布局',
+      chartList: [],
     }
   },
-  computed: {
-
-  },
+  computed: {},
   watch: {
     dialogGridVisible (val) {
       if (!val) {
@@ -129,6 +143,7 @@ export default {
     gridmodify () {
       this.dialogGridVisible = true
       this.dialogGridTitle = '修改布局'
+      this.gridForm.type = this.layoutType
     },
     dialogGridSubmit () {
       this.$refs.gridForm.validate(valid => {
@@ -140,6 +155,10 @@ export default {
           return false
         }
       })
+    },
+    getChart (val) {
+      console.log('val', val)
+      this.chartList = val
     },
   },
 }
