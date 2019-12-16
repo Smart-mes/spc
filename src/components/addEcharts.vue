@@ -14,6 +14,7 @@
         </div>
       </li>
     </ul>
+    <div v-if="!boxNum">还没有添加布局</div>
     <!-- /列表 -->
     <el-dialog
       :title="dialogTitle"
@@ -149,6 +150,8 @@ export default {
     // 获取不同的class
     getClass () {
       switch (this.boxNum) {
+        case 0:
+          return 'box-none'
         case 1:
           return 'box1'
         case 2:
@@ -168,7 +171,7 @@ export default {
       this.currentIndex = i
       this.dialogTitle = `修改配置${i + 1}`
 
-      this.formOption = Object.assign({}, this.optionList[i])
+      this.formOption = { ...this.optionList[i] }
       this.dialogVisible = true
     },
     // 表单提交
@@ -177,7 +180,10 @@ export default {
       this.$refs.formOption.validate((valid) => {
         if (valid) {
           this.optionList[this.currentIndex] = JSON.parse(JSON.stringify(this.formOption))
-          this.$emit('optionData', this.optionList)
+          const filterList = this.optionList.filter(option => {
+            return option
+          })
+          this.$emit('optionData', filterList)
           this.dialogVisible = false
         } else {
           return false
@@ -218,7 +224,7 @@ export default {
     border: 1px solid $grid-line-color;
   }
 }
-
+.box-none{display: none}
 /* 不同的列表*/
 .box1 {
   > li {

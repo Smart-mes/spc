@@ -79,7 +79,7 @@ export default {
             .then(res => {
               this.btnLoading = false
               // this.set_user(res)
-              this.$router.push({ path: '/custom' })
+              this.$router.push({ path: '/dataModel' })
             })
             .catch(error => {
               this.btnLoading = false

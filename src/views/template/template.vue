@@ -7,10 +7,10 @@
       </div>
       <div class="tempLayout">
         <add-echarts
-          :grid-num="layoutType"
+          :grid-num="tempType"
           @optionData="getChart"
         />
-        <!-- layoutType -->
+        <!-- tempType -->
       </div>
       <!-- /btnTool -->
     </div>
@@ -19,25 +19,30 @@
       :title="dialogGridTitle"
       :visible.sync="dialogGridVisible"
       label-width="90px"
-      width="710px"
+      width="650px"
     >
-      <el-form ref="gridForm" :model="gridForm" :rules="gridRules" class="gridFrom">
-        <el-form-item label="布局类型" prop="type">
-          <el-radio-group v-model="gridForm.type">
-            <el-radio label="1">
-              <choice-grid grid-num="1"/>
-            </el-radio>
-            <el-radio label="2">
-              <choice-grid grid-num="2"/>
-            </el-radio>
-            <el-radio label="3">
-              <choice-grid grid-num="3"/>
-            </el-radio>
-            <el-radio label="4">
-              <choice-grid grid-num="4"/>
-            </el-radio>
-          </el-radio-group>
+      <el-form ref="gridForm" :model="gridForm" :rules="gridRules" label-width="90px" class="gridFrom">
+        <el-form-item label="模板名称" prop="name">
+          <el-input v-model="gridForm.name"/>
         </el-form-item>
+        <div class="grid">
+          <el-form-item label="布局类型" prop="type">
+            <el-radio-group v-model="gridForm.type">
+              <el-radio label="1">
+                <choice-grid grid-num="1"/>
+              </el-radio>
+              <el-radio label="2">
+                <choice-grid grid-num="2"/>
+              </el-radio>
+              <el-radio label="3">
+                <choice-grid grid-num="3"/>
+              </el-radio>
+              <el-radio label="4">
+                <choice-grid grid-num="4"/>
+              </el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </div>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogGridVisible = false">取 消</el-button>
@@ -79,7 +84,7 @@ export default {
           icon: 'iconxiugai',
           text: '修改布局',
           disabled: () => {
-            return !this.layoutType
+            return !this.tempType
           },
           click: () => {
             this.gridmodify()
@@ -90,17 +95,12 @@ export default {
           icon: 'iconbaocun',
           text: '保存模板',
           disabled: () => {
-            const layoutLen = !this.layoutType ? 0 : Number(this.layoutType)
-            const chartArr = this.chartList.filter(v => {
-              if (v) {
-                return v
-              }
-            })
-            if (!layoutLen && !chartArr.length) {
+            const layoutLen = !this.tempType ? 0 : Number(this.tempType)
+            const chartLen = this.chartList.length
+            if (!layoutLen && !chartLen) {
               return true
-            } else {
-              return layoutLen !== chartArr.length
             }
+            return layoutLen !== chartLen
           },
           click: () => {
             console.log('点击保持模版！')
@@ -109,9 +109,17 @@ export default {
       ],
       // 选择布局
       gridForm: {
+        name: '',
         type: '',
       },
       gridRules: {
+        name: [
+          {
+            required: true,
+            message: '名称不能为空',
+            trigger: 'blur',
+          },
+        ],
         type: [
           {
             required: true,
@@ -120,7 +128,8 @@ export default {
           },
         ],
       },
-      layoutType: '',
+      tempName: '',
+      tempType: '',
       dialogGridVisible: false,
       dialogGridTitle: '添加布局',
       chartList: [],
@@ -143,13 +152,15 @@ export default {
     gridmodify () {
       this.dialogGridVisible = true
       this.dialogGridTitle = '修改布局'
-      this.gridForm.type = this.layoutType
+      this.gridForm.name = this.tempName
+      this.gridForm.type = this.tempType
     },
     dialogGridSubmit () {
       this.$refs.gridForm.validate(valid => {
         if (valid) {
           this.dialogGridVisible = false
-          this.layoutType = this.gridForm.type
+          this.tempType = this.gridForm.type
+          this.tempName = this.gridForm.name
         } else {
           console.log('error submit!!')
           return false
@@ -164,25 +175,27 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.gridFrom {
+.gridFrom{
+  /deep/.el-input__inner{
+    width: 465px;
+  }
+.grid {
   margin: 30px 0;
   /deep/.el-form-item__label {
-    line-height: 90px;
+    line-height: 60px;
   }
   /deep/.el-radio-group {
     display: flex;
     flex-direction: row;
     .el-radio {
-      margin-right: 40px;
+      margin-right: 30px;
       display: flex;
       flex-direction: row;
       align-items: center;
     }
   }
-  /deep/.el-form-item__error {
-    top: 105%;
-    left: 100px;
-  }
+
+}
 }
 .btn-tool {
   border-bottom: 1px solid $line-color;

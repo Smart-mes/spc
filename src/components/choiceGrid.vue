@@ -47,8 +47,8 @@ export default {
   margin: 0;
   padding: 5px;
   list-style: none;
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   background-color: #eee;
   > li {
     padding: 5px;

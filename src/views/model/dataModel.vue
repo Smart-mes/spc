@@ -28,8 +28,8 @@
           :page-size="100"
           layout="total, sizes, prev, pager, next, jumper"
           :total="400"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+          @size-change="pageSize"
+          @current-change="pageCurrent"
         />
       </div>
       <!-- 添加修改弹窗 -->
@@ -339,10 +339,10 @@ export default {
       this.tableSelected = val
     },
     // 分页
-    handleSizeChange (val) {
+    pageSize (val) {
       console.log(`每页 ${val} 条`)
     },
-    handleCurrentChange (val) {
+    pageCurrent (val) {
       console.log(`当前页: ${val}`)
     },
     // 上传exl
