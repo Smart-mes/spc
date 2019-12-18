@@ -1,8 +1,6 @@
 <template>
   <div>
-    <ul>
-      <li v-for="(v,i) in path" :key="i">{{ v.name }}</li>
-    </ul>
+    <tags/>
     <head-title/>
     <div class="wrap">
       <div class="customSearch">
@@ -41,12 +39,12 @@
 <script>
 import headTitle from '@/components/headTitle'
 import echartsView from '@/components/echartsView'
-// import tags from '@/components/tags'
+import tags from '@/components/tags'
 export default {
   components: {
     headTitle,
     echartsView,
-    // tags,
+    tags,
   },
   data () {
     return {

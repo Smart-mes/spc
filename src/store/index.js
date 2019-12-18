@@ -11,6 +11,7 @@ const state = {
   isCollapse: window.JSON.parse(window.localStorage.getItem('user-collapse')),
   isRouter: false,
   menus: [],
+  tags: [],
 }
 
 const mutations = {
@@ -35,6 +36,13 @@ const mutations = {
   set_collapse (state) {
     state.isCollapse = !state.isCollapse
     window.localStorage.setItem('user-collapse', window.JSON.stringify(state.isCollapse))
+  },
+  set_tags (state, payload) {
+    const arr = [...state.tags]
+    const isRepeat = arr.includes(payload)
+    console.log(isRepeat)
+    !isRepeat && arr.push(payload)
+    state.tags = arr
   },
   set_state (state, payload) {
     if (payload && typeof (payload) === 'object') {
@@ -62,49 +70,53 @@ const actions = {
       .get('http://rap2api.taobao.org/app/mock/238393/meauList')
       .then(({ list }) => {
         // 提交
-        const data = [
-          {
-            'id': '1',
-            'path': '/dataModel',
-            'componentPath': '/model/dataModel',
-            'title': '数据模型',
+        const data = [{
+          'id': '1',
+          'name': 'DataModel',
+          'path': '/dataModel',
+          'componentPath': '/model/dataModel',
+          'title': '数据模型',
+          'icon': 'el-icon-tickets',
+        },
+        {
+          'id': '2',
+          'name': 'Template',
+          'path': '/template',
+          'componentPath': '/template/template',
+          'title': '分析模板',
+          'icon': 'el-icon-tickets',
+        },
+        {
+          'id': '3',
+          'name': 'TemplateList',
+          'path': '/templateList',
+          'componentPath': '/template/templateList',
+          'title': '模板列表',
+          'icon': 'el-icon-tickets',
+        },
+        {
+          'id': ' 4',
+          'path': '',
+          'title': '我的分析',
+          'icon': 'el-icon-tickets',
+          'children': [{
+            'id': '41',
+            'name': 'MyAnalyse',
+            'path': '/analyse/myAnalyse?id=41',
+            'componentPath': '/analyse/myAnalyse',
+            'title': '我自定义1',
             'icon': 'el-icon-tickets',
           },
           {
-            'id': '2',
-            'path': '/template',
-            'componentPath': '/template/template',
-            'title': '分析模板',
+            'id': '42',
+            'name': 'MyAnalyse',
+            'path': '/analyse/myAnalyse?id=42',
+            'componentPath': '/analyse/myAnalyse',
+            'title': '我自定义2',
             'icon': 'el-icon-tickets',
           },
-          {
-            'id': '3',
-            'path': '/templateList',
-            'componentPath': '/template/templateList',
-            'title': '模板列表',
-            'icon': 'el-icon-tickets',
-          },
-          {
-            'id': ' 4',
-            'path': '',
-            'title': '我的分析',
-            'icon': 'el-icon-tickets',
-            'children': [{
-              'id': '41',
-              'path': '/analyse/myAnalyse?id=41',
-              'componentPath': '/analyse/myAnalyse',
-              'title': '我自定义1',
-              'icon': 'el-icon-tickets',
-            },
-            {
-              'id': '42',
-              'path': '/analyse/myAnalyse?id=42',
-              'componentPath': '/analyse/myAnalyse',
-              'title': '我自定义2',
-              'icon': 'el-icon-tickets',
-            },
-            ],
-          },
+          ],
+        },
         ]
         commit('set_state', {
           menus: data,

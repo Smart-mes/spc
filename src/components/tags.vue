@@ -6,19 +6,23 @@
   </div>
 </template>
 <script>
+import { mapState } from 'vuex'
 export default {
   data () {
-    return {}
+    return {
+      path: [],
+    }
   },
-  watch: {
-    $route (newValue) {
-      this.setTags(newValue)
-    },
+  computed: {
+    ...mapState({
+      tags: state => state.tags,
+    }),
+  },
+  activated () {
+    console.log('mapState', this.tags)
   },
   methods: {
-    setTags (newValue) {
-      console.log('newValue', newValue)
-    },
+
   },
 }
 </script>

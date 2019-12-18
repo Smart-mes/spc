@@ -39,13 +39,11 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 export default {
   name: 'Sidebar',
   data () {
-    return {
-
-    }
+    return {}
   },
   computed: {
     ...mapState({
@@ -53,7 +51,9 @@ export default {
       isCollapse: state => state.isCollapse,
     }),
     active () {
-      const url = !this.$route.query.id ? this.$route.path : `${this.$route.path}?id=${this.$route.query.id}`
+      const url = !this.$route.query.id
+        ? this.$route.path
+        : `${this.$route.path}?id=${this.$route.query.id}`
       return url
     },
   },
@@ -61,12 +61,14 @@ export default {
     this.routeTitle()
   },
   methods: {
+    ...mapMutations(['set_tags']),
     toPath (item) {
       const [path, params] = item.url.split('?')
       if (params) {
         const paramsId = Number(params.substring(3))
         this.$router.push({ path: path, query: { id: paramsId }})
         this.$route.meta.title = item.title
+        this.set_tags(item)
       } else {
         this.$router.push({ path: path })
       }
