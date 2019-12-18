@@ -139,7 +139,7 @@
               </div>
               <div v-for="(item,j) in custom" :key="j" class="custom-item">
                 <el-form-item
-                  label="名称"
+                  label="属性名"
                   label-width="60px"
                   :prop="'custom.' +i+'.'+j+'.key'"
                   :rules="rule.customName"
@@ -153,10 +153,18 @@
                   <el-input v-model="item.value" size="mini"/>
                 </el-form-item>
                 <el-form-item
-                  label="字符"
+                  label="运算符"
                   label-width="60px"
                 >
-                  <el-input v-model="item.option" size="mini"/>
+                  <!-- <el-input v-model="item.option" size="mini"/> -->
+                  <el-select v-model="item.option" size="mini">
+                    <el-option label="等于" value="="/>
+                    <el-option label="大于" value=">"/>
+                    <el-option label="小于" value="<"/>
+                    <el-option label="大等于" value=">="/>
+                    <el-option label="小等于" value="<="/>
+                    <el-option label="不等于" value="!="/>
+                  </el-select>
                 </el-form-item>
                 <el-form-item>
                   <a class="icon-delete">

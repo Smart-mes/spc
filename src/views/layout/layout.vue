@@ -6,13 +6,11 @@
         <sidebar/>
       </div>
       <div class="main" :style="{left:isCollapse?'65px':'200px'}">
-        <!-- <tags/> -->
-        <!-- /tags -->
         <div class="container">
           <transition name="move" mode="out-in">
-            <!-- <keep-alive> -->
-            <router-view :key="$route.fullPath"/>
-            <!-- </keep-alive> -->
+            <keep-alive>
+              <router-view :key="$route.fullPath"/>
+            </keep-alive>
           </transition>
         </div>
         <!-- /右下 -->
@@ -24,7 +22,7 @@
 import { mapState } from 'vuex'
 import headTop from '@/views/layout/head/head'
 import sidebar from '@/views/layout/side/sidebar'
-// import tags from '@/views/layout/tags/tags'
+
 export default {
   name: 'Layout',
   components: { headTop, sidebar },
@@ -37,9 +35,6 @@ export default {
       isCollapse: state => state.isCollapse,
     }),
   },
-  // mounted () {
-  //   console.log('isCollapse', this.isCollapse)
-  // },
 }
 </script>
 <style lang="scss" scoped>

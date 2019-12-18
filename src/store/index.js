@@ -66,7 +66,6 @@ const actions = {
           {
             'id': '1',
             'path': '/dataModel',
-            'url': '/dataModel',
             'componentPath': '/model/dataModel',
             'title': '数据模型',
             'icon': 'el-icon-tickets',
@@ -74,7 +73,6 @@ const actions = {
           {
             'id': '2',
             'path': '/template',
-            'url': '/template',
             'componentPath': '/template/template',
             'title': '分析模板',
             'icon': 'el-icon-tickets',
@@ -82,7 +80,6 @@ const actions = {
           {
             'id': '3',
             'path': '/templateList',
-            'url': '/templateList',
             'componentPath': '/template/templateList',
             'title': '模板列表',
             'icon': 'el-icon-tickets',
@@ -90,23 +87,20 @@ const actions = {
           {
             'id': ' 4',
             'path': '',
-            'url': '',
             'title': '我的分析',
             'icon': 'el-icon-tickets',
             'children': [{
               'id': '41',
-              'path': '/analyse/myAnalyse',
-              'url': '/analyse/myAnalyse?id=21',
+              'path': '/analyse/myAnalyse?id=41',
               'componentPath': '/analyse/myAnalyse',
-              'title': '我自定义',
+              'title': '我自定义1',
               'icon': 'el-icon-tickets',
             },
             {
               'id': '42',
-              'path': '/analyse/demo',
-              'url': '/analyse/demo?id=22',
-              'componentPath': '/analyse/demo',
-              'title': '我自定义',
+              'path': '/analyse/myAnalyse?id=42',
+              'componentPath': '/analyse/myAnalyse',
+              'title': '我自定义2',
               'icon': 'el-icon-tickets',
             },
             ],
@@ -139,8 +133,11 @@ const getters = {
     // router数据
     const formatRoutes = (arr) => {
       return arr.map(v => {
-        v.component = v.children && v.children.length ? 'layout' : ''
+        const num = v.path.indexOf('?')
         const compPath = v.component === 'layout' ? '/layout/layout' : v.componentPath
+        v.url = v.path
+        v.path = num === -1 ? v.path : v.path.substring(0, num)
+        v.component = v.children && v.children.length ? 'layout' : ''
         v.component = () =>
                     import(`@/views${compPath}.vue`)
         v.meta = { title: v.title }
@@ -148,7 +145,6 @@ const getters = {
         return v
       })
     }
-
     return formatRoutes(menusData)
   },
 }

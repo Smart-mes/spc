@@ -54,7 +54,7 @@ export default {
     return {
       btnLoading: false,
       ruleForm: {
-        username: 'admin',
+        username: 'AAdmin',
         password: '123456',
       },
       rules: {
@@ -77,6 +77,7 @@ export default {
             password: this.ruleForm.password,
           })
             .then(res => {
+              console.log('res', res)
               this.btnLoading = false
               // this.set_user(res)
               this.$router.push({ path: '/dataModel' })

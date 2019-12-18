@@ -36,7 +36,6 @@
 </template>
 
 <script>
-// import { mapState } from 'vuex'
 export default {
   data () {
     return {
@@ -48,15 +47,20 @@ export default {
   watch: {
     $route (newValue) {
       // 监听路由的变化获取最新的路由信息
+      console.log('newValue', newValue)
       this.setTags(newValue)
     },
   },
-  created () {
-    this.setTags(this.$route) // 获取页面的路由信息
+  // created () {
+  //   this.setTags(this.$route)
+  //   // console.log('route', this.$route)
+  //   // console.log('this.indexPath', this.indexPath)
+  // },
+  activated () {
+    console.log(this.$route.params.id)
   },
   methods: {
     setTags (route) {
-      // 判断刚刚点击的路由是否存在，如果不存在保存
       this.activeValue = route.meta.title
       const isExist = this.indexPath.some(item => {
         return item.path === route.path
@@ -67,7 +71,7 @@ export default {
           name: route.meta.title,
           path: route.path,
         })
-      console.log(this.indexPath.length)
+
       if (this.indexPath.length > 8) {
         this.indexPath.splice(this.indexPath.length - 1, 1)
       }
@@ -80,12 +84,11 @@ export default {
         ? this.indexPath[index]
         : this.indexPath[index - 1]
       if (item) {
-        // 存在执行
         // 如果删除的的元素path等于当前路由path 执行改变路由
         closePath.path === this.$route.path && this.$router.push(item.path)
       } else {
         // 不存在跳转到我的账户
-        this.$router.push('/my/my1')
+        this.$router.push('/dataModel')
       }
     },
     handleCommand (command) {

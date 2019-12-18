@@ -57,14 +57,32 @@ export default {
       return url
     },
   },
+  created () {
+    this.routeTitle()
+  },
   methods: {
     toPath (item) {
       const [path, params] = item.url.split('?')
       if (params) {
         const paramsId = Number(params.substring(3))
         this.$router.push({ path: path, query: { id: paramsId }})
+        this.$route.meta.title = item.title
       } else {
         this.$router.push({ path: path })
+      }
+    },
+    // 解决刷新路由title
+    routeTitle () {
+      const [{ children }] = this.menus.filter(menus => {
+        return menus.children
+      })
+      const item = children.filter(v => {
+        return v.url === this.active
+      })
+
+      if (item.length) {
+        const [{ title }] = item
+        this.$route.meta.title = title
       }
     },
   },
