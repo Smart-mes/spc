@@ -56,9 +56,9 @@ export default {
   //   // console.log('route', this.$route)
   //   // console.log('this.indexPath', this.indexPath)
   // },
-  activated () {
-    console.log(this.$route.params.id)
-  },
+  // activated () {
+  //   // console.log(this.$route.params.id)
+  // },
   methods: {
     setTags (route) {
       this.activeValue = route.meta.title
