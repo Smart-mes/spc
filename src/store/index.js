@@ -37,12 +37,24 @@ const mutations = {
     state.isCollapse = !state.isCollapse
     window.localStorage.setItem('user-collapse', window.JSON.stringify(state.isCollapse))
   },
-  set_tags (state, payload) {
+  add_tags (state, payload) {
     const arr = [...state.tags]
-    const isRepeat = arr.includes(payload)
-    console.log(isRepeat)
-    !isRepeat && arr.push(payload)
+    const time = { time: Date.parse(new Date()) }
+    const obj = { ...payload, ...time }
+    arr.unshift(obj)
+    if (arr.length > 8) {
+      alert('最多能添加8个！')
+      return false
+    }
     state.tags = arr
+  },
+  set_tags (state, payload) {
+    state.tags = payload
+  },
+  del_tags (state, i) {
+    const tagsArr = [...state.tags]
+    tagsArr.splice(i, 1)
+    state.tags = tagsArr
   },
   set_state (state, payload) {
     if (payload && typeof (payload) === 'object') {

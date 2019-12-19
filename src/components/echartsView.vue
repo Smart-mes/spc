@@ -1,37 +1,159 @@
 <template>
-  <ul :class="['box',getClass()]">
-    <li v-for="(item,i) in boxNum" :key="i">
-      <div :id="'echarts'+ i" class="box-item"/>
-    </li>
-  </ul>
+  <div>
+    <div class="customSearch">
+      <el-form :inline="true" label-width="100px">
+        <div v-for="(customList,i) in formCustom.customList" :key="i" class="list-box">
+          <h4 class="subtitle">
+            <span class="icon-circle">●</span>员工清单
+          </h4>
+          <div class="list-item-box">
+            <el-form-item
+              v-for="(custom,j) in customList"
+              :key="j"
+              :label="custom.key+' ('+custom.option+')'"
+            >
+              <el-input v-model="custom.value" size="mini"/>
+            </el-form-item>
+          </div>
+        </div>
+        <div class="btn">
+          <el-button type="primary" @click="search">
+            <i class="iconfont iconsousuo"/>搜索
+          </el-button>
+        </div>
+      </el-form>
+    </div>
+    <!-- 搜索条件 -->
+    <div :id="echartsId" class="echear-warp">
+      <ul :class="['box',getClass()]">
+        <li v-for="(item,i) in boxNum" :key="i">
+          <div class="box-item"/>
+        </li>
+      </ul>
+    </div>
+  </div>
 </template>
 <script>
 export default {
-  name: 'ChoiceLayout',
+  name: 'EchartsView',
   props: {
-    gridNum: {
+    echartsId: {
       type: String,
       default: '',
     },
-    optionList: {
-      type: Array,
-      default: () => {
-        return []
-      },
-    },
   },
   data () {
-    return {}
+    return {
+      formCustom: {
+        user: '',
+        region: '',
+        customList: [
+          [
+            { key: 'url', value: '', option: '>=' },
+            { key: '数据库', value: '', option: '>=' },
+            { key: 'api', value: '', option: '>' },
+            { key: '职业', value: '', option: '>=' },
+          ],
+          [
+            { key: '前端', value: '', option: '>' },
+            { key: '后端', value: '', option: '<' },
+          ],
+        ],
+      },
+      // 图表显示
+      tempType: '4',
+      optionList: [
+        {
+          legend: {},
+          tooltip: {},
+          dataset: {
+
+            dimensions: ['product', '2015', '2016', '2017'],
+            source: [
+              { product: 'Matcha Latte', '2015': 43.3, '2016': 85.8, '2017': 93.7 },
+              { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
+              { product: 'Cheese Cocoa', '2015': 86.4, '2016': 65.2, '2017': 82.5 },
+              { product: 'Walnut Brownie', '2015': 72.4, '2016': 53.9, '2017': 39.1 },
+            ],
+          },
+          xAxis: { type: 'category' },
+          yAxis: {},
+          series: [
+            { type: 'bar' },
+            { type: 'bar' },
+            { type: 'bar' },
+          ],
+        },
+        {
+          legend: {},
+          tooltip: {},
+          dataset: {
+
+            dimensions: ['product', '2015', '2016', '2017'],
+            source: [
+              { product: 'Matcha Latte', '2015': 43.3, '2016': 85.8, '2017': 93.7 },
+              { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
+              { product: 'Cheese Cocoa', '2015': 86.4, '2016': 65.2, '2017': 82.5 },
+              { product: 'Walnut Brownie', '2015': 72.4, '2016': 53.9, '2017': 39.1 },
+            ],
+          },
+          xAxis: { type: 'category' },
+          yAxis: {},
+          series: [
+            { type: 'bar' },
+            { type: 'bar' },
+            { type: 'bar' },
+          ],
+        },
+        {
+          legend: {},
+          tooltip: {},
+          dataset: {
+
+            dimensions: ['product', '2015', '2016', '2017'],
+            source: [
+              { product: 'Matcha Latte', '2015': 43.3, '2016': 85.8, '2017': 93.7 },
+              { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
+              { product: 'Cheese Cocoa', '2015': 86.4, '2016': 65.2, '2017': 82.5 },
+              { product: 'Walnut Brownie', '2015': 72.4, '2016': 53.9, '2017': 39.1 },
+            ],
+          },
+          xAxis: { type: 'category' },
+          yAxis: {},
+          series: [
+            { type: 'bar' },
+            { type: 'bar' },
+            { type: 'bar' },
+          ],
+        },
+        {
+          legend: {},
+          tooltip: {},
+          dataset: {
+
+            dimensions: ['product', '2015', '2016', '2017'],
+            source: [
+              { product: 'Matcha Latte', '2015': 43.3, '2016': 85.8, '2017': 93.7 },
+              { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
+              { product: 'Cheese Cocoa', '2015': 86.4, '2016': 65.2, '2017': 82.5 },
+              { product: 'Walnut Brownie', '2015': 72.4, '2016': 53.9, '2017': 39.1 },
+            ],
+          },
+          xAxis: { type: 'category' },
+          yAxis: {},
+          series: [
+            { type: 'bar' },
+            { type: 'bar' },
+            { type: 'bar' },
+          ],
+        },
+      ],
+    }
   },
   computed: {
     boxNum () {
-      return !this.gridNum ? 0 : Number(this.gridNum)
+      return !this.tempType ? 0 : Number(this.tempType)
     },
-  },
-  mounted () {
-    this.$nextTick(() => {
-      this.init()
-    })
   },
   methods: {
     getClass () {
@@ -46,11 +168,14 @@ export default {
           return 'box4'
       }
     },
+    search () {
+      this.init()
+    },
     // 执行echarts
     init () {
       for (let i = 0; i < this.boxNum; i++) {
-        const id = `echarts${i}`
-        const chart = this.$echarts.init(document.getElementById(id))
+        const div = document.getElementById(this.echartsId).getElementsByClassName('box-item')[i]
+        const chart = this.$echarts.init(div)
         chart.setOption(this.optionList[i])
       }
     },
@@ -58,6 +183,35 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.customSearch {
+  overflow: hidden;
+  width: 100%;
+  border-top: 1px solid $line-color;
+  .list-box {
+    overflow: hidden;
+    padding: 5px 0;
+    border-bottom: 1px dashed $line-color;
+  }
+
+  .subtitle {
+    margin: 0;
+  }
+  /deep/.el-form-item {
+    margin-bottom: 5px;
+  }
+  .btn {
+    padding-top: 5px;
+    //  border-top:1px dashed $line-color;
+    text-align: right;
+  }
+}
+.echear-warp {
+  margin-top: 15px;
+  padding: 10px;
+  height: 500px;
+  background: #eee;
+}
+// 选择
 .box {
   display: -webkit-flex;
   display: flex;
