@@ -15,10 +15,26 @@ const routes = [{
   redirect: '/login',
 },
 {
+  name: 'login',
   path: '/login',
   component: () =>
-            import('@/views/login'),
+    import('@/views/login'),
 },
+{
+  name: '',
+  path: '',
+  component: () =>
+    import('@/views/layout/layout'),
+  children: [
+    {
+      name: '404',
+      path: '/404',
+      component: () =>
+        import('@/views/404'),
+    },
+  ],
+},
+
 ]
 
 const router = new VueRouter({
@@ -46,8 +62,13 @@ router.beforeEach(async (to, from, next) => {
     const { isRouter } = $store.state
     if (!isRouter) {
       await $store.dispatch('queryMenus')
-      console.log(' $store.getters', $store.getters)
       const { routes } = $store.getters
+      routes.push(
+        {
+          path: '*',
+          redirect: '/404',
+        }
+      )
       router.addRoutes(routes)
       next({ ...to, replace: true })
     }

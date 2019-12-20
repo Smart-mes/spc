@@ -11,12 +11,13 @@
     >
       <template v-for="(item) in menus">
         <el-submenu v-if="item.children" :key="item.id" :index="item.url">
-          <template slot="title">
-            <i :class="item.icon"/>
-            <span>{{ item.title }}</span>
+          <template slot="title" style="background:#00ff00">
+            <div @click="toAnalyse(item)">
+              <i :class="item.icon"/>
+              <span>{{ item.title }}</span>
+            </div>
           </template>
           <el-menu-item-group>
-            <!--<template slot="title">分组一</template>-->
             <el-menu-item
               v-for="(list) in item.children"
               :key="list.id"
@@ -54,35 +55,22 @@ export default {
       return this.$route.fullPath
     },
   },
-  // created () {
-  //   this.routeTitle()
-  // },
   methods: {
     ...mapMutations(['add_tags']),
     toPath (item) {
       const [path, dataParams] = item.url.split('?')
       if (dataParams) {
-        const dataParamsId = Number(dataParams.substring(3))
-        this.$router.push({ name: item.name, params: { id: dataParamsId }})
+        // const dataParamsId = Number(dataParams.substring(3))
+        // this.$router.push({ name: item.name, params: { id: dataParamsId }})
+        this.$router.push({ path: path })
         this.add_tags(item)
       } else {
         this.$router.push({ path: path })
       }
     },
-    // 解决刷新路由title
-    // routeTitle () {
-    //   const [{ children }] = this.menus.filter(menus => {
-    //     return menus.children
-    //   })
-    //   const item = children.filter(v => {
-    //     return v.url === this.active
-    //   })
-
-    //   if (item.length) {
-    //     const [{ title }] = item
-    //     this.$route.meta.title = title
-    //   }
-    // },
+    toAnalyse (item) {
+      item.id === '4' && this.$router.push({ path: '/analyse/myAnalyse' })
+    },
   },
 }
 </script>

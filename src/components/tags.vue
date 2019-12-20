@@ -8,7 +8,7 @@
           :class="{'active':i === activeValue}"
           @click="tagsChange(i)"
         >
-          <span>{{ item.title }}</span>
+          <span>{{ item.title }}-{{ item.no }}</span>
           <span class="tag_delete" @click.stop="del(i)">
             <i class="el-icon-close"/>
           </span>
@@ -43,25 +43,40 @@ export default {
       tags: state => state.tags,
     }),
   },
-  mounted () {},
   methods: {
-    ...mapMutations(['del_tags']),
+    ...mapMutations(['del_tags', 'set_state']),
     tagsChange (i) {
-      this.activeValue = i
-      this.$emit('getActive', this.activeValue)
+      this.setActive(i)
     },
     del (i) {
       this.del_tags(i)
+
       const active = this.activeValue
-      this.activeValue = active === this.tags.length ? active - 1 : active
+      const tagsLen = this.tags.length
+
+      if (tagsLen && active === tagsLen) {
+        this.activeValue = active - 1
+      } else if (!tagsLen) {
+        this.activeValue = active
+        this.set_state({ tagsNo: 0 })
+      } else {
+        this.activeValue = active
+      }
+
       this.$emit('getActive', this.activeValue)
     },
     handleCommand (command) {
       if (command === 'a') {
-        console.log('打印a')
+        this.set_state({ tags: [{ ...this.tags[this.activeValue] }] })
+        this.setActive(0)
       } else if (command === 'b') {
-        console.log('打印b')
+        this.set_state({ tags: [], tagsNo: 0 })
+        this.setActive(0)
       }
+    },
+    setActive (num) {
+      this.activeValue = num
+      this.$emit('getActive', this.activeValue)
     },
   },
 }
@@ -70,47 +85,47 @@ export default {
 .tags {
   display: -webkit-flex;
   display: flex;
+  padding: 10px 20px;
   align-items: center;
-  background: #fff;
   height: 30px;
-  padding: 5px 15px;
+  background: #fff;
 }
 .tags .tag-box {
   -webkit-flex: 1;
   flex: 1;
 }
 .tags {
-   ul{
-       align-content: center;
-  display: -webkit-flex;
-  display: flex;
-  padding-top: 2px;
-   }
-   li {
-  align-items: center;
-  border-radius: 4px;
-  box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  border: 1px solid rgba(64, 158, 255, 0.2);
-  cursor: pointer;
-  display: -webkit-flex;
-  display: flex;
-  font-size: 12px;
-  height: 26px;
-  list-style: none;
-  line-height: 26px;
-  margin-right: 10px;
-  padding: 0 6px;
-  white-space: nowrap;
-  -webkit-transition: all 0.5s ease-in;
-  -moz-transition: all 0.5s ease-in;
-  transition: all 0.5s ease-in;
-}
- li a {
-  display: block;
-  color: #409eff;
-  text-decoration: none;
-}
+  ul {
+    align-content: center;
+    display: -webkit-flex;
+    display: flex;
+    padding-top: 2px;
+  }
+  li {
+    align-items: center;
+    border-radius: 4px;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border: 1px solid rgba(64, 158, 255, 0.2);
+    cursor: pointer;
+    display: -webkit-flex;
+    display: flex;
+    font-size: 12px;
+    height: 26px;
+    list-style: none;
+    line-height: 26px;
+    margin-right: 10px;
+    padding: 0 6px;
+    white-space: nowrap;
+    -webkit-transition: all 0.5s ease-in;
+    -moz-transition: all 0.5s ease-in;
+    transition: all 0.5s ease-in;
+  }
+  li a {
+    display: block;
+    color: #409eff;
+    text-decoration: none;
+  }
 }
 
 /*关闭标签按钮*/

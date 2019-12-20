@@ -1,8 +1,9 @@
 <template>
   <div>
-    <tags @getActive="getActive"/>
+    <tags v-if="tags.length" @getActive="getActive"/>
     <div class="wrap">
       <echarts-view v-for="(item,i) in tags" v-show="activeValue===i" :key="item.key" :echarts-id="`echarts${i}`"/>
+      <div v-if="!tags.length" class="none">还没有选择我的分析！</div>
     </div>
   </div>
 </template>
@@ -25,9 +26,6 @@ export default {
       tags: state => state.tags,
     }),
   },
-  mounted () {
-    console.log('this.$route', this.$route)
-  },
   methods: {
     getActive (val) {
       this.activeValue = val
@@ -46,7 +44,6 @@ export default {
     padding: 5px 0;
     border-bottom: 1px dashed $line-color;
   }
-
   .subtitle {
     margin: 0;
   }
@@ -64,5 +61,8 @@ export default {
   padding: 10px;
   height: 500px;
   background: #eee;
+}
+.none{
+  margin-top: 40px;
 }
 </style>

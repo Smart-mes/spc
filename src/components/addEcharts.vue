@@ -3,6 +3,7 @@
     <ul :class="['box',getClass()]">
       <li v-for="(item,i) in boxNum" :key="i">
         <div class="box-item">
+          <i v-show="optionList[i]?true:false" class="iconfont iconsanjiaodagou"/>
           <div class="operate">
             <el-button type="primary" :disabled="optionList[i]? true:false" @click="add(i)">
               <i class="iconfont icontianjia"/>添加配置
@@ -216,12 +217,20 @@ export default {
   }
 
   .box-item {
+    position: relative;
     display: flex;
     flex-direction: column;
     flex: auto;
     align-items: center;
     justify-content: center;
     border: 1px solid $grid-line-color;
+  }
+  .iconsanjiaodagou{
+    position: absolute;
+    top:0;
+    left: 0;
+    font-size: 40px;
+    color:$Grass-green-color;
   }
 }
 .box-none{display: none}

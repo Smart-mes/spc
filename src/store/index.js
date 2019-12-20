@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import $http from '@/utils/http'
+import { Message } from 'element-ui'
 
 Vue.use(Vuex)
 
@@ -12,6 +13,7 @@ const state = {
   isRouter: false,
   menus: [],
   tags: [],
+  tagsNo: 0,
 }
 
 const mutations = {
@@ -38,18 +40,20 @@ const mutations = {
     window.localStorage.setItem('user-collapse', window.JSON.stringify(state.isCollapse))
   },
   add_tags (state, payload) {
-    const arr = [...state.tags]
-    const time = { time: Date.parse(new Date()) }
-    const obj = { ...payload, ...time }
-    arr.unshift(obj)
-    if (arr.length > 8) {
-      alert('最多能添加8个！')
+    const tagsArr = [...state.tags]
+
+    if (tagsArr.length >= 8) {
+      Message({
+        message: '最多能查看8个我的分析！',
+        type: 'warning',
+      })
       return false
     }
-    state.tags = arr
-  },
-  set_tags (state, payload) {
-    state.tags = payload
+    state.tagsNo = ++state.tagsNo
+    const timeObj = { key: Date.parse(new Date()) + (Math.random() * 5), no: state.tagsNo }
+    const tagsObj = { ...payload, ...timeObj }
+    tagsArr.unshift(tagsObj)
+    state.tags = tagsArr
   },
   del_tags (state, i) {
     const tagsArr = [...state.tags]
@@ -107,13 +111,14 @@ const actions = {
           'icon': 'el-icon-tickets',
         },
         {
-          'id': ' 4',
+          'id': '4',
           'path': '',
+          'componentPath': '',
           'title': '我的分析',
           'icon': 'el-icon-tickets',
           'children': [{
             'id': '41',
-            'name': 'MyAnalyse',
+
             'path': '/analyse/myAnalyse?id=41',
             'componentPath': '/analyse/myAnalyse',
             'title': '我自定义1',
@@ -121,7 +126,7 @@ const actions = {
           },
           {
             'id': '42',
-            'name': 'MyAnalyse',
+
             'path': '/analyse/myAnalyse?id=42',
             'componentPath': '/analyse/myAnalyse',
             'title': '我自定义2',
@@ -157,16 +162,25 @@ const getters = {
     // router数据
     const formatRoutes = (arr) => {
       return arr.map(v => {
-        const num = v.path.indexOf('?')
+        const pathNo = v.path.indexOf('?')
         const compPath = v.component === 'layout' ? '/layout/layout' : v.componentPath
+
         v.url = v.path
-        v.path = num === -1 ? v.path : v.path.substring(0, num)
-        v.component = v.children && v.children.length ? 'layout' : ''
+        v.name = v.componentPath ? v.componentPath.split('/').pop() : ''
+        v.path = pathNo === -1 ? v.path : v.path.substring(0, pathNo)
+        v.meta = { title: v.title ? v.title : '', keepAlive: compPath === '/analyse/myAnalyse' }
         v.component = () =>
                     import(`@/views${compPath}.vue`)
-        v.meta = { title: v.title }
+
+        if (v.children && v.children.length) {
+          v.meta = { title: v.title ? v.title : '', keepAlive: false }
+        } else {
+          v.meta = { title: v.title ? v.title : '', keepAlive: compPath === '/analyse/myAnalyse' }
+        }
+
         if (v.children && v.children.length) v.children = formatRoutes(v.children)
         return v
+        // /analyse/myAnalyse
       })
     }
     return formatRoutes(menusData)

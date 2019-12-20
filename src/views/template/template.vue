@@ -168,7 +168,6 @@ export default {
       })
     },
     getChart (val) {
-      console.log('val', val)
       this.chartList = val
     },
   },

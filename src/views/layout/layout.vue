@@ -7,10 +7,16 @@
       </div>
       <div class="main" :style="{left:isCollapse?'65px':'200px'}">
         <div class="container">
+          <!-- <keep-alive>
+              <router-view :key="$route.fullPath"/>
+            </keep-alive> -->
           <transition name="move" mode="out-in">
             <keep-alive>
-              <router-view :key="$route.fullPath"/>
+              <router-view v-if="$route.meta.keepAlive"/>
             </keep-alive>
+          </transition>
+          <transition name="move" mode="out-in">
+            <router-view v-if="!$route.meta.keepAlive"/>
           </transition>
         </div>
         <!-- /右下 -->

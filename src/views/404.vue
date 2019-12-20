@@ -1,5 +1,5 @@
 <template>
-  <div>404</div>
+  <div class="none">404</div>
 </template>
 <script>
 export default {
@@ -7,5 +7,8 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-
+.none{
+  padding: 20px;
+  font-size: 20px;
+}
 </style>

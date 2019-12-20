@@ -185,6 +185,7 @@ export default {
 <style lang="scss" scoped>
 .customSearch {
   overflow: hidden;
+  padding-top: 10px;
   width: 100%;
   border-top: 1px solid $line-color;
   .list-box {
@@ -208,7 +209,7 @@ export default {
 .echear-warp {
   margin-top: 15px;
   padding: 10px;
-  height: 500px;
+  height: 550px;
   background: #eee;
 }
 // 选择
