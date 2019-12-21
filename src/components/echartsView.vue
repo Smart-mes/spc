@@ -24,7 +24,7 @@
       </el-form>
     </div>
     <!-- 搜索条件 -->
-    <div :id="echartsId" class="echear-warp">
+    <div :id="`echear${tagsItem.no}`" class="echear-warp">
       <ul :class="['box',getClass()]">
         <li v-for="(item,i) in boxNum" :key="i">
           <div class="box-item"/>
@@ -37,9 +37,11 @@
 export default {
   name: 'EchartsView',
   props: {
-    echartsId: {
-      type: String,
-      default: '',
+    tagsItem: {
+      type: Object,
+      default: () => {
+        return {}
+      },
     },
   },
   data () {
@@ -174,7 +176,7 @@ export default {
     // 执行echarts
     init () {
       for (let i = 0; i < this.boxNum; i++) {
-        const div = document.getElementById(this.echartsId).getElementsByClassName('box-item')[i]
+        const div = document.getElementById(`echear${this.tagsItem.no}`).getElementsByClassName('box-item')[i]
         const chart = this.$echarts.init(div)
         chart.setOption(this.optionList[i])
       }

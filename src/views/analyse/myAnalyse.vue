@@ -2,7 +2,7 @@
   <div>
     <tags v-if="tags.length" @getActive="getActive"/>
     <div class="wrap">
-      <echarts-view v-for="(item,i) in tags" v-show="activeValue===i" :key="item.key" :echarts-id="`echarts${i}`"/>
+      <echarts-view v-for="(item,i) in tags" v-show="activeValue===i" :key="item.key" :tags-item="item"/>
       <div v-if="!tags.length" class="none">还没有选择我的分析！</div>
     </div>
   </div>
