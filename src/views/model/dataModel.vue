@@ -37,6 +37,7 @@
         :title="dialogTitle"
         :visible.sync="dialogVisible"
         width="820px"
+        @open="dialogOpen"
       >
         <div class="dialog-step">
           <el-steps :active="activeStep" finish-status="success">
@@ -62,13 +63,13 @@
             </el-form-item>
             <el-form-item
               label="入参类型"
-              prop="entryType"
+              prop="input_code"
               :rules="rule.mustSelect"
             >
               <el-select v-model="modelForm.entryType" size="mini">
-                <el-option label="数据库" value="mustList"/>
-                <el-option label="api" value="api"/>
-                <el-option label="excel" value="excel"/>
+                <el-option label="数据库" value="Database"/>
+                <el-option label="api" value="API"/>
+                <el-option label="excel" value="Excel"/>
               </el-select>
             </el-form-item>
             <!--/选择类型 -->
@@ -286,7 +287,7 @@ export default {
       dialogTitle: '添加模型',
       modelForm: {
         name: '',
-        entryType: '',
+        input_code: '',
         mustList: [
           { key: '姓名', value: '' },
           { key: '性别', value: '' },
@@ -325,10 +326,6 @@ export default {
         this.modelForm.custom = []
       }
     },
-  },
-  mounted () {
-    this.$nextTick(() => {
-    })
   },
   methods: {
     // 表格
@@ -414,7 +411,14 @@ export default {
           break
       }
     },
+    // ---
+    dialogOpen () {
+      // this.$http.get('/api/dataSource/myDataSource').then(res => {
+      //   console.log('res', res)
+      // })
+    },
   },
+
 }
 </script>
 <style lang="scss" scoped>

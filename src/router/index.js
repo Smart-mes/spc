@@ -70,6 +70,8 @@ router.beforeEach(async (to, from, next) => {
         }
       )
       router.addRoutes(routes)
+
+      console.log('routes', routes)
       next({ ...to, replace: true })
     }
     next()

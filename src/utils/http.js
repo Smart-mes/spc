@@ -15,7 +15,7 @@ const instance = axios.create({
 // 添加请求拦截器
 instance.interceptors.request.use(config => {
   if (window.localStorage.getItem('user_token')) {
-    config.headers['token'] = window.localStorage.getItem('user_token')
+    config.headers['Authorization'] = window.localStorage.getItem('user_token')
   }
   return config
 }, error => {
@@ -25,30 +25,29 @@ instance.interceptors.request.use(config => {
 // 添加响应拦截器
 instance.interceptors.response.use(response => {
   const data = response.data
-  const { message, code } = data
+  const { code } = data
 
-  if (code === 999) {
-    return Promise.reject(message)
+  if (code !== 0) {
+    switch (code) {
+      case 3001 || 302:
+        MessageBox('请登录', {
+          type: 'error',
+        }).then(() => {
+          router.push({ path: '/login' })
+        })
+        break
+      case 500:
+        MessageBox('网络错误', {
+          type: 'error',
+        })
+        break
+    }
+
+    return Promise.reject(response)
   }
   return data
-}, error => {
-  const res = error.response
-  const status = res.status
-  //   const msg = res.data.msg
-  switch (status) {
-    case 401 || 402:
-      MessageBox('请登录', {
-        type: 'error',
-      }).then(() => {
-        router.push({ name: 'home' })
-      })
-      break
-    case 500:
-      MessageBox('网络错误', {
-        type: 'error',
-      })
-      break
-  }
+}
+, error => {
   return Promise.reject(error)
 })
 

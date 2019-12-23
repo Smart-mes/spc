@@ -68,7 +68,6 @@ export default {
   methods: {
     ...mapMutations(['set_user']),
     submitForm (formName) {
-      this.$router.push({ path: '/dataModel' })
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.btnLoading = true
@@ -76,15 +75,16 @@ export default {
             username: this.ruleForm.username,
             password: this.ruleForm.password,
           })
-            .then(res => {
-              console.log('res', res)
-              this.btnLoading = false
-              // this.set_user(res)
+            .then(({ data }) => {
+              const { token: { tokenType, accessToken }, user: { username }} = data
+              this.set_user({ token: `${tokenType} ${accessToken}`, userInfo: { username }})
+
               this.$router.push({ path: '/dataModel' })
+              this.btnLoading = false
             })
             .catch(error => {
               this.btnLoading = false
-              console.log('error:', error)
+              this.$message.error(error.message)
             })
         } else {
           return false

@@ -8,7 +8,7 @@
       <i :class="[isCollapse ? 'iconshouqi' : 'iconzhankai', 'iconfont']" :title="[isCollapse ? '收起' : '展开']" @click="set_collapse"/>
     </div>
     <div class="user fr">
-      <span>欢迎您，{{ userInfo.userName }}</span>
+      <span>欢迎您，{{ userInfo.username }}</span>
       <span>|</span>
       <span>
         <a @click="loginClear">退出</a>
@@ -21,7 +21,8 @@ import { mapState, mapMutations } from 'vuex'
 export default {
   name: 'Head',
   data () {
-    return {}
+    return {
+    }
   },
   computed: {
     ...mapState({
@@ -36,6 +37,7 @@ export default {
       this.$router.push({ path: '/login' })
     },
   },
+
 }
 </script>
 <style lang="scss" scoped>

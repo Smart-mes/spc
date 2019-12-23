@@ -6,8 +6,7 @@ import { Message } from 'element-ui'
 Vue.use(Vuex)
 
 const state = {
-
-  token: window.localStorage.getItem('user_token') || '',
+  // token: window.localStorage.getItem('user_token') || '',
   userInfo: window.JSON.parse(window.localStorage.getItem('user_info')) || {},
   isCollapse: window.JSON.parse(window.localStorage.getItem('user-collapse')),
   isRouter: false,
@@ -27,13 +26,12 @@ const mutations = {
      * @param payload
      */
   set_user: (state, { token, userInfo }) => {
-    state.user_token = token
     state.user_info = userInfo
     state.isCollapse = false
 
-    window.localStorage.setItem('user_token', state.user_token)
-    window.localStorage.setItem('user_info', window.JSON.stringify(state.user_info))
-    window.localStorage.setItem('user-collapse', state.isCollapse)
+    window.localStorage.setItem('user_token', token)
+    window.localStorage.setItem('user_info', window.JSON.stringify(userInfo))
+    window.localStorage.setItem('user_collapse', state.isCollapse)
   },
   set_collapse (state) {
     state.isCollapse = !state.isCollapse
@@ -82,64 +80,70 @@ const actions = {
      * 获取菜单
      */
   queryMenus ({ commit }) {
-    return $http
-      .get('http://rap2api.taobao.org/app/mock/238393/meauList')
-      .then(({ list }) => {
-        // 提交
-        const data = [{
-          'id': '1',
-          'name': 'DataModel',
-          'path': '/dataModel',
-          'componentPath': '/model/dataModel',
-          'title': '数据模型',
-          'icon': 'el-icon-tickets',
-        },
-        {
-          'id': '2',
-          'name': 'Template',
-          'path': '/template',
-          'componentPath': '/template/template',
-          'title': '分析模板',
-          'icon': 'el-icon-tickets',
-        },
-        {
-          'id': '3',
-          'name': 'TemplateList',
-          'path': '/templateList',
-          'componentPath': '/template/templateList',
-          'title': '模板列表',
-          'icon': 'el-icon-tickets',
-        },
-        {
-          'id': '4',
-          'path': '',
-          'componentPath': '',
-          'title': '我的分析',
-          'icon': 'el-icon-tickets',
-          'children': [{
-            'id': '41',
-
-            'path': '/analyse/myAnalyse?id=41',
-            'componentPath': '/analyse/myAnalyse',
-            'title': '我自定义1',
-            'icon': 'el-icon-tickets',
-          },
-          {
-            'id': '42',
-
-            'path': '/analyse/myAnalyse?id=42',
-            'componentPath': '/analyse/myAnalyse',
-            'title': '我自定义2',
-            'icon': 'el-icon-tickets',
-          },
-          ],
-        },
-        ]
-        commit('set_state', {
-          menus: data,
-          isRouter: true,
-        })
+    return $http.get('/api/resource/list').then(({ data }) => {
+      commit('set_state', {
+        menus: data,
+        isRouter: true,
       })
+    })
+
+    // return $http
+    //   .get('http://rap2api.taobao.org/app/mock/238393/meauList')
+    //   .then(({ list }) => {
+    //     // 提交
+    //     const data = [{
+    //       'id': '1',
+    //       'name': 'DataModel',
+    //       'path': '/dataModel',
+    //       'componentPath': '/model/dataModel',
+    //       'title': '数据模型',
+    //       'icon': 'el-icon-tickets',
+    //     },
+    //     {
+    //       'id': '2',
+    //       'name': 'Template',
+    //       'path': '/template',
+    //       'componentPath': '/template/template',
+    //       'title': '分析模板',
+    //       'icon': 'el-icon-tickets',
+    //     },
+    //     {
+    //       'id': '3',
+    //       'name': 'TemplateList',
+    //       'path': '/templateList',
+    //       'componentPath': '/template/templateList',
+    //       'title': '模板列表',
+    //       'icon': 'el-icon-tickets',
+    //     },
+    //     {
+    //       'id': '4',
+    //       'path': '',
+    //       'componentPath': '',
+    //       'title': '我的分析',
+    //       'icon': 'el-icon-tickets',
+    //       'children': [{
+    //         'id': '41',
+
+    //         'path': '/analyse/myAnalyse?id=41',
+    //         'componentPath': '/analyse/myAnalyse',
+    //         'title': '我自定义1',
+    //         'icon': 'el-icon-tickets',
+    //       },
+    //       {
+    //         'id': '42',
+    //         'path': '/analyse/myAnalyse?id=42',
+    //         'componentPath': '/analyse/myAnalyse',
+    //         'title': '我自定义2',
+    //         'icon': 'el-icon-tickets',
+    //       },
+    //       ],
+    //     },
+    //     ]
+    //     commit('set_state', {
+    //       menus: data,
+    //       isRouter: true,
+    //     })
+    //   })
   },
 }
 

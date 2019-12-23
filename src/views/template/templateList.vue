@@ -26,11 +26,12 @@
         />
         <el-table-column
           label="操作"
-          width="180"
+          width="280"
         >
           <template>
             <el-button type="primary"><i class="iconfont iconxiugai"/>修改</el-button>
             <el-button type="danger"><i class="iconfont iconicon7"/>删除</el-button>
+            <el-button type="success"><i class="iconfont iconicon7"/>启动</el-button>
           </template>
         </el-table-column>
       </el-table>
