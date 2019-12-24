@@ -418,7 +418,7 @@ export default {
 
     // 修改获取数据
     getModifyData () {
-      const [{ name, inputCode, param, customParam }] = this.tableSelected
+      // const [{ name, inputCode, param, customParam }] = this.tableSelected
 
       // switch (inputCode) {
       //   case 'Database':
