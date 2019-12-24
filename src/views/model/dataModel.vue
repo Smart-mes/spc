@@ -510,8 +510,8 @@ export default {
           break
 
         case 'Excel':
-          // const [{ file }] =
-          param = { path: this.fileList.file.url }
+          // const [file] = this.fileList
+          param = { path: this.fileList[0].url }
           param = JSON.stringify(param)
           break
       }
