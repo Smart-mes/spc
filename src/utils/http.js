@@ -48,6 +48,22 @@ instance.interceptors.response.use(response => {
   return data
 }
 , error => {
+  const res = error.response
+  const status = res.status
+  switch (status) {
+    case 401 || 402:
+      MessageBox('请登录', {
+        type: 'error',
+      }).then(() => {
+        router.push({ path: '/login' })
+      })
+      break
+    case 500:
+      MessageBox('网络错误', {
+        type: 'error',
+      })
+      break
+  }
   return Promise.reject(error)
 })
 

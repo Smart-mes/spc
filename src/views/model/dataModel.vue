@@ -7,38 +7,34 @@
       </div>
       <!-- /工具条 -->
       <el-table
+        v-loading="tableLoading"
         :data="tableData"
-        highlight-current-row
         border
         stripe
         style="width: 100%"
-        @current-change="tableCurrentRow"
         @selection-change="tableSelection"
       >
         <el-table-column type="selection" width="55"/>
-        <el-table-column prop="date" label="ID" width="180"/>
+        <el-table-column prop="id" label="ID" width="180"/>
         <el-table-column prop="name" label="名称" width="180"/>
-        <el-table-column prop="address" label="入参类型"/>
-        <el-table-column prop="address2" label="时间"/>
+        <el-table-column prop="inputCode" label="入参类型"/>
+        <el-table-column label="时间">
+          <template slot-scope="scope">{{ momentTime(scope.row.createTime) }}</template>
+        </el-table-column>
       </el-table>
       <div class="page">
         <el-pagination
-          :current-page="currentPage"
+          :current-page="pageNum"
           :page-sizes="[20, 30, 40, 50]"
           :page-size="100"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
-          @size-change="pageSize"
-          @current-change="pageCurrent"
+          :total="pageTotal"
+          @size-change="pageSizeFn"
+          @current-change="pageNumFn"
         />
       </div>
       <!-- 添加修改弹窗 -->
-      <el-dialog
-        :title="dialogTitle"
-        :visible.sync="dialogVisible"
-        width="820px"
-        @open="dialogOpen"
-      >
+      <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="820px">
         <div class="dialog-step">
           <el-steps :active="activeStep" finish-status="success">
             <el-step title="模型参数"/>
@@ -54,22 +50,14 @@
           class="formInline"
         >
           <div v-show="activeStep===1" class="must">
-            <el-form-item
-              label="模型名称"
-              prop="name"
-              :rules="rule.must"
-            >
+            <el-form-item label="模型名称" prop="name" :rules="rule.must">
               <el-input v-model="modelForm.name" size="mini"/>
             </el-form-item>
-            <el-form-item
-              label="入参类型"
-              prop="input_code"
-              :rules="rule.mustSelect"
-            >
-              <el-select v-model="modelForm.entryType" size="mini">
+            <el-form-item label="入参类型" prop="inputCode" :rules="rule.mustSelect">
+              <el-select v-model="modelForm.inputCode" size="mini">
                 <el-option label="数据库" value="Database"/>
-                <el-option label="api" value="API"/>
-                <el-option label="excel" value="Excel"/>
+                <el-option label="API" value="API"/>
+                <el-option label="Excel" value="Excel"/>
               </el-select>
             </el-form-item>
             <!--/选择类型 -->
@@ -77,11 +65,11 @@
               <span class="icon-circle">●</span>必选的内容
             </h4>
             <div class="must-warp">
-              <div v-if="modelForm.entryType==='mustList'">
+              <div v-if="modelForm.inputCode==='Database'">
                 <el-form-item
                   v-for="(item, i) in modelForm.mustList"
                   :key="i"
-                  :label="item.key"
+                  :label="item.lable"
                   :prop="'mustList.' + i + '.value'"
                   :rules="rule.must"
                 >
@@ -89,30 +77,27 @@
                 </el-form-item>
               </div>
               <!-- /数据库 -->
-              <div v-else-if="modelForm.entryType==='api'">
-                <el-form-item
-                  label="数据url"
-                  prop="apiUrl"
-                  :rules="rule.must"
-                >
-                  <el-input v-model="modelForm.apiUrl" size="mini"/>
+              <div v-else-if="modelForm.inputCode==='API'">
+                <el-form-item label="数据url" prop="url" :rules="rule.must">
+                  <el-input v-model="modelForm.url" size="mini"/>
                 </el-form-item>
               </div>
               <!-- /数据url -->
-              <div v-else-if="modelForm.entryType==='excel'" class="pl-20">
+              <div v-else-if="modelForm.inputCode==='Excel'" class="pl-20">
                 <el-upload
                   class="upload-demo"
-                  action="https://jsonplaceholder.typicode.com/posts/"
-                  :on-preview="handlePreview"
-                  :on-remove="handleRemove"
-                  :before-remove="beforeRemove"
                   multiple
-                  :limit="3"
-                  :on-exceed="handleExceed"
+                  action="string"
+                  :limit="1"
                   :file-list="fileList"
+                  :before-upload="beforeUpload"
+                  :on-exceed="handleExceed"
+                  :http-request="httpRequest"
+                  :on-remove="handleRemove"
+                  accept=".xls, .xlsx"
                 >
                   <el-button size="small" type="primary">点击上传</el-button>
-                  <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+                  <div slot="tip" class="el-upload__tip">只能上传一个文件，仅限.xls, .xlsx格式</div>
                 </el-upload>
               </div>
               <div v-else class="pl-20">请选择入参类型</div>
@@ -129,7 +114,7 @@
                 <i class="icontianjia iconfont"/>添加
               </el-button>
             </div>
-            <div v-for="(custom,i) in modelForm.custom" :key="i" class="custom-list">
+            <div v-for="(custom,i) in modelForm.customList" :key="i" class="custom-list">
               <div class="custom-list-add">
                 <el-button type="primary" title="添加" size="mini" @click="customItemAdd(i)">
                   <i class="iconfont icontianjia"/>
@@ -141,21 +126,25 @@
               <div v-for="(item,j) in custom" :key="j" class="custom-item">
                 <el-form-item
                   label="属性名"
-                  label-width="60px"
-                  :prop="'custom.' +i+'.'+j+'.key'"
+                  label-width="70px"
+                  :prop="'customList.' +i+'.'+j+'.key'"
                   :rules="rule.customName"
                 >
                   <el-input v-model="item.key" size="mini"/>
                 </el-form-item>
                 <el-form-item
                   label="值"
-                  label-width="60px"
+                  label-width="70px"
+                  :prop="'customList.' +i+'.'+j+'.value'"
+                  :rules="rule.must"
                 >
                   <el-input v-model="item.value" size="mini"/>
                 </el-form-item>
                 <el-form-item
                   label="运算符"
-                  label-width="60px"
+                  label-width="70px"
+                  :prop="'customList.' +i+'.'+j+'.option'"
+                  :rules="rule.mustSelect"
                 >
                   <!-- <el-input v-model="item.option" size="mini"/> -->
                   <el-select v-model="item.option" size="mini">
@@ -176,7 +165,7 @@
                 </el-form-item>
               </div>
             </div>
-            <div v-if="!modelForm.custom.length" class="pl-20">还没有添加自定义参数</div>
+            <div v-if="!modelForm.customList.length" class="pl-20">还没有添加自定义参数</div>
           </div>
           <!-- /自定义 -->
         </el-form>
@@ -191,6 +180,7 @@
 <script>
 import headTitle from '@/components/headTitle'
 import btnTool from '@/components/btnTool'
+import moment from 'moment'
 export default {
   name: 'DataModel',
   components: {
@@ -206,14 +196,16 @@ export default {
         mustSelect: {
           required: true, message: '不能为空', trigger: 'change',
         },
-        customName: {
-          validator: (rule, value, callback) => {
-            if (value.length > 4) {
-              return callback(new Error('长度不能大于四个字符'))
-            }
-            callback()
-          }, trigger: 'blur',
-        },
+        customName: [
+          {
+            required: true, message: '不能为空', trigger: 'blur',
+          },
+          {
+            max: 4,
+            message: '不能超过4个字符',
+            trigger: 'blur',
+          },
+        ],
       },
       // tool
       btnList: [
@@ -233,7 +225,7 @@ export default {
           icon: 'iconxiugai',
           text: '修改',
           disabled: () => {
-            return false
+            return this.tableSelected.length !== 1
           },
           click: () => {
             this.tableModify()
@@ -252,64 +244,32 @@ export default {
         },
       ],
       // table
-      tableData: [
-        {
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-          address2: '上海市普陀区金沙江路 1518 弄',
-        },
-        {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1517 弄',
-          address2: '上海市普陀区金沙江路 1518 弄',
-        },
-        {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄',
-          address2: '上海市普陀区金沙江路 1518 弄',
-        },
-        {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄',
-          address2: '上海市普陀区金沙江路 1518 弄',
-        },
-      ],
-      currentRow: null,
+      tableLoading: false,
+      tableData: [],
+      // currentRow: null,
       tableSelected: [],
       // 分页
-      currentPage: 1,
+      pageNum: 1,
+      pageSize: 20,
+      pageTotal: 0,
       // 弹窗
       dialogVisible: false,
       dialogTitle: '添加模型',
       modelForm: {
         name: '',
-        input_code: '',
+        inputCode: '',
         mustList: [
-          { key: '姓名', value: '' },
-          { key: '性别', value: '' },
-          { key: '职业', value: '' },
-          { key: '收入', value: '' },
+          { lable: '驱动', key: 'driver', value: '' },
+          { lable: 'url', key: 'url', value: '' },
+          { lable: '账号', key: 'username', value: '' },
+          { lable: '密码', key: 'password', value: '' },
+          { lable: 'SQ', key: 'sql', value: '' },
         ],
-        custom: [],
-        apiUrl: '',
+        customList: [],
+        url: '',
       },
       // 上传exl数据
-      fileList: [
-        {
-          name: 'food.jpeg',
-          url:
-            'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
-        },
-        {
-          name: 'food2.jpeg',
-          url:
-            'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100',
-        },
-      ],
+      fileList: [],
       // step
       activeStep: 1,
       dialogBtnTxt: '取消',
@@ -323,9 +283,15 @@ export default {
       if (!val) {
         this.$refs.modelForm.resetFields()
         this.activeStep = 1
-        this.modelForm.custom = []
+        this.modelForm.inputCode = ''
+        this.modelForm.customList = []
       }
     },
+  },
+  mounted () {
+    this.$nextTick(() => {
+      this.getTable()
+    })
   },
   methods: {
     // 表格
@@ -336,71 +302,62 @@ export default {
     tableModify () {
       this.dialogTitle = '修改模型'
       this.dialogVisible = true
+      this.getModifyData()
     },
-    tableCurrentRow (val) {
-      this.currentRow = val
-    },
+    // tableCurrentRow (val) {
+    //   this.currentRow = val
+    // },
     tableSelection (val) {
       this.tableSelected = val
     },
     // 分页
-    pageSize (val) {
-      console.log(`每页 ${val} 条`)
+    pageSizeFn (val) {
+      this.pageSize = val
+      this.getTable()
     },
-    pageCurrent (val) {
-      console.log(`当前页: ${val}`)
+    pageNumFn (val) {
+      this.pageNum = val
+      this.getTable()
     },
     // 上传exl
     handleRemove (file, fileList) {
       console.log(file, fileList)
     },
-    handlePreview (file) {
-      console.log(file)
+    beforeUpload (file) {
+      const isXls = file.type === 'application/vnd.ms-excel' ? true : file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      if (!isXls) {
+        this.$message.error('上传的文件只能是xls以及xlsx格式!')
+      }
+      return isXls
     },
     handleExceed (files, fileList) {
       this.$message.warning(
-        `当前限制选择 3 个文件，本次选择了 ${
+        `当前限制选择 1 个文件，本次选择了 ${
           files.length
         } 个文件，共选择了 ${files.length + fileList.length} 个文件`
       )
     },
-    beforeRemove (file, fileList) {
-      return this.$confirm(`确定移除 ${file.name}？`)
-    },
-    // 自定义一维数组操作
-    customAdd () {
-      const customArr = [{ key: '', value: '', option: '' }]
-      this.modelForm.custom.push(customArr)
-    },
-    customDelete (i) {
-      this.modelForm.custom.splice(i, 1)
-    },
-    customItemAdd (i) {
-      const customObj = { key: '', value: '', option: '' }
-      this.modelForm.custom[i].push(customObj)
-    },
-    customItemDelete (i, j) {
-      console.log(this.modelForm.custom[i][j])
-      this.modelForm.custom[i].splice(j, 1)
-
-      if (!this.modelForm.custom[i].length) {
-        this.modelForm.custom.splice(i, 1)
+    httpRequest (params) {
+      console.log('params', params)
+      const formdata = new FormData()
+      formdata.append('file', params.file)
+      // formdata.append('name', params.file.name)
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       }
-    },
-    // 表单提交
-    dialogSubmit () {
-      this.$refs.modelForm.validate(valid => {
-        if (valid) {
-          if (this.activeStep === 2) {
-            console.log('提交代码')
-            return false
-          }
-          this.activeStep += 1
-        } else {
-          return false
-        }
+
+      this.$http.post('/api/analysis/upload', formdata, config).then(({ data }) => {
+        this.$message.success('上传成功！')
+        const { filename, path } = data
+        this.fileList = [{ name: filename, url: path }]
+        console.log('this.fileList', this.fileList)
+      }).catch(() => {
+        this.$message.error('上传失败！')
       })
     },
+    // Step
     dialogStep () {
       switch (this.activeStep) {
         case 1:
@@ -411,11 +368,119 @@ export default {
           break
       }
     },
-    // ---
-    dialogOpen () {
-      // this.$http.get('/api/dataSource/myDataSource').then(res => {
-      //   console.log('res', res)
-      // })
+    // 自定义一维数组操作
+    customAdd () {
+      const customArr = [{ key: '', value: '', option: '' }]
+      this.modelForm.customList.push(customArr)
+    },
+    customDelete (i) {
+      this.modelForm.customList.splice(i, 1)
+    },
+    customItemAdd (i) {
+      const customObj = { key: '', value: '', option: '' }
+      this.modelForm.customList[i].push(customObj)
+    },
+    customItemDelete (i, j) {
+      console.log(this.modelForm.customList[i][j])
+      this.modelForm.customList[i].splice(j, 1)
+
+      if (!this.modelForm.customList[i].length) {
+        this.modelForm.customList.splice(i, 1)
+      }
+    },
+    // 表单提交
+    dialogSubmit () {
+      this.$refs.modelForm.validate(valid => {
+        if (valid) {
+          if (this.activeStep === 2) {
+            this.submitData()
+            return false
+          }
+          this.activeStep += 1
+        } else {
+          return false
+        }
+      })
+    },
+    submitData () {
+      const param = this.handleParam(this.modelForm)
+      // 提交
+      this.$http.post('/api/dataSource/addDataSource', param).then(res => {
+        this.$message({
+          message: '添加成功！',
+          type: 'success',
+        })
+        this.dialogVisible = false
+      }).catch(() => {
+        this.$message.error('错了哦，这是一条错误消息')
+      })
+    },
+
+    // 修改获取数据
+    getModifyData () {
+      const [{ name, inputCode, param, customParam }] = this.tableSelected
+
+      // switch (inputCode) {
+      //   case 'Database':
+
+      //     break
+      //   case 'API':
+      //     break
+      //   case 'API':
+      //     break
+      // }
+      // console.log('selected', selected)
+    },
+    // 获取table数据
+    getTable () {
+      this.tableLoading = true
+      this.$http.get('/api/dataSource/myDataSource', {
+        params: {
+          from: '',
+          pageNum: this.pageNum,
+          pageSize: this.pageSize,
+          to: '',
+        },
+      }
+      ).then(({ data }) => {
+        this.tableLoading = false
+        const { list, total } = data
+        this.tableData = list
+        this.pageTotal = total
+      }).catch(() => {
+        this.tableLoading = false
+      })
+    },
+    // ---- 公共函数
+    // 处理表单提交参数
+    handleParam (formParam) {
+      const { name, inputCode, mustList, customList, url } = formParam
+      let param = {}
+      if (inputCode === 'Database') {
+        mustList.map(must => {
+          const { key, value } = must
+          param[key] = value
+        })
+        param = JSON.stringify(param)
+      } else if (inputCode === 'API') {
+        param = { url }
+        param = JSON.stringify(param)
+      } else if (inputCode === 'Excel') {
+        if (!this.fileList.length) {
+          this.$message.error('还没有上传文件不能提交！')
+          return false
+        }
+        const [file] = this.fileList
+        param = { path: file.url }
+        param = JSON.stringify(param)
+      }
+
+      const customParam = JSON.stringify(customList)
+      const paramObj = { name, inputCode, param, customParam }
+      return paramObj
+    },
+    momentTime (item) {
+      return moment(item).format('YYYY-MM-DD HH:mm:ss')
     },
   },
 
@@ -458,15 +523,15 @@ export default {
     // background-color: #eee;
   }
 }
-.wrap{
-  /deep/.el-table__body-wrapper{
-      height: calc(100vh - 300px);
-    overflow-y:auto;
+.wrap {
+  /deep/.el-table__body-wrapper {
+    height: calc(100vh - 300px);
+    overflow-y: auto;
   }
 }
-.formInline{
-    /deep/.el-input__inner{
-        width: 160px;
-    }
+.formInline {
+  /deep/.el-input__inner {
+    width: 160px;
+  }
 }
 </style>

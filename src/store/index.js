@@ -80,70 +80,70 @@ const actions = {
      * 获取菜单
      */
   queryMenus ({ commit }) {
-    return $http.get('/api/resource/list').then(({ data }) => {
-      commit('set_state', {
-        menus: data,
-        isRouter: true,
-      })
-    })
+    // return $http.get('/api/resource/list').then(({ data }) => {
+    //   commit('set_state', {
+    //     menus: data,
+    //     isRouter: true,
+    //   })
+    // })
 
     // return $http
     //   .get('http://rap2api.taobao.org/app/mock/238393/meauList')
     //   .then(({ list }) => {
-    //     // 提交
-    //     const data = [{
-    //       'id': '1',
-    //       'name': 'DataModel',
-    //       'path': '/dataModel',
-    //       'componentPath': '/model/dataModel',
-    //       'title': '数据模型',
-    //       'icon': 'el-icon-tickets',
-    //     },
-    //     {
-    //       'id': '2',
-    //       'name': 'Template',
-    //       'path': '/template',
-    //       'componentPath': '/template/template',
-    //       'title': '分析模板',
-    //       'icon': 'el-icon-tickets',
-    //     },
-    //     {
-    //       'id': '3',
-    //       'name': 'TemplateList',
-    //       'path': '/templateList',
-    //       'componentPath': '/template/templateList',
-    //       'title': '模板列表',
-    //       'icon': 'el-icon-tickets',
-    //     },
-    //     {
-    //       'id': '4',
-    //       'path': '',
-    //       'componentPath': '',
-    //       'title': '我的分析',
-    //       'icon': 'el-icon-tickets',
-    //       'children': [{
-    //         'id': '41',
+    // 提交
+    const data = [{
+      'id': '1',
+      'name': 'DataModel',
+      'path': '/dataModel',
+      'componentPath': '/model/dataModel',
+      'title': '数据模型',
+      'icon': 'el-icon-tickets',
+    },
+    {
+      'id': '2',
+      'name': 'Template',
+      'path': '/template',
+      'componentPath': '/template/template',
+      'title': '分析模板',
+      'icon': 'el-icon-tickets',
+    },
+    {
+      'id': '3',
+      'name': 'TemplateList',
+      'path': '/templateList',
+      'componentPath': '/template/templateList',
+      'title': '模板列表',
+      'icon': 'el-icon-tickets',
+    },
+    {
+      'id': '4',
+      'path': '',
+      'componentPath': '',
+      'title': '我的分析',
+      'icon': 'el-icon-tickets',
+      'children': [{
+        'id': '41',
 
-    //         'path': '/analyse/myAnalyse?id=41',
-    //         'componentPath': '/analyse/myAnalyse',
-    //         'title': '我自定义1',
-    //         'icon': 'el-icon-tickets',
-    //       },
-    //       {
-    //         'id': '42',
-    //         'path': '/analyse/myAnalyse?id=42',
-    //         'componentPath': '/analyse/myAnalyse',
-    //         'title': '我自定义2',
-    //         'icon': 'el-icon-tickets',
-    //       },
-    //       ],
-    //     },
-    //     ]
-    //     commit('set_state', {
-    //       menus: data,
-    //       isRouter: true,
-    //     })
-    //   })
+        'path': '/analyse/myAnalyse?id=41',
+        'componentPath': '/analyse/myAnalyse',
+        'title': '我自定义1',
+        'icon': 'el-icon-tickets',
+      },
+      {
+        'id': '42',
+        'path': '/analyse/myAnalyse?id=42',
+        'componentPath': '/analyse/myAnalyse',
+        'title': '我自定义2',
+        'icon': 'el-icon-tickets',
+      },
+      ],
+    },
+    ]
+    commit('set_state', {
+      menus: data,
+      isRouter: true,
+    })
+    // })
   },
 }
 
