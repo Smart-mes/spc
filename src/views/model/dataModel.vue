@@ -490,6 +490,10 @@ export default {
       //   param = { path: file.url };
       //   param = JSON.stringify(param);
       // }
+      if (inputCode === 'Excel' && !this.fileList.length) {
+        this.$message.error('还没有上传文件不能提交！')
+        return false
+      }
 
       switch (inputCode) {
         case 'Database':
@@ -502,6 +506,12 @@ export default {
 
         case 'API':
           param = { url }
+          param = JSON.stringify(param)
+          break
+
+        case 'Excel':
+          // const [{ file }] =
+          param = { path: this.fileList.file.url }
           param = JSON.stringify(param)
           break
       }
