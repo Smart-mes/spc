@@ -471,6 +471,7 @@ export default {
     // 处理表单提交参数
     handleParam (formParam) {
       const { name, inputCode, mustList, customList, url } = formParam
+      const [{ file }] = this.fileList
       let param = {}
       // if (inputCode === "Database") {
       //   mustList.map(must => {
@@ -510,8 +511,7 @@ export default {
           break
 
         case 'Excel':
-          // const [file] = this.fileList
-          param = { path: this.fileList[0].url }
+          param = { path: file.url }
           param = JSON.stringify(param)
           break
       }
