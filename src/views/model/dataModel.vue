@@ -191,14 +191,20 @@ export default {
     return {
       rule: {
         must: {
-          required: true, message: '不能为空', trigger: 'blur',
+          required: true,
+          message: '不能为空',
+          trigger: 'blur',
         },
         mustSelect: {
-          required: true, message: '不能为空', trigger: 'change',
+          required: true,
+          message: '不能为空',
+          trigger: 'change',
         },
         customName: [
           {
-            required: true, message: '不能为空', trigger: 'blur',
+            required: true,
+            message: '不能为空',
+            trigger: 'blur',
           },
           {
             max: 4,
@@ -324,7 +330,11 @@ export default {
       console.log(file, fileList)
     },
     beforeUpload (file) {
-      const isXls = file.type === 'application/vnd.ms-excel' ? true : file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      const isXls =
+        file.type === 'application/vnd.ms-excel'
+          ? true
+          : file.type ===
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       if (!isXls) {
         this.$message.error('上传的文件只能是xls以及xlsx格式!')
       }
@@ -348,14 +358,17 @@ export default {
         },
       }
 
-      this.$http.post('/api/analysis/upload', formdata, config).then(({ data }) => {
-        this.$message.success('上传成功！')
-        const { filename, path } = data
-        this.fileList = [{ name: filename, url: path }]
-        console.log('this.fileList', this.fileList)
-      }).catch(() => {
-        this.$message.error('上传失败！')
-      })
+      this.$http
+        .post('/api/analysis/upload', formdata, config)
+        .then(({ data }) => {
+          this.$message.success('上传成功！')
+          const { filename, path } = data
+          this.fileList = [{ name: filename, url: path }]
+          console.log('this.fileList', this.fileList)
+        })
+        .catch(() => {
+          this.$message.error('上传失败！')
+        })
     },
     // Step
     dialogStep () {
@@ -405,24 +418,25 @@ export default {
     submitData () {
       const param = this.handleParam(this.modelForm)
       // 提交
-      this.$http.post('/api/dataSource/addDataSource', param).then(res => {
-        this.$message({
-          message: '添加成功！',
-          type: 'success',
+      this.$http
+        .post('/api/dataSource/addDataSource', param)
+        .then(res => {
+          this.$message({
+            message: '添加成功！',
+            type: 'success',
+          })
+          this.dialogVisible = false
         })
-        this.dialogVisible = false
-      }).catch(() => {
-        this.$message.error('错了哦，这是一条错误消息')
-      })
+        .catch(() => {
+          this.$message.error('错了哦，这是一条错误消息')
+        })
     },
 
     // 修改获取数据
     getModifyData () {
-      const [{ name, inputCode, param, customParam }] = this.tableSelected
-
+      // const [{ name, inputCode, param, customParam }] = this.tableSelected
       // switch (inputCode) {
       //   case 'Database':
-
       //     break
       //   case 'API':
       //     break
@@ -434,45 +448,72 @@ export default {
     // 获取table数据
     getTable () {
       this.tableLoading = true
-      this.$http.get('/api/dataSource/myDataSource', {
-        params: {
-          from: '',
-          pageNum: this.pageNum,
-          pageSize: this.pageSize,
-          to: '',
-        },
-      }
-      ).then(({ data }) => {
-        this.tableLoading = false
-        const { list, total } = data
-        this.tableData = list
-        this.pageTotal = total
-      }).catch(() => {
-        this.tableLoading = false
-      })
+      this.$http
+        .get('/api/dataSource/myDataSource', {
+          params: {
+            from: '',
+            pageNum: this.pageNum,
+            pageSize: this.pageSize,
+            to: '',
+          },
+        })
+        .then(({ data }) => {
+          this.tableLoading = false
+          const { list, total } = data
+          this.tableData = list
+          this.pageTotal = total
+        })
+        .catch(() => {
+          this.tableLoading = false
+        })
     },
     // ---- 公共函数
     // 处理表单提交参数
     handleParam (formParam) {
       const { name, inputCode, mustList, customList, url } = formParam
+      const [{ file }] = this.fileList
       let param = {}
-      if (inputCode === 'Database') {
-        mustList.map(must => {
-          const { key, value } = must
-          param[key] = value
-        })
-        param = JSON.stringify(param)
-      } else if (inputCode === 'API') {
-        param = { url }
-        param = JSON.stringify(param)
-      } else if (inputCode === 'Excel') {
-        if (!this.fileList.length) {
-          this.$message.error('还没有上传文件不能提交！')
-          return false
-        }
-        const [file] = this.fileList
-        param = { path: file.url }
-        param = JSON.stringify(param)
+      // if (inputCode === "Database") {
+      //   mustList.map(must => {
+      //     const { key, value } = must;
+      //     param[key] = value;
+      //   });
+      //   param = JSON.stringify(param);
+      // } else if (inputCode === "API") {
+      //   param = { url };
+      //   param = JSON.stringify(param);
+      // } else if (inputCode === "Excel") {
+      //   if (!this.fileList.length) {
+      //     this.$message.error("还没有上传文件不能提交！");
+      //     return false;
+      //   }
+      //   const [file] = this.fileList;
+      //   param = { path: file.url };
+      //   param = JSON.stringify(param);
+      // }
+      if (inputCode === 'Excel' && !this.fileList.length) {
+        this.$message.error('还没有上传文件不能提交！')
+        return false
+      }
+
+      switch (inputCode) {
+        case 'Database':
+          mustList.map(must => {
+            const { key, value } = must
+            param[key] = value
+          })
+          param = JSON.stringify(param)
+          break
+
+        case 'API':
+          param = { url }
+          param = JSON.stringify(param)
+          break
+
+        case 'Excel':
+          param = { path: file.url }
+          param = JSON.stringify(param)
+          break
       }
 
       const customParam = JSON.stringify(customList)
@@ -483,7 +524,6 @@ export default {
       return moment(item).format('YYYY-MM-DD HH:mm:ss')
     },
   },
-
 }
 </script>
 <style lang="scss" scoped>
