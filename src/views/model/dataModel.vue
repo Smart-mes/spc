@@ -242,10 +242,10 @@ export default {
           icon: 'iconicon7',
           text: '删除',
           disabled: () => {
-            return false
+            return this.tableSelected.length !== 1
           },
           click: () => {
-            alert('删除')
+            this.tableDelete()
           },
         },
       ],
@@ -279,6 +279,8 @@ export default {
       // step
       activeStep: 1,
       dialogBtnTxt: '取消',
+      // 提交类型
+      submitType: '',
     }
   },
   watch: {
@@ -287,10 +289,25 @@ export default {
     },
     dialogVisible (val) {
       if (!val) {
-        this.$refs.modelForm.resetFields()
+        const modelForm = this.modelForm
+        // 重置表单
+        this.$refs['modelForm'].resetFields()
         this.activeStep = 1
-        this.modelForm.inputCode = ''
-        this.modelForm.customList = []
+        this.fileList = []
+
+        Object.keys(modelForm).map((key, i) => {
+          if (typeof modelForm[key] === 'string') {
+            modelForm[key] = ''
+          } else if (key === 'mustList') {
+            modelForm[key].map(must => {
+              must.value = ''
+            })
+          } else if (key === 'customList') {
+            modelForm.customList = []
+          }
+        })
+
+        this.getTable()
       }
     },
   },
@@ -301,18 +318,35 @@ export default {
   },
   methods: {
     // 表格
+    tableDelete () {
+      const [{ id }] = this.tableSelected
+      this.$http
+        .delete('/api/dataSource/deleteDataSource', {
+          params: {
+            id: id,
+          },
+        })
+        .then(res => {
+          this.$message({
+            message: '删除成功',
+            type: 'success',
+          })
+          this.getTable()
+        }).catch(() => {
+          this.$message.error('删除失败')
+        })
+    },
     tableAdd () {
       this.dialogTitle = '添加模型'
+      this.submitType = 'add'
       this.dialogVisible = true
     },
     tableModify () {
       this.dialogTitle = '修改模型'
+      this.submitType = 'modify'
       this.dialogVisible = true
       this.getModifyData()
     },
-    // tableCurrentRow (val) {
-    //   this.currentRow = val
-    // },
     tableSelection (val) {
       this.tableSelected = val
     },
@@ -361,13 +395,13 @@ export default {
       this.$http
         .post('/api/analysis/upload', formdata, config)
         .then(({ data }) => {
-          this.$message.success('上传成功！')
+          this.$message.success('上传成功')
           const { filename, path } = data
           this.fileList = [{ name: filename, url: path }]
           console.log('this.fileList', this.fileList)
         })
         .catch(() => {
-          this.$message.error('上传失败！')
+          this.$message.error('上传失败')
         })
     },
     // Step
@@ -405,8 +439,11 @@ export default {
     dialogSubmit () {
       this.$refs.modelForm.validate(valid => {
         if (valid) {
-          if (this.activeStep === 2) {
-            this.submitData()
+          if (this.activeStep === 2 && this.submitType === 'add') {
+            this.submitAdd()
+            return false
+          } else if (this.activeStep === 2 && this.submitType === 'modify') {
+            this.submitModify()
             return false
           }
           this.activeStep += 1
@@ -415,35 +452,81 @@ export default {
         }
       })
     },
-    submitData () {
+    submitAdd () {
+      if (this.modelForm.inputCode === 'Excel' && !this.fileList.length) {
+        this.$message.error('还没有上传文件不能提交')
+        return false
+      }
       const param = this.handleParam(this.modelForm)
       // 提交
       this.$http
         .post('/api/dataSource/addDataSource', param)
         .then(res => {
           this.$message({
-            message: '添加成功！',
+            message: '添加成功',
             type: 'success',
           })
           this.dialogVisible = false
         })
         .catch(() => {
-          this.$message.error('错了哦，这是一条错误消息')
+          this.$message.error('添加失败')
         })
     },
-
+    submitModify () {
+      if (this.modelForm.inputCode === 'Excel' && !this.fileList.length) {
+        this.$message.error('还没有上传文件不能提交')
+        return false
+      }
+      const [{ id }] = this.tableSelected
+      const param = this.handleParam(this.modelForm)
+      param.id = id
+      this.$http
+        .put('/api/dataSource/updateDataSource', param)
+        .then(res => {
+          this.$message({
+            message: '修改成功',
+            type: 'success',
+          })
+          this.dialogVisible = false
+        })
+        .catch(() => {
+          this.$message.error('修改失败')
+        })
+    },
     // 修改获取数据
     getModifyData () {
-      // const [{ name, inputCode, param, customParam }] = this.tableSelected
-      // switch (inputCode) {
-      //   case 'Database':
-      //     break
-      //   case 'API':
-      //     break
-      //   case 'API':
-      //     break
-      // }
-      // console.log('selected', selected)
+      const [{ name, inputCode, param, customParam }] = this.tableSelected
+      const paramObj = JSON.parse(param)
+      const modelForm = this.modelForm
+      // const paramArr = []
+      modelForm.name = name
+      modelForm.inputCode = inputCode
+      modelForm.customList = JSON.parse(customParam)
+
+      switch (inputCode) {
+        case 'Database':
+          Object.keys(paramObj).map((key, i) => {
+            modelForm.mustList[i].key = key
+            modelForm.mustList[i].value = paramObj[key]
+          })
+
+          break
+        case 'API':
+          Object.keys(paramObj).map((key, i) => {
+            modelForm.url = paramObj[key]
+          })
+          break
+        case 'Excel':
+          Object.keys(paramObj).map((key, i) => {
+            const exceName = paramObj[key].split('/')
+            const excelArr = [
+              { name: exceName[exceName.length - 1], url: paramObj[key] },
+            ]
+            this.fileList = excelArr
+          })
+          break
+      }
+      // console.log('this.tableSelected', this.tableSelected)
     },
     // 获取table数据
     getTable () {
@@ -467,34 +550,12 @@ export default {
           this.tableLoading = false
         })
     },
-    // ---- 公共函数
+    // ---- 公共函数---
     // 处理表单提交参数
     handleParam (formParam) {
       const { name, inputCode, mustList, customList, url } = formParam
-      const [{ file }] = this.fileList
+      const [file] = this.fileList
       let param = {}
-      // if (inputCode === "Database") {
-      //   mustList.map(must => {
-      //     const { key, value } = must;
-      //     param[key] = value;
-      //   });
-      //   param = JSON.stringify(param);
-      // } else if (inputCode === "API") {
-      //   param = { url };
-      //   param = JSON.stringify(param);
-      // } else if (inputCode === "Excel") {
-      //   if (!this.fileList.length) {
-      //     this.$message.error("还没有上传文件不能提交！");
-      //     return false;
-      //   }
-      //   const [file] = this.fileList;
-      //   param = { path: file.url };
-      //   param = JSON.stringify(param);
-      // }
-      if (inputCode === 'Excel' && !this.fileList.length) {
-        this.$message.error('还没有上传文件不能提交！')
-        return false
-      }
 
       switch (inputCode) {
         case 'Database':
