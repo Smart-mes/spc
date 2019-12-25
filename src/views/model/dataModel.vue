@@ -550,7 +550,7 @@ export default {
           this.tableLoading = false
         })
     },
-    // ---- 公共函数---
+    // -- 公共函数--
     // 处理表单提交参数
     handleParam (formParam) {
       const { name, inputCode, mustList, customList, url } = formParam

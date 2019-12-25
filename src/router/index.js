@@ -69,9 +69,9 @@ router.beforeEach(async (to, from, next) => {
           redirect: '/404',
         }
       )
-      router.addRoutes(routes)
+      console.log('routes', routes)
+      // router.addRoutes(routes)
 
-      // console.log('routes', routes)
       next({ ...to, replace: true })
     }
     next()

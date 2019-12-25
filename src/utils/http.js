@@ -26,7 +26,7 @@ instance.interceptors.request.use(config => {
 instance.interceptors.response.use(response => {
   const data = response.data
   const { code } = data
-  console.log('response::::', response)
+
   if (code !== 0) {
     switch (code) {
       case 3001 || 302:

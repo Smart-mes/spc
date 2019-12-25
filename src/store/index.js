@@ -80,89 +80,114 @@ const actions = {
      * 获取菜单
      */
   queryMenus ({ commit }) {
-    // return $http.get('/api/resource/list').then(({ data }) => {
-    //   commit('set_state', {
-    //     menus: data,
-    //     isRouter: true,
-    //   })
-    // })
+    return $http.get('/api/resource/list').then(({ data }) => {
+      return data
+    }).then(res => {
+      const menusData = res
 
-    // return $http
-    //   .get('http://rap2api.taobao.org/app/mock/238393/meauList')
-    //   .then(({ list }) => {
-    // 提交
-    const data = [{
-      'id': '1',
-      'name': 'DataModel',
-      'path': '/dataModel',
-      'componentPath': '/model/dataModel',
-      'title': '数据模型',
-      'icon': 'el-icon-tickets',
-    },
-    {
-      'id': '2',
-      'name': 'Template',
-      'path': '/template',
-      'componentPath': '/template/template',
-      'title': '分析模板',
-      'icon': 'el-icon-tickets',
-    },
-    {
-      'id': '3',
-      'name': 'TemplateList',
-      'path': '/templateList',
-      'componentPath': '/template/templateList',
-      'title': '模板列表',
-      'icon': 'el-icon-tickets',
-    },
-    {
-      'id': '4',
-      'path': '',
-      'componentPath': '',
-      'title': '我的分析',
-      'icon': 'el-icon-tickets',
-      'children': [{
-        'id': '41',
+      $http.get('/api/analysis/myAnalysis').then(({ data }) => {
+        if (data.length) {
+          const childArr = data.map(item => {
+            const { id, name } = item
+            return {
+              id,
+              title: name,
+              path: `/analyse/myAnalyse?id=${id}`,
+              componentPath: '/analyse/myAnalyse',
+            }
+          })
+          menusData.forEach(menus => {
+            if (menus.id === 4) {
+              menus.children = childArr
+            }
+          })
+        }
+      })
 
-        'path': '/analyse/myAnalyse?id=41',
-        'componentPath': '/analyse/myAnalyse',
-        'title': '我自定义1',
-        'icon': 'el-icon-tickets',
-      },
-      {
-        'id': '42',
-        'path': '/analyse/myAnalyse?id=42',
-        'componentPath': '/analyse/myAnalyse',
-        'title': '我自定义2',
-        'icon': 'el-icon-tickets',
-      },
-      ],
-    },
-    ]
-    commit('set_state', {
-      menus: data,
-      isRouter: true,
+      return menusData
+    }).then(data => {
+      commit('set_state', {
+        menus: data,
+        isRouter: true,
+      })
     })
+
+    // const data = [{
+    //   'id': '1',
+    //   'name': 'DataModel',
+    //   'path': '/dataModel',
+    //   'componentPath': '/model/dataModel',
+    //   'title': '数据模型',
+    //   'icon': 'el-icon-tickets',
+    // },
+    // {
+    //   'id': '2',
+    //   'name': 'Template',
+    //   'path': '/template',
+    //   'componentPath': '/template/template',
+    //   'title': '分析模板',
+    //   'icon': 'el-icon-tickets',
+    // },
+    // {
+    //   'id': '3',
+    //   'name': 'TemplateList',
+    //   'path': '/templateList',
+    //   'componentPath': '/template/templateList',
+    //   'title': '模板列表',
+    //   'icon': 'el-icon-tickets',
+    // },
+    // {
+    //   'id': '4',
+    //   'path': '',
+    //   'componentPath': '',
+    //   'title': '我的分析',
+    //   'icon': 'el-icon-tickets',
+    //   'children': [{
+    //     'id': '41',
+
+    //     'path': '/analyse/myAnalyse?id=41',
+    //     'componentPath': '/analyse/myAnalyse',
+    //     'title': '我自定义1',
+    //     'icon': 'el-icon-tickets',
+    //   },
+    //   {
+    //     'id': '42',
+    //     'path': '/analyse/myAnalyse?id=42',
+    //     'componentPath': '/analyse/myAnalyse',
+    //     'title': '我自定义2',
+    //     'icon': 'el-icon-tickets',
+    //   },
+    //   ],
+    // },
+    // ]
+    // commit('set_state', {
+    //   menus: data,
+    //   isRouter: true,
     // })
   },
 }
 
 const getters = {
   routes (state) {
+    // const menus = JSON.parse(JSON.stringify(state.menus))
+    // console.log('state.menus', state.menus)
     const menus = state.menus
+
     // 处理数据
-    const menusData = menus.map((item) => {
-      if (!item.children) {
+    const menusData = menus.map((item, i) => {
+      if (item.path !== '/analyse/myAnalyse') {
         return {
           component: 'layout',
           path: '',
-          children: [item],
+          children: item,
         }
       } else {
         item.component = 'layout'
         return item
       }
     })
+
+    // return menusData
     // router数据
     const formatRoutes = (arr) => {
       return arr.map(v => {
@@ -187,6 +212,7 @@ const getters = {
         // /analyse/myAnalyse
       })
     }
+
     return formatRoutes(menusData)
   },
 }
