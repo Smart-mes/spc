@@ -10,7 +10,7 @@
       :default-active="active"
     >
       <template v-for="(item) in menus">
-        <el-submenu v-if="item.children" :key="item.id" :index="item.url">
+        <el-submenu v-if="item.children" :key="item.id" :index="item.path">
           <template slot="title" style="background:#00ff00">
             <div @click="toAnalyse(item)">
               <i :class="item.icon"/>
@@ -21,14 +21,14 @@
             <el-menu-item
               v-for="(list) in item.children"
               :key="list.id"
-              :index="list.url"
+              :index="list.path"
               @click="toPath(list)"
             >
               {{ list.title }}
             </el-menu-item>
           </el-menu-item-group>
         </el-submenu>
-        <el-menu-item v-else :key="item.id" :index="item.url" @click="toPath(item)">
+        <el-menu-item v-else :key="item.id" :index="item.path" @click="toPath(item)">
           <template>
             <i :class="item.icon"/>
             <span slot="title">{{ item.title }}</span>
@@ -58,10 +58,8 @@ export default {
   methods: {
     ...mapMutations(['add_tags']),
     toPath (item) {
-      const [path, dataParams] = item.url.split('?')
+      const [path, dataParams] = item.path.split('?')
       if (dataParams) {
-        // const dataParamsId = Number(dataParams.substring(3))
-        // this.$router.push({ name: item.name, params: { id: dataParamsId }})
         this.$router.push({ path: path })
         this.add_tags(item)
       } else {
@@ -69,7 +67,7 @@ export default {
       }
     },
     toAnalyse (item) {
-      item.id === '4' && this.$router.push({ path: '/analyse/myAnalyse' })
+      item.path === '/analyse/myAnalyse' && this.$router.push({ path: '/analyse/myAnalyse' })
     },
   },
 }

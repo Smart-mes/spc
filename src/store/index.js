@@ -80,97 +80,43 @@ const actions = {
      * 获取菜单
      */
   queryMenus ({ commit }) {
-    return $http.get('/api/resource/list').then(({ data }) => {
-      return data
-    }).then(res => {
-      const menusData = res
-
-      $http.get('/api/analysis/myAnalysis').then(({ data }) => {
-        if (data.length) {
-          const childArr = data.map(item => {
-            const { id, name } = item
-            return {
-              id,
-              title: name,
-              path: `/analyse/myAnalyse?id=${id}`,
-              componentPath: '/analyse/myAnalyse',
-            }
-          })
-          menusData.forEach(menus => {
-            if (menus.id === 4) {
-              menus.children = childArr
-            }
-          })
-        }
+    return $http.get('/api/resource/list')
+      .then(({ data }) => {
+        return data
       })
+      .then(res => {
+        const menusData = res
+        $http.get('/api/analysis/myAnalysis').then(({ data }) => {
+          if (data.length) {
+            const childArr = data.map(item => {
+              const { id, name } = item
+              return {
+                id,
+                title: name,
+                path: `/analyse/myAnalyse?id=${id}`,
+                componentPath: '/analyse/myAnalyse',
+              }
+            })
+            const menusMap = menusData.map(menus => {
+              if (menus.path === '/analyse/myAnalyse') {
+                menus.children = childArr
+                return menus
+              }
+              return menus
+            })
 
-      return menusData
-    }).then(data => {
-      commit('set_state', {
-        menus: data,
-        isRouter: true,
+            commit('set_state', {
+              menus: menusMap,
+              isRouter: true,
+            })
+          }
+        })
       })
-    })
-
-    // const data = [{
-    //   'id': '1',
-    //   'name': 'DataModel',
-    //   'path': '/dataModel',
-    //   'componentPath': '/model/dataModel',
-    //   'title': '数据模型',
-    //   'icon': 'el-icon-tickets',
-    // },
-    // {
-    //   'id': '2',
-    //   'name': 'Template',
-    //   'path': '/template',
-    //   'componentPath': '/template/template',
-    //   'title': '分析模板',
-    //   'icon': 'el-icon-tickets',
-    // },
-    // {
-    //   'id': '3',
-    //   'name': 'TemplateList',
-    //   'path': '/templateList',
-    //   'componentPath': '/template/templateList',
-    //   'title': '模板列表',
-    //   'icon': 'el-icon-tickets',
-    // },
-    // {
-    //   'id': '4',
-    //   'path': '',
-    //   'componentPath': '',
-    //   'title': '我的分析',
-    //   'icon': 'el-icon-tickets',
-    //   'children': [{
-    //     'id': '41',
-
-    //     'path': '/analyse/myAnalyse?id=41',
-    //     'componentPath': '/analyse/myAnalyse',
-    //     'title': '我自定义1',
-    //     'icon': 'el-icon-tickets',
-    //   },
-    //   {
-    //     'id': '42',
-    //     'path': '/analyse/myAnalyse?id=42',
-    //     'componentPath': '/analyse/myAnalyse',
-    //     'title': '我自定义2',
-    //     'icon': 'el-icon-tickets',
-    //   },
-    //   ],
-    // },
-    // ]
-    // commit('set_state', {
-    //   menus: data,
-    //   isRouter: true,
-    // })
   },
 }
 
 const getters = {
   routes (state) {
-    // const menus = JSON.parse(JSON.stringify(state.menus))
-    // console.log('state.menus', state.menus)
     const menus = state.menus
 
     // 处理数据
@@ -179,7 +125,7 @@ const getters = {
         return {
           component: 'layout',
           path: '',
-          children: item,
+          children: [{ ...item }],
         }
       } else {
         item.component = 'layout'
@@ -191,25 +137,27 @@ const getters = {
     // router数据
     const formatRoutes = (arr) => {
       return arr.map(v => {
-        const pathNo = v.path.indexOf('?')
-        const compPath = v.component === 'layout' ? '/layout/layout' : v.componentPath
+        let { path, component, children } = v
+        const { id, title, componentPath } = v
+        // 赋值
+        const pathNo = path.indexOf('?')
+        const compPath = component === 'layout' ? '/layout/layout' : componentPath
+        const name = componentPath ? componentPath.split('/').pop() : ''
+        const meta = { title: title || '', keepAlive: compPath === '/analyse/myAnalyse' || id === 4 }
 
-        v.url = v.path
-        v.name = v.componentPath ? v.componentPath.split('/').pop() : ''
-        v.path = pathNo === -1 ? v.path : v.path.substring(0, pathNo)
-        v.meta = { title: v.title ? v.title : '', keepAlive: compPath === '/analyse/myAnalyse' }
-        v.component = () =>
+        path = pathNo === -1 ? path : path.substring(0, pathNo)
+        component = v.component = () =>
                     import(`@/views${compPath}.vue`)
 
-        if (v.children && v.children.length) {
-          v.meta = { title: v.title ? v.title : '', keepAlive: false }
-        } else {
-          v.meta = { title: v.title ? v.title : '', keepAlive: compPath === '/analyse/myAnalyse' }
-        }
+        if (children && children.length) children = formatRoutes(children)
 
-        if (v.children && v.children.length) v.children = formatRoutes(v.children)
-        return v
-        // /analyse/myAnalyse
+        return {
+          name,
+          path,
+          component,
+          meta,
+          children,
+        }
       })
     }
 

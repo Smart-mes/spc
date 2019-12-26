@@ -24,13 +24,13 @@ const routes = [{
   name: '',
   path: '',
   component: () =>
-    import('@/views/layout/layout'),
+      import('@/views/layout/layout'),
   children: [
     {
       name: '404',
       path: '/404',
       component: () =>
-        import('@/views/404'),
+          import('@/views/404'),
     },
   ],
 },
@@ -60,18 +60,21 @@ router.beforeEach(async (to, from, next) => {
     next()
   } else {
     const { isRouter } = $store.state
+
     if (!isRouter) {
       await $store.dispatch('queryMenus')
       const { routes } = $store.getters
-      routes.push(
-        {
-          path: '*',
-          redirect: '/404',
-        }
-      )
-      console.log('routes', routes)
-      // router.addRoutes(routes)
 
+      if (routes.length) {
+        console.log('routes', routes)
+        routes.push(
+          {
+            path: '*',
+            redirect: '/404',
+          }
+        )
+        router.addRoutes(routes)
+      }
       next({ ...to, replace: true })
     }
     next()
