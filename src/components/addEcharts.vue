@@ -31,54 +31,49 @@
         label-width="90px"
         class="formInline"
       >
-        <el-form-item
-          label="数据源"
-          prop="dataSource"
-          :rules="rule.mustSelect"
-        >
-          <el-select v-model="formOption.dataSource">
-            <el-option label="区域一" value="shanghai"/>
-            <el-option label="区域二" value="beijing"/>
+        <el-form-item label="数据源" prop="dataSourceId" :rules="rule.mustSelect">
+          <el-select v-model="formOption.dataSourceId">
+            <el-option
+              v-for="data in dataSource"
+              :key="data.id"
+              :label="data.name"
+              :value="data.id"
+            />
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="分析模型"
-          prop="model"
-          :rules="rule.mustSelect"
-        >
-          <el-select v-model="formOption.model">
-            <el-option label="区域一" value="shanghai"/>
-            <el-option label="区域二" value="beijing"/>
+        <el-form-item label="分析模型" prop="modelCode" :rules="rule.mustSelect">
+          <el-select v-model="formOption.modelCode" @change="getModelOption()">
+            <el-option
+              v-for="model in modelList "
+              :key="model.id"
+              :label="model.name"
+              :value="model.code"
+            />
           </el-select>
         </el-form-item>
         <div class="must">
           <h4 class="subtitle">
-            <span class="icon-circle">●</span>必选的内容
+            <span class="icon-circle">●</span>模型规则
           </h4>
           <el-form-item
-            v-for="(option,i) in formOption.mustList"
+            v-for="(option,i) in formOption.modelOption"
             :key="option.key"
             :label="option.label"
-            :prop="'mustList.' + i + '.value'"
+            :prop="`modelOption.${i}.value`"
             :rules="rule.must"
           >
             <el-input v-model="option.value"/>
           </el-form-item>
-          <div v-if="!formOption.mustList.length" class="pl-20">请选择分析模型类型</div>
+          <div v-if="!formOption.modelOption.length" class="pl-20">请选择分析模型类型</div>
         </div>
-        <el-form-item label="清洗条件" prop="wash">
-          <el-input v-model="formOption.wash"/>
+        <el-form-item label="清洗条件" prop="cleanData">
+          <el-input v-model="formOption.cleanData"/>
         </el-form-item>
-        <el-form-item label="自定义" prop="custom">
-          <el-input v-model="formOption.custom"/>
+        <el-form-item label="自定义" prop="customOption">
+          <el-input v-model="formOption.customOption"/>
         </el-form-item>
-        <el-form-item
-          label="图表配置"
-          prop="echartOption"
-          :rules="rule.must"
-          class="textarea"
-        >
-          <el-input v-model="formOption.echartOption" type="textarea" rows="5"/>
+        <el-form-item label="图表配置" prop="option" :rules="rule.must" class="textarea">
+          <el-input v-model="formOption.option" type="textarea" rows="5"/>
         </el-form-item>
         <!-- 第一步 -->
       </el-form>
@@ -114,20 +109,23 @@ export default {
         },
       },
       formOption: {
-        dataSource: '',
-        model: '',
-        mustList: [
-          { label: '姓名', value: '' },
-          { label: '性别', value: '' },
-          { label: '职业', value: '' },
-          { label: '收入', value: '' },
+        dataSourceId: '',
+        modelCode: '',
+        modelOption: [
+          // { label: '姓名', value: '' },
+          // { label: '性别', value: '' },
+          // { label: '职业', value: '' },
+          // { label: '收入', value: '' },
         ],
-        wash: '',
-        custom: '',
-        echartOption: '',
+        cleanData: '',
+        customOption: '',
+        option: '',
 
       },
       optionList: [],
+      // 请求数据
+      dataSource: [],
+      modelList: [],
     }
   },
   computed: {
@@ -139,6 +137,7 @@ export default {
     dialogVisible (val) {
       if (!val) {
         this.$refs.formOption.resetFields()
+        this.formOption.modelOption = []
       }
     },
     boxNum () {
@@ -146,6 +145,9 @@ export default {
     },
   },
   mounted () {
+    this.getDataSource()
+    this.getModelList()
+    // this.getModelOption()
   },
   methods: {
     // 获取不同的class
@@ -191,6 +193,33 @@ export default {
         }
       })
     },
+    // 获取数据源
+    async getDataSource () {
+      const { data: { list }} = await this.$http.get('/api/dataSource/myDataSource')
+      this.dataSource = list
+      console.log(' this.dataSource ', this.dataSource)
+    },
+    async getModelList () {
+      const { data } = await this.$http.get('/api/model/list')
+      this.modelList = data
+    },
+    getModelOption () {
+      this.$http
+        .get('/api/model/getmodel', {
+          params: {
+            code: this.formOption.modelCode,
+          },
+        })
+        .then(({ data: { param }}) => {
+          param = JSON.parse(param)
+          this.formOption.modelOption = []
+          Object.keys(param).map((key, i) => {
+            const paramObj = { label: param[key], key: key, value: '' }
+            console.log('paramObj', paramObj)
+            this.formOption.modelOption.push(paramObj)
+          })
+        })
+    },
   },
 }
 
@@ -225,15 +254,17 @@ export default {
     justify-content: center;
     border: 1px solid $grid-line-color;
   }
-  .iconsanjiaodagou{
+  .iconsanjiaodagou {
     position: absolute;
-    top:0;
+    top: 0;
     left: 0;
     font-size: 40px;
-    color:$Grass-green-color;
+    color: $Grass-green-color;
   }
 }
-.box-none{display: none}
+.box-none {
+  display: none;
+}
 /* 不同的列表*/
 .box1 {
   > li {

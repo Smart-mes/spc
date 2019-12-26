@@ -133,6 +133,8 @@ export default {
       dialogGridVisible: false,
       dialogGridTitle: '添加布局',
       chartList: [],
+      // 保存类型
+      saveType: '',
     }
   },
   computed: {},
@@ -169,6 +171,7 @@ export default {
     },
     getChart (val) {
       this.chartList = val
+      console.log('chartList:::', this.chartList)
     },
   },
 }

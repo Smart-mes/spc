@@ -66,7 +66,6 @@ router.beforeEach(async (to, from, next) => {
       const { routes } = $store.getters
 
       if (routes.length) {
-        console.log('routes', routes)
         routes.push(
           {
             path: '*',

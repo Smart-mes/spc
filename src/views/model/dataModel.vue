@@ -269,7 +269,7 @@ export default {
           { lable: 'url', key: 'url', value: '' },
           { lable: '账号', key: 'username', value: '' },
           { lable: '密码', key: 'password', value: '' },
-          { lable: 'SQ', key: 'sql', value: '' },
+          { lable: 'sql', key: 'sql', value: '' },
         ],
         customList: [],
         url: '',
@@ -545,6 +545,7 @@ export default {
           const { list, total } = data
           this.tableData = list
           this.pageTotal = total
+          // console.log(' this.tableData ', this.tableData)
         })
         .catch(() => {
           this.tableLoading = false

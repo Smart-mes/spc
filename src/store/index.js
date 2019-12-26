@@ -133,7 +133,6 @@ const getters = {
       }
     })
 
-    // return menusData
     // router数据
     const formatRoutes = (arr) => {
       return arr.map(v => {
