@@ -1,13 +1,15 @@
 <template>
   <div>
-    <head-title/>
+    <head-title :head-title="title"/>
     <div class="wrap">
       <div class="btn-tool">
         <btn-tool :buttons="btnList"/>
       </div>
       <div class="tempLayout">
         <add-echarts
+          ref="addEcharts"
           :grid-num="tempType"
+          :analysis-list="analysisList"
           @optionData="getChart"
         />
         <!-- tempType -->
@@ -21,7 +23,13 @@
       label-width="90px"
       width="650px"
     >
-      <el-form ref="gridForm" :model="gridForm" :rules="gridRules" label-width="90px" class="gridFrom">
+      <el-form
+        ref="gridForm"
+        :model="gridForm"
+        :rules="gridRules"
+        label-width="90px"
+        class="gridFrom"
+      >
         <el-form-item label="模板名称" prop="name">
           <el-input v-model="gridForm.name"/>
         </el-form-item>
@@ -66,6 +74,7 @@ export default {
   },
   data () {
     return {
+      title: '',
       // tool
       btnList: [
         {
@@ -73,7 +82,7 @@ export default {
           icon: 'icontianjia',
           text: '添加布局',
           disabled: () => {
-            return false
+            return !!this.tempType
           },
           click: () => {
             this.gridAdd()
@@ -103,7 +112,11 @@ export default {
             return layoutLen !== chartLen
           },
           click: () => {
-            console.log('点击保持模版！')
+            if (this.saveType === 'add') {
+              this.addSave()
+            } else if (this.saveType === 'modify') {
+              this.modifySave()
+            }
           },
         },
       ],
@@ -134,7 +147,9 @@ export default {
       dialogGridTitle: '添加布局',
       chartList: [],
       // 保存类型
-      saveType: '',
+      saveType: 'add',
+      // 修改传参到子组件
+      analysisList: [],
     }
   },
   computed: {},
@@ -144,6 +159,12 @@ export default {
         this.$refs.gridForm.resetFields()
       }
     },
+  },
+  mounted () {
+    if (!this.$route.query.id) {
+      sessionStorage.clear()
+    }
+    this.modifyValue()
   },
   methods: {
     // 选择布局
@@ -164,40 +185,150 @@ export default {
           this.tempType = this.gridForm.type
           this.tempName = this.gridForm.name
         } else {
-          console.log('error submit!!')
           return false
         }
       })
     },
     getChart (val) {
       this.chartList = val
-      console.log('chartList:::', this.chartList)
+    },
+    addSave () {
+      const addParame = this.handleParame()
+
+      this.$http
+        .post('/api/analysis/addDesign', addParame)
+        .then(res => {
+          this.clearData()
+          this.$confirm('添加成功！', '提示', {
+            confirmButtonText: '继续添加',
+            cancelButtonText: '查看列表',
+            type: 'success',
+          })
+            .then(() => {
+              this.$router.push({ path: '/template' })
+            })
+            .catch(() => {
+              this.$router.push({ path: '/templateList' })
+            })
+        })
+        .catch(() => {
+          this.$message.error('添加失败')
+        })
+    },
+    // 处理参数
+    handleParame () {
+      const modelList = this.chartList.map(chart => {
+        chart.modelOption = JSON.stringify(chart.modelOption)
+        return chart
+      })
+
+      const parame = {
+        name: this.tempName,
+        template: this.tempType,
+        analysisDetails: modelList,
+      }
+
+      return parame
+    },
+    // 清空
+    clearData () {
+      sessionStorage.clear()
+      this.saveType = 'add'
+      this.title = ''
+      this.tempName = ''
+      this.tempType = ''
+      this.analysisList = []
+      this.$refs.addEcharts.optionList = []
+    },
+    // 修改赋值
+    modifyValue () {
+      let analyseData = sessionStorage.getItem('analyseRow')
+      // 处理参数
+      if (this.$route.query.id && analyseData) {
+        analyseData = JSON.parse(analyseData)
+        const { name, template, analysisDetails } = analyseData
+        const analysisArr = analysisDetails.map(analys => {
+          const {
+            dataSourceId,
+            modelCode,
+            modelOption,
+            cleanData,
+            customOption,
+            option,
+          } = analys
+
+          return {
+            dataSourceId,
+            modelCode,
+            modelOption: JSON.parse(modelOption),
+            cleanData,
+            customOption,
+            option,
+          }
+        })
+        // 赋值
+        this.saveType = 'modify'
+        this.title = name
+        this.tempName = name
+        this.tempType = template
+        this.analysisList = analysisArr
+      }
+    },
+    modifySave () {
+      const modifyParame = this.handleParame()
+      const modifyDetails = modifyParame.analysisDetails
+
+      // 获取数据
+      const analyseData = JSON.parse(sessionStorage.getItem('analyseRow'))
+      const analyseDetails = analyseData.analysisDetails
+      // 赋值id
+      analyseDetails.map((item, i) => {
+        modifyDetails[i].id = item.id
+      })
+
+      modifyParame.id = analyseData.id
+
+      this.$http.put('/api/analysis/updateDesign', modifyParame).then(res => {
+        this.clearData()
+        this.$confirm('修改成功！', '提示', {
+          confirmButtonText: '继续添加',
+          cancelButtonText: '查看列表',
+          type: 'success',
+        })
+          .then(() => {
+            this.$router.push({ path: '/template' })
+          })
+          .catch(() => {
+            this.$router.push({ path: '/templateList' })
+          })
+      }).catch(() => {
+        this.$message.error('修改失败')
+      })
     },
   },
 }
 </script>
 <style lang="scss" scoped>
-.gridFrom{
-  /deep/.el-input__inner{
+.gridFrom {
+  /deep/.el-input__inner {
     width: 465px;
   }
-.grid {
-  margin: 30px 0;
-  /deep/.el-form-item__label {
-    line-height: 60px;
-  }
-  /deep/.el-radio-group {
-    display: flex;
-    flex-direction: row;
-    .el-radio {
-      margin-right: 30px;
+  .grid {
+    margin: 30px 0;
+    /deep/.el-form-item__label {
+      line-height: 60px;
+    }
+    /deep/.el-radio-group {
       display: flex;
       flex-direction: row;
-      align-items: center;
+      .el-radio {
+        margin-right: 30px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
     }
   }
-
-}
 }
 .btn-tool {
   border-bottom: 1px solid $line-color;

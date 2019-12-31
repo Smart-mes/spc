@@ -86,9 +86,10 @@ const actions = {
       })
       .then(res => {
         const menusData = res
-        $http.get('/api/analysis/myAnalysis').then(({ data }) => {
-          if (data.length) {
-            const childArr = data.map(item => {
+        $http.get('/api/analysis/myAnalysis').then(({ data: { list }}) => {
+          // console.log('list', list)
+          if (list.length) {
+            const childArr = list.map(item => {
               const { id, name } = item
               return {
                 id,
@@ -104,7 +105,6 @@ const actions = {
               }
               return menus
             })
-
             commit('set_state', {
               menus: menusMap,
               isRouter: true,

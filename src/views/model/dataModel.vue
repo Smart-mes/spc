@@ -18,19 +18,19 @@
         <el-table-column prop="id" label="ID" width="180"/>
         <el-table-column prop="name" label="名称" width="180"/>
         <el-table-column prop="inputCode" label="入参类型"/>
-        <el-table-column label="时间">
+        <el-table-column label="创建时间">
           <template slot-scope="scope">{{ momentTime(scope.row.createTime) }}</template>
         </el-table-column>
       </el-table>
       <div class="page">
         <el-pagination
           :current-page="pageNum"
-          :page-sizes="[20, 30, 40, 50]"
-          :page-size="100"
-          layout="total, sizes, prev, pager, next, jumper"
+          :page-size="pageSize"
           :total="pageTotal"
-          @size-change="pageSizeFn"
-          @current-change="pageNumFn"
+          :page-sizes="[20, 30, 40, 50]"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handlePageSize"
+          @current-change="handlePageNum"
         />
       </div>
       <!-- 添加修改弹窗 -->
@@ -321,9 +321,9 @@ export default {
     tableDelete () {
       const [{ id }] = this.tableSelected
       this.$http
-        .delete('/api/dataSource/deleteDataSource', {
+        .delete('/api/analysis/deleteAnalysis', {
           params: {
-            id: id,
+            id,
           },
         })
         .then(res => {
@@ -351,11 +351,11 @@ export default {
       this.tableSelected = val
     },
     // 分页
-    pageSizeFn (val) {
+    handlePageSize (val) {
       this.pageSize = val
       this.getTable()
     },
-    pageNumFn (val) {
+    handlePageNum (val) {
       this.pageNum = val
       this.getTable()
     },

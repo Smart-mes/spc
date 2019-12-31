@@ -4,12 +4,23 @@
 <script>
 export default {
   name: 'HeadTitle',
+  props: {
+    headTitle: {
+      type: String,
+      default: '',
+
+    },
+  },
   data () {
     return {}
   },
   computed: {
     title () {
-      return this.$route.meta.title
+      if (this.headTitle) {
+        return `${this.headTitle}-模板`
+      } else {
+        return this.$route.meta.title
+      }
     },
   },
 }

@@ -59,7 +59,7 @@
             v-for="(option,i) in formOption.modelOption"
             :key="option.key"
             :label="option.label"
-            :prop="`modelOption.${i}.value`"
+            :prop="'modelOption.' + i + '.value'"
             :rules="rule.must"
           >
             <el-input v-model="option.value"/>
@@ -93,6 +93,12 @@ export default {
       type: String,
       default: '',
     },
+    analysisList: {
+      type: Array,
+      default: () => {
+        return []
+      },
+    },
   },
   data () {
     return {
@@ -112,10 +118,6 @@ export default {
         dataSourceId: '',
         modelCode: '',
         modelOption: [
-          // { label: '姓名', value: '' },
-          // { label: '性别', value: '' },
-          // { label: '职业', value: '' },
-          // { label: '收入', value: '' },
         ],
         cleanData: '',
         customOption: '',
@@ -145,9 +147,14 @@ export default {
     },
   },
   mounted () {
-    this.getDataSource()
-    this.getModelList()
-    // this.getModelOption()
+    this.$nextTick(() => {
+      this.optionList = JSON.parse(JSON.stringify(this.analysisList))
+      this.$emit('optionData', this.optionList)
+      // console.log('this.analysisList:::', this.analysisList)
+
+      this.getDataSource()
+      this.getModelList()
+    })
   },
   methods: {
     // 获取不同的class
@@ -179,7 +186,7 @@ export default {
     },
     // 表单提交
     dialogSubmit () {
-      console.log(this.formOption)
+      // console.log(this.formOption)
       this.$refs.formOption.validate((valid) => {
         if (valid) {
           this.optionList[this.currentIndex] = JSON.parse(JSON.stringify(this.formOption))
@@ -197,7 +204,6 @@ export default {
     async getDataSource () {
       const { data: { list }} = await this.$http.get('/api/dataSource/myDataSource')
       this.dataSource = list
-      console.log(' this.dataSource ', this.dataSource)
     },
     async getModelList () {
       const { data } = await this.$http.get('/api/model/list')
@@ -210,14 +216,9 @@ export default {
             code: this.formOption.modelCode,
           },
         })
-        .then(({ data: { param }}) => {
-          param = JSON.parse(param)
-          this.formOption.modelOption = []
-          Object.keys(param).map((key, i) => {
-            const paramObj = { label: param[key], key: key, value: '' }
-            console.log('paramObj', paramObj)
-            this.formOption.modelOption.push(paramObj)
-          })
+        .then(({ data }) => {
+          const { param } = data
+          this.formOption.modelOption = JSON.parse(param)
         })
     },
   },
