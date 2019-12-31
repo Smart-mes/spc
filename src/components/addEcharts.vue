@@ -142,7 +142,8 @@ export default {
         this.formOption.modelOption = []
       }
     },
-    boxNum () {
+    boxNum (val) {
+      // 数据改变清空数据
       this.optionList = []
     },
   },
@@ -150,7 +151,6 @@ export default {
     this.$nextTick(() => {
       this.optionList = JSON.parse(JSON.stringify(this.analysisList))
       this.$emit('optionData', this.optionList)
-      // console.log('this.analysisList:::', this.analysisList)
 
       this.getDataSource()
       this.getModelList()
