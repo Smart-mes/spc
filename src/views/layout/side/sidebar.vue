@@ -59,8 +59,9 @@ export default {
     ...mapMutations(['add_tags']),
     toPath (item) {
       const [path, dataParams] = item.path.split('?')
-      if (dataParams) {
+      if (dataParams && path === '/analyse/myAnalyse') {
         this.$router.push({ path: path })
+        //  this.$router.push({ name: 'myAnalyse', params: dataParams })
         this.add_tags(item)
       } else {
         this.$router.push({ path: path })

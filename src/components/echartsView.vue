@@ -2,20 +2,20 @@
   <div>
     <div class="customSearch">
       <el-form :inline="true" label-width="100px">
-        <div v-for="(customList,i) in formCustom.customList" :key="i" class="list-box">
+        <!-- <div v-for="(custom,i) in formCustom.customList" :key="i" class="list-box">
           <h4 class="subtitle">
-            <span class="icon-circle">●</span>员工清单
+            <span class="icon-circle">●</span>数据源1
           </h4>
           <div class="list-item-box">
             <el-form-item
-              v-for="(custom,j) in customList"
+              v-for="(customItem,j) in custom"
               :key="j"
-              :label="custom.key+' ('+custom.option+')'"
+              :label="customItem.key+' ('+customItem.option+')'"
             >
               <el-input v-model="custom.value" size="mini"/>
             </el-form-item>
           </div>
-        </div>
+        </div> -->
         <div class="btn">
           <el-button type="primary" @click="search">
             <i class="iconfont iconsousuo"/>搜索
@@ -46,108 +46,149 @@ export default {
   },
   data () {
     return {
+      dataList: [],
       formCustom: {
         user: '',
         region: '',
-        customList: [
-          [
-            { key: 'url', value: '', option: '>=' },
-            { key: '数据库', value: '', option: '>=' },
-            { key: 'api', value: '', option: '>' },
-            { key: '职业', value: '', option: '>=' },
-          ],
-          [
-            { key: '前端', value: '', option: '>' },
-            { key: '后端', value: '', option: '<' },
-          ],
-        ],
+        // customList: [
+        //   [
+        //     { key: 'url', value: '', option: '>=' },
+        //     { key: '数据库', value: '', option: '>=' },
+        //     { key: 'api', value: '', option: '>' },
+        //     { key: '职业', value: '', option: '>=' },
+        //   ],
+        //   [
+        //     { key: '前端', value: '', option: '>' },
+        //     { key: '后端', value: '', option: '<' },
+        //   ],
+        // ],
       },
       // 图表显示
-      tempType: '4',
+      tempType: '',
       optionList: [
         {
           legend: {},
           tooltip: {},
           dataset: {
-
             dimensions: ['product', '2015', '2016', '2017'],
             source: [
-              { product: 'Matcha Latte', '2015': 43.3, '2016': 85.8, '2017': 93.7 },
+              {
+                product: 'Matcha Latte',
+                '2015': 43.3,
+                '2016': 85.8,
+                '2017': 93.7,
+              },
               { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
-              { product: 'Cheese Cocoa', '2015': 86.4, '2016': 65.2, '2017': 82.5 },
-              { product: 'Walnut Brownie', '2015': 72.4, '2016': 53.9, '2017': 39.1 },
+              {
+                product: 'Cheese Cocoa',
+                '2015': 86.4,
+                '2016': 65.2,
+                '2017': 82.5,
+              },
+              {
+                product: 'Walnut Brownie',
+                '2015': 72.4,
+                '2016': 53.9,
+                '2017': 39.1,
+              },
             ],
           },
           xAxis: { type: 'category' },
           yAxis: {},
-          series: [
-            { type: 'bar' },
-            { type: 'bar' },
-            { type: 'bar' },
-          ],
+          series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }],
         },
         {
           legend: {},
           tooltip: {},
           dataset: {
-
             dimensions: ['product', '2015', '2016', '2017'],
             source: [
-              { product: 'Matcha Latte', '2015': 43.3, '2016': 85.8, '2017': 93.7 },
+              {
+                product: 'Matcha Latte',
+                '2015': 43.3,
+                '2016': 85.8,
+                '2017': 93.7,
+              },
               { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
-              { product: 'Cheese Cocoa', '2015': 86.4, '2016': 65.2, '2017': 82.5 },
-              { product: 'Walnut Brownie', '2015': 72.4, '2016': 53.9, '2017': 39.1 },
+              {
+                product: 'Cheese Cocoa',
+                '2015': 86.4,
+                '2016': 65.2,
+                '2017': 82.5,
+              },
+              {
+                product: 'Walnut Brownie',
+                '2015': 72.4,
+                '2016': 53.9,
+                '2017': 39.1,
+              },
             ],
           },
           xAxis: { type: 'category' },
           yAxis: {},
-          series: [
-            { type: 'bar' },
-            { type: 'bar' },
-            { type: 'bar' },
-          ],
+          series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }],
         },
         {
           legend: {},
           tooltip: {},
           dataset: {
-
             dimensions: ['product', '2015', '2016', '2017'],
             source: [
-              { product: 'Matcha Latte', '2015': 43.3, '2016': 85.8, '2017': 93.7 },
+              {
+                product: 'Matcha Latte',
+                '2015': 43.3,
+                '2016': 85.8,
+                '2017': 93.7,
+              },
               { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
-              { product: 'Cheese Cocoa', '2015': 86.4, '2016': 65.2, '2017': 82.5 },
-              { product: 'Walnut Brownie', '2015': 72.4, '2016': 53.9, '2017': 39.1 },
+              {
+                product: 'Cheese Cocoa',
+                '2015': 86.4,
+                '2016': 65.2,
+                '2017': 82.5,
+              },
+              {
+                product: 'Walnut Brownie',
+                '2015': 72.4,
+                '2016': 53.9,
+                '2017': 39.1,
+              },
             ],
           },
           xAxis: { type: 'category' },
           yAxis: {},
-          series: [
-            { type: 'bar' },
-            { type: 'bar' },
-            { type: 'bar' },
-          ],
+          series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }],
         },
         {
           legend: {},
           tooltip: {},
           dataset: {
-
             dimensions: ['product', '2015', '2016', '2017'],
             source: [
-              { product: 'Matcha Latte', '2015': 43.3, '2016': 85.8, '2017': 93.7 },
+              {
+                product: 'Matcha Latte',
+                '2015': 43.3,
+                '2016': 85.8,
+                '2017': 93.7,
+              },
               { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
-              { product: 'Cheese Cocoa', '2015': 86.4, '2016': 65.2, '2017': 82.5 },
-              { product: 'Walnut Brownie', '2015': 72.4, '2016': 53.9, '2017': 39.1 },
+              {
+                product: 'Cheese Cocoa',
+                '2015': 86.4,
+                '2016': 65.2,
+                '2017': 82.5,
+              },
+              {
+                product: 'Walnut Brownie',
+                '2015': 72.4,
+                '2016': 53.9,
+                '2017': 39.1,
+              },
             ],
           },
           xAxis: { type: 'category' },
           yAxis: {},
-          series: [
-            { type: 'bar' },
-            { type: 'bar' },
-            { type: 'bar' },
-          ],
+          series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }],
         },
       ],
     }
@@ -156,6 +197,80 @@ export default {
     boxNum () {
       return !this.tempType ? 0 : Number(this.tempType)
     },
+    customList () {
+      const { analysisDetails } = this.dataList
+      let customArr = []
+
+      const customMap = analysisDetails.map(custom => {
+        const { dataSource: { id, name, customParam }} = custom
+        return {
+          id,
+          name,
+          customParam: JSON.parse(customParam),
+        }
+      })
+      // 去重处理
+      const obj = {}
+      customArr = customMap.reduce((cur, next) => {
+        obj[next.id] ? '' : obj[next.id] = true && cur.push(next)
+        return cur
+      }, [])
+
+      // 清空data里面的value的值
+      if (customArr.length) {
+        customArr.map(item1 => {
+          const { id, name } = item1
+          let { customParam } = item1
+
+          const clearData = (customParam) => {
+            return customParam.map(item2 => {
+              if (item2.value) { item2.value = '' }
+              if (item2.length) item2 = clearData(item2)
+              return item2
+            })
+          }
+          customParam = clearData(customParam)
+          return { id, name, customParam }
+        })
+      }
+
+      return customArr
+    },
+  },
+  mounted () {
+    const { id } = this.tagsItem
+    this.$http
+      .get('/api/analysis/viewMyAnalysis', { params: { id: id }})
+      .then(({ data }) => {
+        const { template } = data
+        this.dataList = data
+        this.tempType = template
+        // console.log('data', data)
+      }).then(() => {
+        // 处理清空value的值
+        // const a = JSON.parse(JSON.stringify(this.customList))
+
+        // const b = a.map(item1 => {
+        //   const { id, name } = item1
+        //   let { customParam } = item1
+
+        //   const clearData = (customParam) => {
+        //     return customParam.map(item2 => {
+        //       if (item2.value) { item2.value = '' }
+        //       if (item2.length) item2 = clearData(item2)
+        //       return item2
+        //     })
+        //   }
+
+        //   customParam = clearData(customParam)
+
+        //   return { id, name, customParam }
+        // })
+
+        // console.log('b', b)
+        // console.log('data', this.dataList)
+        console.log('this.customList', this.customList)
+      })
   },
   methods: {
     getClass () {
@@ -176,7 +291,9 @@ export default {
     // 执行echarts
     init () {
       for (let i = 0; i < this.boxNum; i++) {
-        const div = document.getElementById(`echear${this.tagsItem.no}`).getElementsByClassName('box-item')[i]
+        const div = document
+          .getElementById(`echear${this.tagsItem.no}`)
+          .getElementsByClassName('box-item')[i]
         const chart = this.$echarts.init(div)
         chart.setOption(this.optionList[i])
       }
@@ -220,7 +337,7 @@ export default {
   display: flex;
   -webkit-flex-wrap: wrap;
   flex-wrap: wrap;
-  width:100%;
+  width: 100%;
   height: 100%;
   background-color: #eee;
   > li {

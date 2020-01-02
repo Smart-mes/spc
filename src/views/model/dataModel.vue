@@ -321,7 +321,7 @@ export default {
     tableDelete () {
       const [{ id }] = this.tableSelected
       this.$http
-        .delete('/api/analysis/deleteAnalysis', {
+        .delete('/api/dataSource/deleteDataSource', {
           params: {
             id,
           },

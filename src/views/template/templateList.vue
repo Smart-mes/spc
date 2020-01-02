@@ -47,6 +47,7 @@
 <script>
 import headTitle from '@/components/headTitle'
 import moment from 'moment'
+import { mapMutations } from 'vuex'
 export default {
   name: 'TemplateList',
   components: {
@@ -69,6 +70,7 @@ export default {
     })
   },
   methods: {
+    ...mapMutations(['add_tags']),
     // 分页
     handlePageSize (val) {
       this.pageSize = val
@@ -104,7 +106,17 @@ export default {
           this.$message.error('删除失败')
         })
     },
-    tableStartUp () {},
+    tableStartUp (row) {
+      const { name, id } = row
+      const item = {
+        componentPath: '/analyse/myAnalyse',
+        id: id,
+        path: `/analyse/myAnalyse?id=${id}`,
+        title: name,
+      }
+      this.$router.push({ path: '/analyse/myAnalyse' })
+      this.add_tags(item)
+    },
     getTable () {
       this.tableLoading = true
       this.$http.get('/api/analysis/myAnalysis', {

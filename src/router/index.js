@@ -64,7 +64,7 @@ router.beforeEach(async (to, from, next) => {
     if (!isRouter) {
       await $store.dispatch('queryMenus')
       const { routes } = $store.getters
-
+      // console.log('routes:::', routes)
       if (routes.length) {
         routes.push(
           {
