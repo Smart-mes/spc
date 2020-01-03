@@ -64,6 +64,8 @@ import headTitle from '@/components/headTitle'
 import btnTool from '@/components/btnTool'
 import choiceGrid from '@/components/choiceGrid'
 import addEcharts from '@/components/addEcharts'
+import { mapMutations } from 'vuex'
+
 export default {
   name: 'Template',
   components: {
@@ -117,6 +119,19 @@ export default {
             } else if (this.saveType === 'modify') {
               this.modifySave()
             }
+            // 动态添加路由，清空tags
+            this.$store.dispatch('queryMenus')
+            const { routes } = this.$store.getters
+            if (routes.length) {
+              routes.push(
+                {
+                  path: '*',
+                  redirect: '/404',
+                }
+              )
+              this.$router.addRoutes(routes)
+            }
+            this.set_state({ tags: [], tagsNo: 0 })
           },
         },
       ],
@@ -152,7 +167,8 @@ export default {
       analysisList: [],
     }
   },
-  computed: {},
+  computed: {
+  },
   watch: {
     dialogGridVisible (val) {
       if (!val) {
@@ -167,6 +183,7 @@ export default {
     this.modifyValue()
   },
   methods: {
+    ...mapMutations(['set_state']),
     // 选择布局
     gridAdd () {
       this.dialogGridVisible = true

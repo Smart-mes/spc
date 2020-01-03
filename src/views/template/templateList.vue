@@ -24,7 +24,7 @@
                 <i class="iconfont iconicon7"/>删除
               </el-button>
               <el-button type="success" @click="tableStartUp(scope.row)">
-                <i class="iconfont iconicon7"/>启动
+                <i class="iconfont iconqidong"/>启动
               </el-button>
             </div>
           </template>
@@ -70,7 +70,7 @@ export default {
     })
   },
   methods: {
-    ...mapMutations(['add_tags']),
+    ...mapMutations(['add_tags', 'set_state']),
     // 分页
     handlePageSize (val) {
       this.pageSize = val
@@ -102,7 +102,23 @@ export default {
             type: 'success',
           })
           this.getTable()
-        }).catch(() => {
+        })
+        .then(() => {
+          // 动态添加路由，清空tags
+          this.$store.dispatch('queryMenus')
+          const { routes } = this.$store.getters
+          if (routes.length) {
+            routes.push(
+              {
+                path: '*',
+                redirect: '/404',
+              }
+            )
+            this.$router.addRoutes(routes)
+          }
+          this.set_state({ tags: [], tagsNo: 0 })
+        })
+        .catch(() => {
           this.$message.error('删除失败')
         })
     },

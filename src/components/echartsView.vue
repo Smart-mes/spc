@@ -2,24 +2,27 @@
   <div>
     <div class="customSearch">
       <el-form :inline="true" label-width="100px">
-        <!-- <div v-for="(custom,i) in formCustom.customList" :key="i" class="list-box">
-          <h4 class="subtitle">
-            <span class="icon-circle">●</span>数据源1
-          </h4>
-          <div class="list-item-box">
+        <div v-for="custom in formCustom.customList" :key="custom.id" class="custom-box">
+          <div class="subtitle2">
+            <h4>
+              {{ custom.name }}
+            </h4>
+          </div>
+          <div v-for="(customItem1,i) in custom.customParam" :key="i" class="list-box">
             <el-form-item
-              v-for="(customItem,j) in custom"
+              v-for="(customItem2,j) in customItem1"
               :key="j"
-              :label="customItem.key+' ('+customItem.option+')'"
+              :label="customItem2.label +' ('+customItem2.option+')'"
             >
-              <el-input v-model="custom.value" size="mini"/>
+              <el-input v-model="customItem2.value" size="mini"/>
             </el-form-item>
           </div>
-        </div> -->
+        </div>
         <div class="btn">
           <el-button type="primary" @click="search">
             <i class="iconfont iconsousuo"/>搜索
           </el-button>
+          <el-button @click="clearData">清空搜索</el-button>
         </div>
       </el-form>
     </div>
@@ -48,20 +51,7 @@ export default {
     return {
       dataList: [],
       formCustom: {
-        user: '',
-        region: '',
-        // customList: [
-        //   [
-        //     { key: 'url', value: '', option: '>=' },
-        //     { key: '数据库', value: '', option: '>=' },
-        //     { key: 'api', value: '', option: '>' },
-        //     { key: '职业', value: '', option: '>=' },
-        //   ],
-        //   [
-        //     { key: '前端', value: '', option: '>' },
-        //     { key: '后端', value: '', option: '<' },
-        //   ],
-        // ],
+        customList: [],
       },
       // 图表显示
       tempType: '',
@@ -197,12 +187,14 @@ export default {
     boxNum () {
       return !this.tempType ? 0 : Number(this.tempType)
     },
-    customList () {
+    customParamList () {
       const { analysisDetails } = this.dataList
       let customArr = []
-
+      // 遍历筛选数据
       const customMap = analysisDetails.map(custom => {
-        const { dataSource: { id, name, customParam }} = custom
+        const {
+          dataSource: { id, name, customParam },
+        } = custom
         return {
           id,
           name,
@@ -212,24 +204,28 @@ export default {
       // 去重处理
       const obj = {}
       customArr = customMap.reduce((cur, next) => {
-        obj[next.id] ? '' : obj[next.id] = true && cur.push(next)
+        obj[next.id] ? '' : (obj[next.id] = true && cur.push(next))
         return cur
       }, [])
 
       // 清空data里面的value的值
       if (customArr.length) {
-        customArr.map(item1 => {
-          const { id, name } = item1
-          let { customParam } = item1
+        customArr.map(custom => {
+          const { id, name } = custom
+          let { customParam } = custom
 
-          const clearData = (customParam) => {
-            return customParam.map(item2 => {
-              if (item2.value) { item2.value = '' }
-              if (item2.length) item2 = clearData(item2)
-              return item2
+          const clearValue = customParam => {
+            return customParam.map(item => {
+              if (item.value) {
+                item.label = item.key
+                item.key = item.value
+                item.value = ''
+              }
+              if (item.length) item = clearValue(item)
+              return item
             })
           }
-          customParam = clearData(customParam)
+          customParam = clearValue(customParam)
           return { id, name, customParam }
         })
       }
@@ -245,31 +241,14 @@ export default {
         const { template } = data
         this.dataList = data
         this.tempType = template
-        // console.log('data', data)
-      }).then(() => {
-        // 处理清空value的值
-        // const a = JSON.parse(JSON.stringify(this.customList))
-
-        // const b = a.map(item1 => {
-        //   const { id, name } = item1
-        //   let { customParam } = item1
-
-        //   const clearData = (customParam) => {
-        //     return customParam.map(item2 => {
-        //       if (item2.value) { item2.value = '' }
-        //       if (item2.length) item2 = clearData(item2)
-        //       return item2
-        //     })
-        //   }
-
-        //   customParam = clearData(customParam)
-
-        //   return { id, name, customParam }
-        // })
-
-        // console.log('b', b)
-        // console.log('data', this.dataList)
-        console.log('this.customList', this.customList)
+        console.log('data', data)
+      })
+      .then(() => {
+        // 搜索表单赋值
+        this.formCustom.customList = JSON.parse(
+          JSON.stringify(this.customParamList)
+        )
+        // console.log('this.customParamList', this.customParamList)
       })
   },
   methods: {
@@ -286,7 +265,51 @@ export default {
       }
     },
     search () {
-      this.init()
+      let { customList } = this.formCustom
+      // 处理表单的数据
+      customList = customList.map(custom => {
+        const { id, name, customParam } = custom
+        return {
+          id,
+          name,
+          customParam: JSON.stringify(customParam),
+        }
+      })
+
+      // 参数合并
+      const { id, analysisDetails } = this.dataList
+      // 遍历数据
+      const analysisArr = analysisDetails.map((analysis) => {
+        const { id, analysisId, modelCode, modelOption, dataSource } = analysis
+
+        const [customObj] = customList.filter(custom => {
+          if (dataSource.id === custom.id) {
+            return custom
+          }
+        })
+
+        return {
+          id,
+          analysisId,
+          modelCode,
+          modelOption,
+          dataSourceVo: {
+            id: customObj.id,
+            customParam: customObj.customParam,
+          },
+        }
+      })
+
+      // console.log('analysisArr', analysisArr)
+      // console.log('customList', customList)
+      // console.log('newParame', newParame)
+
+      const newParame = { id, analysisDetails: analysisArr }
+
+      this.$http.post('/api/analysis/doMyAnalysis', newParame).then(res => {
+        console.log('res:', res)
+      })
+      this.init
     },
     // 执行echarts
     init () {
@@ -298,23 +321,44 @@ export default {
         chart.setOption(this.optionList[i])
       }
     },
+    // 清空搜索
+    clearData () {
+      const { customList } = this.formCustom
+      customList.forEach(custom => {
+        const { customParam } = custom
+
+        const clearValue = customParam => {
+          return customParam.forEach(item => {
+            if (item.value) {
+              item.value = ''
+            }
+            if (item.length) item = clearValue(item)
+          })
+        }
+        clearValue(customParam)
+      })
+    },
   },
 }
 </script>
 <style lang="scss" scoped>
 .customSearch {
   overflow: hidden;
-  padding-top: 10px;
   width: 100%;
-  border-top: 1px solid $line-color;
+  // border-top: 1px solid $line-color;
+  .custom-box{
+    overflow: hidden;
+    }
   .list-box {
     overflow: hidden;
+    margin-bottom: -1px;
     padding: 5px 0;
     border-bottom: 1px dashed $line-color;
   }
 
-  .subtitle {
-    margin: 0;
+  .subtitle2 {
+    margin: 5px 0;
+
   }
   /deep/.el-form-item {
     margin-bottom: 5px;

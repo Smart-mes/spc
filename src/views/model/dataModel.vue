@@ -44,9 +44,9 @@
         </div>
         <el-form
           ref="modelForm"
-          label-width="90px"
-          :inline="true"
           :model="modelForm"
+          :inline="true"
+          label-width="90px"
           class="formInline"
         >
           <div v-show="activeStep===1" class="must">
