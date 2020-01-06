@@ -55,132 +55,8 @@ export default {
       },
       // 图表显示
       tempType: '',
-      optionList: [
-        {
-          legend: {},
-          tooltip: {},
-          dataset: {
-            dimensions: ['product', '2015', '2016', '2017'],
-            source: [
-              {
-                product: 'Matcha Latte',
-                '2015': 43.3,
-                '2016': 85.8,
-                '2017': 93.7,
-              },
-              { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
-              {
-                product: 'Cheese Cocoa',
-                '2015': 86.4,
-                '2016': 65.2,
-                '2017': 82.5,
-              },
-              {
-                product: 'Walnut Brownie',
-                '2015': 72.4,
-                '2016': 53.9,
-                '2017': 39.1,
-              },
-            ],
-          },
-          xAxis: { type: 'category' },
-          yAxis: {},
-          series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }],
-        },
-        {
-          legend: {},
-          tooltip: {},
-          dataset: {
-            dimensions: ['product', '2015', '2016', '2017'],
-            source: [
-              {
-                product: 'Matcha Latte',
-                '2015': 43.3,
-                '2016': 85.8,
-                '2017': 93.7,
-              },
-              { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
-              {
-                product: 'Cheese Cocoa',
-                '2015': 86.4,
-                '2016': 65.2,
-                '2017': 82.5,
-              },
-              {
-                product: 'Walnut Brownie',
-                '2015': 72.4,
-                '2016': 53.9,
-                '2017': 39.1,
-              },
-            ],
-          },
-          xAxis: { type: 'category' },
-          yAxis: {},
-          series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }],
-        },
-        {
-          legend: {},
-          tooltip: {},
-          dataset: {
-            dimensions: ['product', '2015', '2016', '2017'],
-            source: [
-              {
-                product: 'Matcha Latte',
-                '2015': 43.3,
-                '2016': 85.8,
-                '2017': 93.7,
-              },
-              { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
-              {
-                product: 'Cheese Cocoa',
-                '2015': 86.4,
-                '2016': 65.2,
-                '2017': 82.5,
-              },
-              {
-                product: 'Walnut Brownie',
-                '2015': 72.4,
-                '2016': 53.9,
-                '2017': 39.1,
-              },
-            ],
-          },
-          xAxis: { type: 'category' },
-          yAxis: {},
-          series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }],
-        },
-        {
-          legend: {},
-          tooltip: {},
-          dataset: {
-            dimensions: ['product', '2015', '2016', '2017'],
-            source: [
-              {
-                product: 'Matcha Latte',
-                '2015': 43.3,
-                '2016': 85.8,
-                '2017': 93.7,
-              },
-              { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
-              {
-                product: 'Cheese Cocoa',
-                '2015': 86.4,
-                '2016': 65.2,
-                '2017': 82.5,
-              },
-              {
-                product: 'Walnut Brownie',
-                '2015': 72.4,
-                '2016': 53.9,
-                '2017': 39.1,
-              },
-            ],
-          },
-          xAxis: { type: 'category' },
-          yAxis: {},
-          series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }],
-        },
-      ],
+      // optionList: [
+      // ],
     }
   },
   computed: {
@@ -307,19 +183,47 @@ export default {
       const newParame = { id, analysisDetails: analysisArr }
 
       this.$http.post('/api/analysis/doMyAnalysis', newParame).then(res => {
-        console.log('res:', res)
+        const { data: { data }} = res
+
+        // 组装data
+        const { analysisDetails } = this.dataList
+        const echartArr = analysisDetails.map(analysis => {
+          const { dataSourceId } = analysis
+          // console.log('data[dataSourceId]', dataSourceId, data, data[dataSourceId])
+          return {
+            ...data[dataSourceId],
+          }
+        })
+
+        this.init(echartArr)
       })
-      this.init
     },
     // 执行echarts
-    init () {
-      for (let i = 0; i < this.boxNum; i++) {
-        const div = document
-          .getElementById(`echear${this.tagsItem.no}`)
-          .getElementsByClassName('box-item')[i]
-        const chart = this.$echarts.init(div)
-        chart.setOption(this.optionList[i])
-      }
+    init (echartData) {
+      // for (let i = 0; i < this.boxNum; i++) {
+      //   const div = document
+      //     .getElementById(`echear${this.tagsItem.no}`)
+      //     .getElementsByClassName('box-item')[i]
+      //   const chart = this.$echarts.init(div)
+
+      //   const {
+      //     xchartdata,
+      //     xchartdataindex,
+      //     xucl,
+      //     xlcl,
+      //     dataMax,
+      //     dataMin,
+      //   } = echartData[i]
+
+      //   const { analysisDetails } = this.dataList
+
+      //   let option = analysisDetails[i].option
+
+      //   option = eval('(' + option + ')')
+      //   console.log('option', option)
+
+      //   chart.setOption(option)
+      // }
     },
     // 清空搜索
     clearData () {
