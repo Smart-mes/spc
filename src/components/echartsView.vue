@@ -55,132 +55,7 @@ export default {
       },
       // 图表显示
       tempType: '',
-      optionList: [
-        {
-          legend: {},
-          tooltip: {},
-          dataset: {
-            dimensions: ['product', '2015', '2016', '2017'],
-            source: [
-              {
-                product: 'Matcha Latte',
-                '2015': 43.3,
-                '2016': 85.8,
-                '2017': 93.7,
-              },
-              { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
-              {
-                product: 'Cheese Cocoa',
-                '2015': 86.4,
-                '2016': 65.2,
-                '2017': 82.5,
-              },
-              {
-                product: 'Walnut Brownie',
-                '2015': 72.4,
-                '2016': 53.9,
-                '2017': 39.1,
-              },
-            ],
-          },
-          xAxis: { type: 'category' },
-          yAxis: {},
-          series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }],
-        },
-        {
-          legend: {},
-          tooltip: {},
-          dataset: {
-            dimensions: ['product', '2015', '2016', '2017'],
-            source: [
-              {
-                product: 'Matcha Latte',
-                '2015': 43.3,
-                '2016': 85.8,
-                '2017': 93.7,
-              },
-              { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
-              {
-                product: 'Cheese Cocoa',
-                '2015': 86.4,
-                '2016': 65.2,
-                '2017': 82.5,
-              },
-              {
-                product: 'Walnut Brownie',
-                '2015': 72.4,
-                '2016': 53.9,
-                '2017': 39.1,
-              },
-            ],
-          },
-          xAxis: { type: 'category' },
-          yAxis: {},
-          series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }],
-        },
-        {
-          legend: {},
-          tooltip: {},
-          dataset: {
-            dimensions: ['product', '2015', '2016', '2017'],
-            source: [
-              {
-                product: 'Matcha Latte',
-                '2015': 43.3,
-                '2016': 85.8,
-                '2017': 93.7,
-              },
-              { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
-              {
-                product: 'Cheese Cocoa',
-                '2015': 86.4,
-                '2016': 65.2,
-                '2017': 82.5,
-              },
-              {
-                product: 'Walnut Brownie',
-                '2015': 72.4,
-                '2016': 53.9,
-                '2017': 39.1,
-              },
-            ],
-          },
-          xAxis: { type: 'category' },
-          yAxis: {},
-          series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }],
-        },
-        {
-          legend: {},
-          tooltip: {},
-          dataset: {
-            dimensions: ['product', '2015', '2016', '2017'],
-            source: [
-              {
-                product: 'Matcha Latte',
-                '2015': 43.3,
-                '2016': 85.8,
-                '2017': 93.7,
-              },
-              { product: 'Milk Tea', '2015': 83.1, '2016': 73.4, '2017': 55.1 },
-              {
-                product: 'Cheese Cocoa',
-                '2015': 86.4,
-                '2016': 65.2,
-                '2017': 82.5,
-              },
-              {
-                product: 'Walnut Brownie',
-                '2015': 72.4,
-                '2016': 53.9,
-                '2017': 39.1,
-              },
-            ],
-          },
-          xAxis: { type: 'category' },
-          yAxis: {},
-          series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }],
-        },
-      ],
+      optionList: [],
     }
   },
   computed: {
@@ -300,26 +175,94 @@ export default {
         }
       })
 
-      // console.log('analysisArr', analysisArr)
-      // console.log('customList', customList)
-      // console.log('newParame', newParame)
-
       const newParame = { id, analysisDetails: analysisArr }
 
       this.$http.post('/api/analysis/doMyAnalysis', newParame).then(res => {
-        console.log('res:', res)
+        const { data: { data }} = res
+
+        // 组装data
+        const dataObj = {}
+        data.map(filterItem => {
+          const { dataSourceId, data } = filterItem
+
+          if (data && !dataObj[dataSourceId]) {
+            dataObj[dataSourceId] = data
+          }
+        })
+
+        // if (!Object.keys(dataObj).length) {
+        //   return false
+        // }
+        const { analysisDetails } = this.dataList
+        const echartArr = analysisDetails.map(analysis => {
+          const { modelCode, dataSourceId } = analysis
+          return {
+            modelCode,
+            data: dataObj[dataSourceId] || {},
+          }
+        })
+        console.log('echartArr', echartArr)
+        this.init(echartArr)
       })
-      this.init
     },
     // 执行echarts
-    init () {
-      for (let i = 0; i < this.boxNum; i++) {
+    init (echartData) {
+      echartData.map((item, i) => {
         const div = document
           .getElementById(`echear${this.tagsItem.no}`)
           .getElementsByClassName('box-item')[i]
         const chart = this.$echarts.init(div)
-        chart.setOption(this.optionList[i])
-      }
+
+        const { modelCode, data } = item
+
+        // 清空为空的数据
+        if (JSON.stringify(data) === '{}') {
+          chart.clear()
+          return false
+        }
+        const {
+          // xbax
+          xchartdata,
+          xchartdataindex,
+          xucl,
+          xlcl,
+          dataMax,
+          dataMin,
+          // R
+          rchartdata,
+          rucl,
+          rlcl,
+          // S
+          schartdata,
+          sucl,
+          slcl,
+        } = data
+
+        let option
+        switch (modelCode) {
+          case 'Xbar':
+            option = this.drowxbar(modelCode, xchartdata, xchartdataindex, xucl, xlcl)
+            option.yAxis.name = '平均值'
+            option.yAxis.max = dataMax
+            option.yAxis.min = dataMin
+
+            break
+          case 'R':
+            option = this.drowxbar(modelCode, rchartdata, xchartdataindex, rucl, rlcl,)
+            option.yAxis.name = '极差值'
+            break
+
+          case 'S':
+            option = this.drowxbar(modelCode, schartdata, xchartdataindex, sucl, slcl,)
+            option.yAxis.name = '标准值'
+            break
+        }
+
+        chart.setOption(option)
+        // window.onresize = () => {
+        //      	chart.resize()
+        // }
+      })
     },
     // 清空搜索
     clearData () {
@@ -337,6 +280,76 @@ export default {
         }
         clearValue(customParam)
       })
+    },
+    handleEchart () {},
+    // 图形配置
+    drowxbar (modelCode, xchartdata, xchartdataindex, ucl, lcl) {
+      return {
+        title: {
+          text: `[${modelCode} 控制图]`,
+          top: 'top',
+          left: 'center',
+          textStyle: {
+            fontSize: 12,
+            fontWeight: 'normal',
+          },
+        },
+        grid: {
+          left: '10%',
+          right: '10%',
+        },
+        tooltip: {
+          trigger: 'axis',
+        },
+        xAxis: {
+          type: 'category',
+          data: xchartdataindex,
+        },
+        yAxis: {
+          name: '平均数',
+          nameLocation: 'middle',
+          nameGap: 50,
+          splitNumber: 8,
+        },
+        visualMap: {// 区间内控制显示颜色
+          show: false,
+          dimension: 1,
+          pieces: [{ gte: ucl, lte: lcl, color: 'red' }],
+          outOfRange: {
+            color: '#000000',
+          },
+        },
+        series: [{
+          data: xchartdata,
+          type: 'line',
+          markLine: {
+            symbol: ['none', 'none'],
+            precision: 3,
+            label: {
+              formatter: function (value) {
+                return value.value.toFixed(3)
+              },
+              normal: {
+                formatter: '{b}:{c}',
+              },
+            },
+            data: [{
+              type: 'average',
+              name: 'cl',
+            },
+            {
+              name: 'UCL',
+              yAxis: ucl,
+            },
+            {
+              name: 'LCL',
+              yAxis: lcl,
+            },
+            ],
+          },
+        }],
+
+      }
     },
   },
 }
