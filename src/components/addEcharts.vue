@@ -72,8 +72,8 @@
         <el-form-item label="自定义" prop="customOption">
           <el-input v-model="formOption.customOption"/>
         </el-form-item>
-        <el-form-item label="图表配置" prop="option" :rules="rule.must" class="textarea">
-          <el-input v-model="formOption.option" type="textarea" rows="5"/>
+        <el-form-item label="图表配置" prop="option" class="textarea">
+          <el-input v-model="formOption.option" type="textarea" rows="12"/>
         </el-form-item>
         <!-- 第一步 -->
       </el-form>
