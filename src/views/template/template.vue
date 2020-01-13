@@ -266,7 +266,7 @@ export default {
           },
         })
         .then(({ data }) => {
-          // sessionStorage.setItem('analyseRow', JSON.stringify(data))
+          sessionStorage.setItem('analyseRow', JSON.stringify(data))
           // let analyseData = sessionStorage.getItem('analyseRow')
           // 处理参数
           if (this.$route.query.id && data) {
