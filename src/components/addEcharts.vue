@@ -5,7 +5,7 @@
         <div class="box-item">
           <i v-show="optionList[i]?true:false" class="iconfont iconsanjiaodagou"/>
           <div class="operate">
-            <el-button type="primary" :disabled="optionList[i]? true:false" @click="add(i)">
+            <el-button type="primary" :disabled="optionList[i]?true:false" @click="add(i)">
               <i class="iconfont icontianjia"/>添加配置
             </el-button>
             <el-button type="primary" :disabled="!optionList[i]?true:false" @click="modify(i)">
@@ -146,12 +146,15 @@ export default {
       // 数据改变清空数据
       this.optionList = []
     },
+    analysisList (val) {
+      this.optionList = JSON.parse(JSON.stringify(val))
+      this.$emit('optionData', this.optionList)
+    },
   },
   mounted () {
     this.$nextTick(() => {
-      this.optionList = JSON.parse(JSON.stringify(this.analysisList))
-      this.$emit('optionData', this.optionList)
-
+      // this.optionList = JSON.parse(JSON.stringify(this.analysisList))
+      // this.$emit('optionData', this.optionList)
       this.getDataSource()
       this.getModelList()
     })

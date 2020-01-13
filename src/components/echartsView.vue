@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="customSearch">
-      <el-form :inline="true" label-width="100px">
+      <el-form :inline="true" label-width="150px">
         <div v-for="custom in formCustom.customList" :key="custom.id" class="custom-box">
           <div class="subtitle2">
             <h4>{{ custom.name }}</h4>
@@ -12,7 +12,19 @@
               :key="j"
               :label="customItem2.label +' ('+customItem2.option+')'"
             >
-              <el-input v-model="customItem2.value" size="mini"/>
+              <el-date-picker
+                v-if="(/^.*(time).*$/gi).test(customItem2.key)"
+                v-model="customItem2.value"
+                size="mini"
+                type="datetime"
+                placeholder="选择日期时间"
+              />
+
+              <el-input
+                v-else
+                v-model="customItem2.value"
+                size="mini"
+              />
             </el-form-item>
           </div>
         </div>
@@ -150,9 +162,8 @@ export default {
         }
       })
 
-      // 参数合并
+      // 参数合并, 遍历数据
       const { id, analysisDetails } = this.dataList
-      // 遍历数据
       const analysisArr = analysisDetails.map((analysis) => {
         const { id, analysisId, modelCode, modelOption, dataSource } = analysis
 
@@ -178,11 +189,9 @@ export default {
 
       this.$http.post('/api/analysis/doMyAnalysis', newParame).then(res => {
         const { data: { data }} = res
-        // console.log('data打印:::', data)
 
         // 组装data
         const { analysisDetails } = this.dataList
-
         const echartArr = analysisDetails.map(analysisItem => {
           const { modelCode, option } = analysisItem
           const [filterItem] = data.filter(filterItem => {
@@ -196,203 +205,31 @@ export default {
           }
         })
 
-        // console.log('echartArr', echartArr)
-        this.init(echartArr)
+        console.log('echartArr', echartArr)
+
+        this.echartInit(echartArr)
       })
     },
     // 执行echarts
-    init (echartData) {
+    echartInit (echartData) {
       echartData.map((item, i) => {
         const div = document
           .getElementById(`echear${this.tagsItem.no}`)
           .getElementsByClassName('box-item')[i]
         const chart = this.$echarts.init(div)
 
-        const { modelCode, data } = item
+        // const { data: { option }} = item
 
         // 清空为空的数据
-        if (data === null) {
+        if (item.data === null) {
           chart.clear()
           return false
         }
 
-        const {
-          // xbax
-          xchartdata,
-          dataindex,
-          xucl,
-          xlcl,
-          // R
-          rchartdata,
-          rucl,
-          rlcl,
-          // S
-          schartdata,
-          sucl,
-          slcl,
-          // CPK
-          lsl,
-          target,
-          usl,
-          sigma,
-          sigmaMax,
-          sigmaMin,
+        //  获取echartsOption
+        const echartsOption = this.handleEchart(item)
 
-        } = data
-
-        let echartsOption
-        let echartsParame
-        switch (modelCode) {
-          case 'Xbar':
-            echartsParame = {
-              modelCode,
-              data: xchartdata,
-              dataindex,
-              ucl: xucl,
-              lcl: xlcl,
-              yName: '平均值',
-              max: (xucl + 0.001),
-              min: (xlcl - 0.001),
-            }
-            echartsOption = this.drowxbar(echartsParame)
-            break
-
-          case 'R':
-            echartsParame = {
-              modelCode,
-              data: rchartdata,
-              dataindex,
-              ucl: rucl,
-              lcl: rlcl,
-              yName: '极差值',
-              max: (rucl + 0.001),
-              min: (rlcl - 0.001),
-            }
-            echartsOption = this.drowxbar(echartsParame)
-            break
-
-          case 'S':
-            echartsParame = {
-              modelCode,
-              data: schartdata,
-              dataindex,
-              ucl: sucl,
-              lcl: slcl,
-              yName: '标准值',
-              max: (sucl + 0.001),
-              min: (slcl - 0.001),
-            }
-            echartsOption = this.drowxbar(echartsParame)
-            break
-
-          case 'Xbar-R':
-            echartsParame = [
-              {
-                modelCode: 'xbax',
-                data: xchartdata,
-                dataindex,
-                ucl: xucl,
-                lcl: xlcl,
-                yName: '平均值',
-                max: (xucl + 0.001),
-                min: (xlcl - 0.001),
-              },
-              {
-                modelCode: 'R',
-                data: rchartdata,
-                dataindex,
-                ucl: rucl,
-                lcl: rlcl,
-                yName: '极差值',
-                max: (rucl + 0.001),
-                min: (rlcl - 0.001),
-              },
-            ]
-            echartsOption = this.drowXbarR(echartsParame)
-            break
-
-          case 'Xbar-S':
-            echartsParame = [
-              {
-                modelCode: 'xbax',
-                data: xchartdata,
-                dataindex,
-                ucl: xucl,
-                lcl: xlcl,
-                yName: '平均值',
-                max: (xucl + 0.001),
-                min: (xlcl - 0.001),
-              },
-              {
-                modelCode: 'S',
-                data: schartdata,
-                dataindex,
-                ucl: sucl,
-                lcl: slcl,
-                yName: '标准值',
-                max: (sucl + 0.001),
-                min: (slcl - 0.001),
-              },
-            ]
-            echartsOption = this.drowXbarR(echartsParame)
-            break
-
-          case 'I-MR':
-            rchartdata[0] = ''
-            echartsParame = [
-              {
-                modelCode: 'xbax',
-                data: xchartdata,
-                dataindex,
-                ucl: xucl,
-                lcl: xlcl,
-                yName: '单值',
-                max: (xucl + 0.001),
-                min: (xlcl - 0.001),
-              },
-              {
-                modelCode: 'R',
-                data: rchartdata,
-                dataindex: dataindex,
-                ucl: rucl,
-                lcl: rlcl,
-                yName: '移动极差值',
-                max: (rucl + 0.001),
-                min: (rlcl - 0.001),
-              },
-            ]
-            echartsOption = this.drowXbarR(echartsParame)
-            break
-
-          case 'CPK':
-
-            echartsParame = {
-              dataIndex: xchartdata,
-              barData: rchartdata,
-              lineData: xchartdata,
-              lsl: (lsl).toString(),
-              target: (target).toString(),
-              usl: (usl).toString(),
-              sigma: (sigma).toString(),
-              sigmaMax: (sigmaMax).toString(),
-              sigmaMin: (sigmaMin).toString(),
-            }
-
-            echartsOption = this.drowCPK(echartsParame)
-
-            console.log('echartsParame', echartsParame)
-            break
-        }
-        // 自定义修改echarts
-        // if (option !== 'undefined' && option !== '') {
-        //   const optionJson = (new Function('return ' + option))()
-
-        //   for (const key in optionJson) {
-        //     Object.assign(echartsOption[key], optionJson[key])
-        //   }
-        // }
-
-        chart.setOption(echartsOption)
+        chart.setOption(echartsOption, true)
         // 浏览器重置
         window.addEventListener('resize', () => {
           chart.resize()
@@ -416,7 +253,7 @@ export default {
         clearValue(customParam)
       })
     },
-    handleEchart () {},
+    // handleEchart () {},
     // 图形配置
     drowxbar (objParame) {
       return			{
@@ -475,18 +312,19 @@ export default {
                 formatter: '{b}:{c}',
               },
             },
-            data: [{
-              type: 'average',
-              name: 'cl',
-            },
-            {
-              name: 'UCL',
-              yAxis: objParame.ucl,
-            },
-            {
-              name: 'LCL',
-              yAxis: objParame.lcl,
-            },
+            data: [
+              {
+                type: 'average',
+                name: 'CL',
+              },
+              {
+                name: 'UCL',
+                yAxis: objParame.ucl,
+              },
+              {
+                name: 'LCL',
+                yAxis: objParame.lcl,
+              },
             ],
           },
         }],
@@ -496,32 +334,36 @@ export default {
     drowXbarR (dataParame) {
       // console.log('dataParame', dataParame)
       return {
-        title: [{
-          text: `[${dataParame[0].modelCode}控制图]`,
-          top: 'top',
-          left: 'center',
-          textStyle: {
-            fontSize: 12,
-            fontWeight: 'normal',
+        title: [
+          {
+            text: `[${dataParame[0].modelCode}控制图]`,
+            top: 'top',
+            left: 'center',
+            textStyle: {
+              fontSize: 12,
+              fontWeight: 'normal',
+            },
           },
-        },
-        {
-          text: `[${dataParame[1].modelCode}控制图]`,
-          top: '50%',
-          left: 'center',
-          textStyle: {
-            fontSize: 12,
-            fontWeight: 'normal',
+          {
+            text: `[${dataParame[1].modelCode}控制图]`,
+            top: '50%',
+            left: 'center',
+            textStyle: {
+              fontSize: 12,
+              fontWeight: 'normal',
+            },
           },
-        },
         ],
-        grid: [{
-          top: '15%',
-          bottom: '60%',
-        }, {
-          top: '60%',
-          bottom: '15%',
-        }],
+        grid: [
+          {
+            top: '15%',
+            bottom: '60%',
+          },
+          {
+            top: '60%',
+            bottom: '15%',
+          },
+        ],
         // 鼠标移动上去同时触发
         tooltip: {
           trigger: 'axis',
@@ -608,7 +450,7 @@ export default {
               },
               data: [{
                 type: 'average',
-                name: 'cl',
+                name: 'Cl',
               },
               {
                 name: 'UCL',
@@ -616,7 +458,7 @@ export default {
               },
               {
                 name: 'LCL',
-                yAxis: dataParame[1].lcl,
+                yAxis: dataParame[0].lcl,
               },
               ],
             },
@@ -640,11 +482,11 @@ export default {
               },
               data: [{
                 type: 'average',
-                name: 'cl',
+                name: 'CL',
               },
               {
                 name: 'UCL',
-                yAxis: dataParame[0].ucl,
+                yAxis: dataParame[1].ucl,
               },
               {
                 name: 'LCL',
@@ -675,9 +517,19 @@ export default {
       } = objParame
 
       return {
+
+        // title: {
+        //   text: '正太分布图',
+        //   left: 'center',
+        // },
         title: {
-          text: '正太分布图',
+          text: `[${objParame.modelCode} 控制图]`,
+          top: 'top',
           left: 'center',
+          textStyle: {
+            fontSize: 12,
+            fontWeight: 'normal',
+          },
         },
         color: ['#5793f3', '#d14a61', '#675bba'],
         tooltip: {
@@ -767,6 +619,221 @@ export default {
         },
         ],
       }
+    },
+    // cpk数据处理
+    handleCPK (x, u, a) {
+      return (1 / Math.sqrt(2 * Math.PI) * a) * Math.exp(-1 * ((x - u) * (x - u)) / (2 * a * a))
+    },
+    handleLineData (xchartdata, mean, multiplier) {
+      const CPKArr = []
+      for (var j = 0; j < xchartdata.length; j++) {
+        const res = this.handleCPK(xchartdata[j], mean, multiplier).toFixed(2)
+        CPKArr.push(res)
+      }
+      return CPKArr
+    },
+    handleEchart (itemData) {
+      const { modelCode, data } = itemData
+      const {
+        // xbax
+        xchartdata,
+        dataindex,
+        xucl,
+        xlcl,
+        xdataMax,
+        xdataMin,
+        // R
+        rchartdata,
+        rucl,
+        rlcl,
+        rdataMax,
+        rdataMin,
+        // S
+        schartdata,
+        sucl,
+        slcl,
+        sdataMax,
+        sdataMin,
+        // CPK
+        lsl,
+        target,
+        usl,
+        sigma,
+        sigmaMax,
+        sigmaMin,
+        mean,
+        multiplier,
+
+      } = data
+
+      // echarts的参数,option
+      let echartsParame
+      let echartsOption
+
+      // CPK
+      // const x = ['-6486', '-6103', '-5720', '-5337', '-4954', '-4571', '-4188', '-3805', '-3422', '-3039', '-2729', '-2656', '-2273', '-1890', '-1507', '-1124', '-741', '-358', '25', '408', '791', '1174', '1557', '1940', '2323', '2706', '3090', '3473', '3856', '4239', '4622', '5005', '5388', '5771', '6154', '6537', '6920', '7249', '7303', '7686', '8069', '8452', '8835', '9218', '9601', '9984', '10367', '10750', '11133', '11516', '11899', '12282', '12666', '13049', '13432', '13815', '14198', '14581', '14964', '15347', '15730', '16113', '16496', '16879', '17226', '17262', '17645', '18028', '18411', '18794', '19177', '19560', '19943', '20326', '20709', '21092', '21475', '21858', '22242', '22625', '23008', '23391', '23774', '24157', '24540', '24923', '25306', '25689', '26072', '26455', '26838', '27221', '27604', '27987', '28370', '28753', '29136', '29519', '29902', '30285', '30668', '31051', '31434']
+      // const y = ['1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '17', '9', '2', '3', '3', '2', '1', '4', '7', '9', '29', '30', '42', '32', '25', '48', '33', '41', '33', '38', '36', '29', '28', '33', '23', '15', '20', '43', '18', '19', '12', '13', '7', '5', '7', '2', '3', '1', '2', '1', '0', '0', '0', '2', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '1']
+      switch (modelCode) {
+        case 'Xbar':
+          echartsParame = {
+            modelCode,
+            data: xchartdata,
+            dataindex,
+            ucl: xucl,
+            lcl: xlcl,
+            yName: '平均值',
+            max: xdataMax,
+            min: xdataMin,
+          }
+          echartsOption = this.drowxbar(echartsParame)
+          break
+
+        case 'R':
+          echartsParame = {
+            modelCode,
+            data: rchartdata,
+            dataindex,
+            ucl: rucl,
+            lcl: rlcl,
+            yName: '极差值',
+            max: rdataMax,
+            min: rdataMin,
+          }
+          echartsOption = this.drowxbar(echartsParame)
+          break
+
+        case 'S':
+          echartsParame = {
+            modelCode,
+            data: schartdata,
+            dataindex,
+            ucl: sucl,
+            lcl: slcl,
+            yName: '标准值',
+            max: sdataMax,
+            min: sdataMin,
+          }
+          echartsOption = this.drowxbar(echartsParame)
+          break
+
+        case 'Xbar-R':
+          echartsParame = [
+            {
+              modelCode: 'xbax',
+              data: xchartdata,
+              dataindex,
+              ucl: xucl,
+              lcl: xlcl,
+              yName: '平均值',
+              max: xdataMax,
+              min: xdataMin,
+            },
+            {
+              modelCode: 'R',
+              data: rchartdata,
+              dataindex,
+              ucl: rucl,
+              lcl: rlcl,
+              yName: '极差值',
+              max: rdataMax,
+              min: rdataMin,
+            },
+          ]
+          echartsOption = this.drowXbarR(echartsParame)
+          break
+
+        case 'Xbar-S':
+          echartsParame = [
+            {
+              modelCode: 'xbax',
+              data: xchartdata,
+              dataindex,
+              ucl: xucl,
+              lcl: xlcl,
+              yName: '平均值',
+              max: xdataMax,
+              min: xdataMin,
+            },
+            {
+              modelCode: 'S',
+              data: schartdata,
+              dataindex,
+              ucl: sucl,
+              lcl: slcl,
+              yName: '标准值',
+              max: sdataMax,
+              min: sdataMin,
+            },
+          ]
+          echartsOption = this.drowXbarR(echartsParame)
+          break
+
+        case 'I-MR':
+          rchartdata[0] = ''
+          echartsParame = [
+            {
+              modelCode: 'xbax',
+              data: xchartdata,
+              dataindex,
+              ucl: xucl,
+              lcl: xlcl,
+              yName: '单值',
+              max: xdataMax,
+              min: xdataMin,
+            },
+            {
+              modelCode: 'R',
+              data: rchartdata,
+              dataindex: dataindex,
+              ucl: rucl,
+              lcl: rlcl,
+              yName: '移动极差值',
+              max: rdataMax,
+              min: rdataMin,
+            },
+          ]
+
+          echartsOption = this.drowXbarR(echartsParame)
+          break
+
+        case 'CPK':
+
+          // 处理lineData
+          // for (var j = 0; j < x.length; j++) {
+          //   const res = this.handleCPK(x[j], 7248.59, 3325.93).toFixed(2)
+          //   CPKArr.push(res)
+          // }
+
+          // echartsParame = {
+          //   dataIndex: x,
+          //   barData: y,
+          //   lineData: CPKArr,
+          //   lsl: '-6486',
+          //   target: '-5337',
+          //   usl: '-4954',
+          //   sigma: '-4188',
+          //   sigmaMax: '16113',
+          //   sigmaMin: '27987',
+          // }
+
+          echartsParame = {
+            dataIndex: xchartdata,
+            barData: rchartdata,
+            lineData: this.handleLineData(xchartdata, mean, multiplier),
+            lsl: (lsl).toString(),
+            target: (target).toString(),
+            usl: (usl).toString(),
+            sigma: (sigma).toString(),
+            sigmaMax: (sigmaMax).toString(),
+            sigmaMin: (sigmaMin).toString(),
+          }
+
+          echartsOption = this.drowCPK(echartsParame)
+
+          break
+      }
+
+      return echartsOption
     },
   },
 }

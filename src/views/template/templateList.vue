@@ -87,7 +87,7 @@ export default {
           id: row.id,
         },
       })
-      sessionStorage.setItem('analyseRow', JSON.stringify(row))
+      // sessionStorage.setItem('analyseRow', JSON.stringify(row))
     },
     tableDelete (id) {
       this.$http

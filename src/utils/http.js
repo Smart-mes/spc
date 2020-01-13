@@ -5,7 +5,7 @@ import router from '@/router/index'
 
 const instance = axios.create({
   headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-  timeout: 10000,
+  timeout: 30000,
   withCredentials: true,
   paramsSerializer (params) {
     return qs.stringify(params, { arrayFormat: 'repeat' })

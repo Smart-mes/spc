@@ -259,37 +259,46 @@ export default {
     },
     // 修改赋值
     modifyValue () {
-      let analyseData = sessionStorage.getItem('analyseRow')
-      // 处理参数
-      if (this.$route.query.id && analyseData) {
-        analyseData = JSON.parse(analyseData)
-        const { name, template, analysisDetails } = analyseData
-        const analysisArr = analysisDetails.map(analys => {
-          const {
-            dataSourceId,
-            modelCode,
-            modelOption,
-            cleanData,
-            customOption,
-            option,
-          } = analys
+      this.$http
+        .get('/api/analysis/viewMyAnalysis', {
+          params: {
+            id: this.$route.query.id,
+          },
+        })
+        .then(({ data }) => {
+          // sessionStorage.setItem('analyseRow', JSON.stringify(data))
+          // let analyseData = sessionStorage.getItem('analyseRow')
+          // 处理参数
+          if (this.$route.query.id && data) {
+            // analyseData = JSON.parse(analyseData)
+            const { name, template, analysisDetails } = data
+            const analysisArr = analysisDetails.map(analys => {
+              const {
+                dataSourceId,
+                modelCode,
+                modelOption,
+                cleanData,
+                customOption,
+                option,
+              } = analys
 
-          return {
-            dataSourceId,
-            modelCode,
-            modelOption: JSON.parse(modelOption),
-            cleanData,
-            customOption,
-            option,
+              return {
+                dataSourceId,
+                modelCode,
+                modelOption: JSON.parse(modelOption),
+                cleanData,
+                customOption,
+                option,
+              }
+            })
+            // 赋值
+            this.saveType = 'modify'
+            this.title = name
+            this.tempName = name
+            this.tempType = template
+            this.analysisList = analysisArr
           }
         })
-        // 赋值
-        this.saveType = 'modify'
-        this.title = name
-        this.tempName = name
-        this.tempType = template
-        this.analysisList = analysisArr
-      }
     },
     modifySave () {
       const modifyParame = this.handleParame()
