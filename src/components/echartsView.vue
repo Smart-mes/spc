@@ -204,10 +204,9 @@ export default {
             ...filterItem,
           }
         })
-
-        console.log('echartArr', echartArr)
-
+        // console.log('echartArr', echartArr)
         this.echartInit(echartArr)
+        // console.log('echartArr', echartArr)
       })
     },
     // 执行echarts
@@ -217,17 +216,27 @@ export default {
           .getElementById(`echear${this.tagsItem.no}`)
           .getElementsByClassName('box-item')[i]
         const chart = this.$echarts.init(div)
-
-        // const { data: { option }} = item
+        const { modelCode, option, data } = item
 
         // 清空为空的数据
-        if (item.data === null) {
+        if (data === null) {
           chart.clear()
           return false
         }
 
         //  获取echartsOption
-        const echartsOption = this.handleEchart(item)
+        // const echartsOption = option !== '' ? this.getEchart(item) : this.handleEchart(item)
+
+        // 获取echartsOption
+        let echartsOption
+
+        if (option !== '' && modelCode === 'Xbar' || modelCode === 'R' || modelCode === 'S') {
+          echartsOption = this.getEchart(item)
+        } else if (option !== '' && modelCode === 'Xbar-R' || modelCode === 'Xbar-S' || modelCode === 'I-MR') {
+          echartsOption = this.getEchart(item)
+        } else {
+          echartsOption = this.handleEchart(item)
+        }
 
         chart.setOption(echartsOption, true)
         // 浏览器重置
@@ -253,10 +262,9 @@ export default {
         clearValue(customParam)
       })
     },
-    // handleEchart () {},
     // 图形配置
     drowxbar (objParame) {
-      return			{
+      return {
         title: {
           text: `[${objParame.modelCode} 控制图]`,
           top: 'top',
@@ -328,7 +336,6 @@ export default {
             ],
           },
         }],
-
       }
     },
     drowXbarR (dataParame) {
@@ -505,6 +512,7 @@ export default {
     },
     drowCPK (objParame) {
       const {
+        modelCode,
         dataIndex,
         barData,
         lineData,
@@ -523,7 +531,7 @@ export default {
         //   left: 'center',
         // },
         title: {
-          text: `[${objParame.modelCode} 控制图]`,
+          text: `[${modelCode} 控制图]`,
           top: 'top',
           left: 'center',
           textStyle: {
@@ -534,89 +542,107 @@ export default {
         color: ['#5793f3', '#d14a61', '#675bba'],
         tooltip: {
           trigger: 'axis',
+          axisPointer: {
+            type: 'cross',
+          },
         },
         xAxis: [{
           type: 'category',
           data: dataIndex,
         }],
-        yAxis: [{
-          show: false,
-        },
-        {
-          type: 'value',
-          position: 'left',
-          axisLabel: {
-            formatter: '{value}',
+        yAxis: [
+        //   {
+        //   show: false,
+        // },
+          {
+            type: 'value',
+            name: '频率',
+            position: 'right',
+            axisLine: {
+              lineStyle: {
+                color: '#00cc00',
+              },
+            },
+            axisLabel: {
+              formatter: '{value}',
+            },
           },
-        },
+          {
+            type: 'value',
+            position: 'left',
+            axisLabel: {
+              formatter: '{value}',
+            },
+          },
         ],
-        series: [{
-          name: '原数据频率',
-          type: 'bar',
-          yAxisIndex: 1,
-          data: barData,
-        },
-        {
-          name: '正态分布',
-          type: 'line',
-          smooth: true,
-          yAxisIndex: 0,
-          data: lineData,
-        },
-        {
-          name: 'markLine1',
-          type: 'line',
-          markLine: {
-            symbol: 'none',
-            label: {
-              position: 'end',
-              normal: {
-                formatter: '{b}',
-                borderColor: '#ca8622',
-              },
-            },
-            data: [{
-              name: 'lsl',
-              xAxis: lsl,
-            },
-            {
-              name: 'target',
-              xAxis: target,
-            },
-            {
-              name: 'usl',
-              xAxis: usl,
-            },
-            ],
+        series: [
+          {
+            name: '原数据频率',
+            type: 'bar',
+            yAxisIndex: 1,
+            data: barData,
           },
-        },
-        {
-          name: 'markLine2',
-          type: 'line',
-          markLine: {
-            symbol: 'none',
-            label: {
-              position: 'end',
-              normal: {
-                formatter: '{b}',
-                borderColor: '#00ff00',
-              },
-            },
-            data: [{
-              name: 'sigma',
-              xAxis: sigma,
-            },
-            {
-              name: 'sigmaMax',
-              xAxis: sigmaMax,
-            },
-            {
-              name: 'sigmaMin',
-              xAxis: sigmaMin,
-            },
-            ],
+          {
+            name: '正态分布',
+            type: 'line',
+            smooth: true,
+            yAxisIndex: 0,
+            data: lineData,
           },
-        },
+          {
+            name: 'markLine1',
+            type: 'line',
+            markLine: {
+              symbol: 'none',
+              label: {
+                position: 'end',
+                normal: {
+                  formatter: '{b}',
+                  borderColor: '#ca8622',
+                },
+              },
+              data: [{
+                name: 'lsl',
+                xAxis: lsl,
+              },
+              {
+                name: 'target',
+                xAxis: target,
+              },
+              {
+                name: 'usl',
+                xAxis: usl,
+              },
+              ],
+            },
+          },
+          {
+            name: 'markLine2',
+            type: 'line',
+            markLine: {
+              symbol: 'none',
+              label: {
+                position: 'end',
+                normal: {
+                  formatter: '{b}',
+                  borderColor: '#000000',
+                },
+              },
+              data: [{
+                name: 'sigma',
+                xAxis: sigma,
+              },
+              {
+                name: 'sigmaMax',
+                xAxis: sigmaMax,
+              },
+              {
+                name: 'sigmaMin',
+                xAxis: sigmaMin,
+              },
+              ],
+            },
+          },
         ],
       }
     },
@@ -632,6 +658,7 @@ export default {
       }
       return CPKArr
     },
+    // 默认echartsjs赋值
     handleEchart (itemData) {
       const { modelCode, data } = itemData
       const {
@@ -815,8 +842,10 @@ export default {
           //   sigmaMax: '16113',
           //   sigmaMin: '27987',
           // }
-
+          console.log('x', JSON.stringify(xchartdata))
+          console.log('y', JSON.stringify(rchartdata))
           echartsParame = {
+            modelCode,
             dataIndex: xchartdata,
             barData: rchartdata,
             lineData: this.handleLineData(xchartdata, mean, multiplier),
@@ -834,6 +863,235 @@ export default {
       }
 
       return echartsOption
+    },
+    // 自定义赋值
+    getEchart (itemData) {
+      const { modelCode, option, data } = itemData
+      const {
+        // xbax
+        xchartdata,
+        dataindex,
+        xucl,
+        xlcl,
+        xdataMax,
+        xdataMin,
+        // R
+        rchartdata,
+        rucl,
+        rlcl,
+        rdataMax,
+        rdataMin,
+        // S
+        schartdata,
+        sucl,
+        slcl,
+        sdataMax,
+        sdataMin,
+        // CPK
+        // lsl,
+        // target,
+        // usl,
+        // sigma,
+        // sigmaMax,
+        // sigmaMin,
+        // mean,
+        // multiplier,
+        // firstData,
+
+      } = data
+
+      // echarts的参数,option
+      let echartsParame
+      let echartsOption
+
+      switch (modelCode) {
+        case 'Xbar':
+          echartsParame = {
+            modelCode,
+            option,
+            data: xchartdata,
+            dataindex,
+            ucl: xucl,
+            lcl: xlcl,
+            yName: '平均值',
+            max: xdataMax,
+            min: xdataMin,
+          }
+          echartsOption = this.customXbaxValue(echartsParame)
+          break
+
+        case 'R':
+          echartsParame = {
+            modelCode,
+            option,
+            data: rchartdata,
+            dataindex,
+            ucl: rucl,
+            lcl: rlcl,
+            yName: '极差值',
+            max: rdataMax,
+            min: rdataMin,
+          }
+          echartsOption = this.customXbaxValue(echartsParame)
+          break
+
+        case 'S':
+          echartsParame = {
+            modelCode,
+            option,
+            data: schartdata,
+            dataindex,
+            ucl: sucl,
+            lcl: slcl,
+            yName: '标准值',
+            max: sdataMax,
+            min: sdataMin,
+          }
+          echartsOption = this.customXbaxValue(echartsParame)
+          break
+        case 'Xbar-R':
+          echartsParame = [
+            {
+              modelCode: 'xbax',
+              data: xchartdata,
+              dataindex,
+              ucl: xucl,
+              lcl: xlcl,
+              yName: '平均值',
+              max: xdataMax,
+              min: xdataMin,
+            },
+            {
+              modelCode: 'R',
+              data: rchartdata,
+              dataindex,
+              ucl: rucl,
+              lcl: rlcl,
+              yName: '极差值',
+              max: rdataMax,
+              min: rdataMin,
+            },
+          ]
+          echartsOption = this.customXbaxRValue(echartsParame, option)
+          break
+
+        case 'Xbar-S':
+          echartsParame = [
+            {
+              modelCode: 'xbax',
+              data: xchartdata,
+              dataindex,
+              ucl: xucl,
+              lcl: xlcl,
+              yName: '平均值',
+              max: xdataMax,
+              min: xdataMin,
+            },
+            {
+              modelCode: 'S',
+              data: schartdata,
+              dataindex,
+              ucl: sucl,
+              lcl: slcl,
+              yName: '标准值',
+              max: sdataMax,
+              min: sdataMin,
+            },
+          ]
+          echartsOption = this.customXbaxRValue(echartsParame, option)
+          break
+
+        case 'I-MR':
+          rchartdata[0] = ''
+          echartsParame = [
+            {
+              modelCode: 'xbax',
+              data: xchartdata,
+              dataindex,
+              ucl: xucl,
+              lcl: xlcl,
+              yName: '单值',
+              max: xdataMax,
+              min: xdataMin,
+            },
+            {
+              modelCode: 'R',
+              data: rchartdata,
+              dataindex: dataindex,
+              ucl: rucl,
+              lcl: rlcl,
+              yName: '移动极差值',
+              max: rdataMax,
+              min: rdataMin,
+            },
+          ]
+
+          echartsOption = this.customXbaxRValue(echartsParame, option)
+          break
+      }
+
+      return echartsOption
+    },
+    customXbaxValue (xbaxObj) {
+      // console.log('customObj', customObj)
+      const option = (new Function('return ' + xbaxObj.option))()
+      console.log('option', option)
+      const { title, xAxis, yAxis, visualMap, series: [seriesItem] } = option
+
+      title.text = title.text || `[${xbaxObj.modelCode} 控制图]`
+      xAxis.data = xbaxObj.dataindex
+      yAxis.name = yAxis.name || xbaxObj.yName
+      yAxis.max = xbaxObj.max
+      yAxis.min = xbaxObj.min
+      visualMap.pieces.gte = xbaxObj.ucl
+      visualMap.pieces.lte = xbaxObj.lcl
+      seriesItem.name = seriesItem.name || `${xbaxObj.modelCode}图`
+      seriesItem.data = xbaxObj.data
+      seriesItem.markLine.data[1].yAxis = xbaxObj.ucl
+      seriesItem.markLine.data[2].yAxis = xbaxObj.lcl
+
+      return option
+    },
+    customXbaxRValue (XbaxRObj, echartOption) {
+      const option = (new Function('return ' + echartOption))()
+      const {
+        title: [titleItem1, titleItem2],
+        xAxis: [xAxisItem1, xAxisItem2],
+        yAxis: [yAxisItem1, yAxisItem2],
+        visualMap: [visualMapItem1, visualMapItem2],
+        series: [seriesItem1, seriesItem2],
+      } = option
+      // console.log('option', option)
+      titleItem1.text = titleItem1.text || `[${XbaxRObj[0].modelCode}控制图]`
+      titleItem2.text = titleItem2.text || `[${XbaxRObj[1].modelCode}控制图]`
+      xAxisItem1.data = XbaxRObj[0].dataindex
+      xAxisItem2.data = XbaxRObj[1].dataindex
+
+      yAxisItem1.name = yAxisItem1.name || XbaxRObj[0].yName
+      yAxisItem1.max = XbaxRObj[0].max
+      yAxisItem1.min = XbaxRObj[0].min
+
+      yAxisItem2.name = yAxisItem2.name || XbaxRObj[1].yName
+      yAxisItem2.max = XbaxRObj[1].max
+      yAxisItem2.min = XbaxRObj[1].min
+
+      visualMapItem1.pieces.gte = XbaxRObj[0].ucl
+      visualMapItem1.pieces.lte = XbaxRObj[0].lcl
+
+      visualMapItem2.pieces.gte = XbaxRObj[1].ucl
+      visualMapItem2.pieces.lte = XbaxRObj[1].lcl
+
+      seriesItem1.name = seriesItem1.name || `${XbaxRObj[0].modelCode}图`
+      seriesItem1.data = XbaxRObj[0].data
+      seriesItem1.markLine.data[1].yAxis = XbaxRObj[0].ucl
+      seriesItem1.markLine.data[2].yAxis = XbaxRObj[0].lcl
+
+      seriesItem2.name = seriesItem2.name || `${XbaxRObj[1].modelCode}图`
+      seriesItem2.data = XbaxRObj[1].data
+      seriesItem2.markLine.data[1].yAxis = XbaxRObj[1].ucl
+      seriesItem2.markLine.data[2].yAxis = XbaxRObj[1].lcl
+
+      return option
     },
   },
 }
