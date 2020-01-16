@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="custom-wrap">
     <div class="customSearch">
       <el-form :inline="true" label-width="150px">
         <div v-for="custom in formCustom.customList" :key="custom.id" class="custom-box">
@@ -32,7 +32,7 @@
           <el-button type="primary" @click="search">
             <i class="iconfont iconsousuo"/>搜索
           </el-button>
-          <el-button @click="clearData">清空搜索</el-button>
+          <el-button @click="clearSearch">清空搜索</el-button>
         </div>
       </el-form>
     </div>
@@ -40,7 +40,63 @@
     <div :id="`echear${tagsItem.no}`" class="echear-warp">
       <ul :class="['box',getClass()]">
         <li v-for="(item,i) in boxNum" :key="i">
-          <div class="box-item"/>
+          <div v-if="cpkList[i].modelCode==='CPK'" class="box-item cpk-item">
+            <div class="cpk-box">
+              <div class="cpk-box-item">
+                <h5> 统计样本</h5>
+                <ul>
+                  <li><span>统计样本：</span>{{ cpkList[i].data.totalnum }}</li>
+                  <li><span>平 均 值：</span>{{ cpkList[i].data.mean }}</li>
+                  <li><span>最 大 值：</span>{{ cpkList[i].data.dataMax }}</li>
+                  <li><span>最 小 值：</span>{{ cpkList[i].data.dataMin }}</li>
+                </ul>
+              </div>
+              <!-- /统计样本 -->
+              <div class="cpk-box-item">
+                <h5>常量</h5>
+                <ul>
+                  <li><span>子组大小：</span>{{ cpkList[i].data.size }}</li>
+                  <li><span>规格下限：</span>{{ cpkList[i].data.lsl }}</li>
+                  <li><span>目 标 值：</span>{{ cpkList[i].data.target }}</li>
+                  <li><span>规格上限：</span>{{ cpkList[i].data.usl }}</li>
+                </ul>
+              </div>
+              <!-- /常量-->
+              <div class="cpk-box-item">
+                <h5>计算值</h5>
+                <ul>
+                  <li><span>标准差：</span>{{ cpkList[i].data.sigma }}</li>
+                  <li><span>+3标准差：</span>{{ cpkList[i].data.sigmaMin }}</li>
+                  <li><span>-3标准差：</span>{{ cpkList[i].data.sigmaMax }}</li>
+                </ul>
+              </div>
+              <!-- /计算值-->
+            </div>
+            <div class="echarts-box"/>
+            <div class="cpk-right cpk-box">
+              <h4>——短期</h4>
+              <div class="cpk-box-item">
+                <h5>短期工序能力</h5>
+                <ul>
+                  <li><span>Cpk：</span>{{ cpkList[i].data.cpk }}</li>
+                  <li><span>Cp：</span>{{ cpkList[i].data.cp }}</li>
+                  <li><span>CPL：</span>{{ cpkList[i].data.cpl }}</li>
+                  <li><span>CPU：</span>{{ cpkList[i].data.cpu }}</li>
+                </ul>
+              </div>
+              <!-- /短期工序能力-->
+              <div class="cpk-box-item">
+                <h5>其他值</h5>
+                <ul>
+                  <li><span>CA：</span>{{ cpkList[i].data.ca }}</li>
+                </ul>
+              </div>
+              <!-- /短期工序能力-->
+            </div>
+          </div>
+          <div v-else class="box-item">
+            <div class="echarts-box"/>
+          </div>
         </li>
       </ul>
     </div>
@@ -67,6 +123,26 @@ export default {
       // 图表显示
       tempType: '',
       optionList: [],
+      // cpk
+      cpkKey: {
+        totalnum: '',
+        mean: '',
+        dataMax: '',
+        dataMin: '',
+        size: '',
+        lsl: '',
+        target: '',
+        usl: '',
+        sigma: '',
+        sigmaMin: '',
+        sigmaMax: '',
+        cpk: '',
+        cp: '',
+        cpl: '',
+        cpu: '',
+        ca: '',
+      },
+      cpkList: [],
     }
   },
   computed: {
@@ -124,17 +200,32 @@ export default {
     this.$http
       .get('/api/analysis/viewMyAnalysis', { params: { id: id }})
       .then(({ data }) => {
-        const { template } = data
+        const { template, analysisDetails } = data
         this.dataList = data
         this.tempType = template
-        console.log('data', data)
+
+        //  cpk存储数据
+        this.cpkList = analysisDetails.map(analysisItem => {
+          const { modelCode } = analysisItem
+          if (modelCode === 'CPK') {
+            const cpkObj = {}
+            Object.keys(this.cpkKey).map(key => {
+              cpkObj[key] = ''
+            })
+            return {
+              modelCode,
+              data: cpkObj,
+            }
+          } else {
+            return { modelCode, data: {}}
+          }
+        })
       })
       .then(() => {
         // 搜索表单赋值
         this.formCustom.customList = JSON.parse(
           JSON.stringify(this.customParamList)
         )
-        // console.log('this.customParamList', this.customParamList)
       })
   },
   methods: {
@@ -151,8 +242,11 @@ export default {
       }
     },
     search () {
-      let { customList } = this.formCustom
+      // 清空CPK的数据
+      this.clearCPK()
+
       // 处理表单的数据
+      let { customList } = this.formCustom
       customList = customList.map(custom => {
         const { id, name, customParam } = custom
         return {
@@ -204,9 +298,20 @@ export default {
             ...filterItem,
           }
         })
-        // console.log('echartArr', echartArr)
+
+        // 存cpk的数据
+        echartArr.map((echartItem, i) => {
+          const { modelCode, data } = echartItem
+          if (modelCode === 'CPK' && data !== null) {
+            const cpkObj = {}
+            Object.keys(this.cpkKey).map(key => {
+              cpkObj[key] = data[key]
+            })
+            this.cpkList[i].data = cpkObj
+          }
+        })
+
         this.echartInit(echartArr)
-        // console.log('echartArr', echartArr)
       })
     },
     // 执行echarts
@@ -214,10 +319,9 @@ export default {
       echartData.map((item, i) => {
         const div = document
           .getElementById(`echear${this.tagsItem.no}`)
-          .getElementsByClassName('box-item')[i]
+          .getElementsByClassName('echarts-box')[i]
         const chart = this.$echarts.init(div)
-        const { modelCode, option, data } = item
-
+        const { option, data } = item
         // 清空为空的数据
         if (data === null) {
           chart.clear()
@@ -225,14 +329,8 @@ export default {
         }
 
         //  获取echartsOption
-        // const echartsOption = option !== '' ? this.getEchart(item) : this.handleEchart(item)
-
-        // 获取echartsOption
         let echartsOption
-
-        if (option !== '' && modelCode === 'Xbar' || modelCode === 'R' || modelCode === 'S') {
-          echartsOption = this.getEchart(item)
-        } else if (option !== '' && modelCode === 'Xbar-R' || modelCode === 'Xbar-S' || modelCode === 'I-MR') {
+        if (option !== '') {
           echartsOption = this.getEchart(item)
         } else {
           echartsOption = this.handleEchart(item)
@@ -246,7 +344,7 @@ export default {
       })
     },
     // 清空搜索
-    clearData () {
+    clearSearch () {
       const { customList } = this.formCustom
       customList.forEach(custom => {
         const { customParam } = custom
@@ -292,6 +390,9 @@ export default {
           splitNumber: 5,
           max: objParame.max,
           min: objParame.min,
+          splitLine: {
+            show: false,
+          },
         },
         visualMap: { // 区间内控制显示颜色
           show: false,
@@ -339,7 +440,6 @@ export default {
       }
     },
     drowXbarR (dataParame) {
-      // console.log('dataParame', dataParame)
       return {
         title: [
           {
@@ -398,6 +498,9 @@ export default {
           nameLocation: 'middle',
           nameGap: 50,
           splitNumber: 5,
+          splitLine: {
+            show: false,
+          },
           max: dataParame[0].max,
           min: dataParame[0].min,
         },
@@ -406,6 +509,9 @@ export default {
           nameLocation: 'middle',
           nameGap: 50,
           splitNumber: 5,
+          splitLine: {
+            show: false,
+          },
           max: dataParame[1].max,
           min: dataParame[1].min,
           gridIndex: 1,
@@ -434,7 +540,7 @@ export default {
             color: 'red',
           }],
           outOfRange: {
-            color: '#00ff00',
+            color: '#009900',
           },
           seriesIndex: 1,
         },
@@ -519,17 +625,12 @@ export default {
         lsl,
         target,
         usl,
-        sigma,
+        mean,
         sigmaMax,
         sigmaMin,
       } = objParame
 
       return {
-
-        // title: {
-        //   text: '正太分布图',
-        //   left: 'center',
-        // },
         title: {
           text: `[${modelCode} 控制图]`,
           top: 'top',
@@ -539,7 +640,7 @@ export default {
             fontWeight: 'normal',
           },
         },
-        color: ['#5793f3', '#d14a61', '#675bba'],
+        color: ['#7CCD7C', '#d14a61', '#675bba'],
         tooltip: {
           trigger: 'axis',
           axisPointer: {
@@ -550,30 +651,31 @@ export default {
           type: 'category',
           data: dataIndex,
         }],
-        yAxis: [
-        //   {
-        //   show: false,
-        // },
-          {
-            type: 'value',
-            name: '频率',
-            position: 'right',
-            axisLine: {
-              lineStyle: {
-                color: '#00cc00',
-              },
-            },
-            axisLabel: {
-              formatter: '{value}',
+        yAxis: [{
+          type: 'value',
+          name: '频率',
+          position: 'right',
+          axisLine: {
+            lineStyle: {
+              color: '#d14a61',
             },
           },
-          {
-            type: 'value',
-            position: 'left',
-            axisLabel: {
-              formatter: '{value}',
+          axisLabel: {
+            formatter: '{value}',
+          },
+        },
+        {
+          type: 'value',
+          position: 'left',
+          axisLine: {
+            lineStyle: {
+              color: '#7CCD7C',
             },
           },
+          axisLabel: {
+            formatter: '{value}',
+          },
+        },
         ],
         series: [
           {
@@ -593,26 +695,33 @@ export default {
             name: 'markLine1',
             type: 'line',
             markLine: {
-              symbol: 'none',
+              precision: 3,
               label: {
                 position: 'end',
+                formatter: function (value) {
+                  return value.value.toFixed(3)
+                },
                 normal: {
                   formatter: '{b}',
-                  borderColor: '#ca8622',
                 },
               },
-              data: [{
-                name: 'lsl',
-                xAxis: lsl,
+              lineStyle: {
+                type: 'solid',
+                color: '#000000',
               },
-              {
-                name: 'target',
-                xAxis: target,
-              },
-              {
-                name: 'usl',
-                xAxis: usl,
-              },
+              data: [
+                {
+                  name: 'lsl',
+                  xAxis: lsl,
+                },
+                {
+                  name: 'target',
+                  xAxis: target,
+                },
+                {
+                  name: 'usl',
+                  xAxis: usl,
+                },
               ],
             },
           },
@@ -620,43 +729,38 @@ export default {
             name: 'markLine2',
             type: 'line',
             markLine: {
-              symbol: 'none',
+              precision: 3,
               label: {
                 position: 'end',
+                formatter: function (value) {
+                  return value.value.toFixed(3)
+                },
                 normal: {
                   formatter: '{b}',
-                  borderColor: '#000000',
                 },
               },
-              data: [{
-                name: 'sigma',
-                xAxis: sigma,
+              lineStyle: {
+                type: 'solid',
+                color: '#6666cc',
               },
-              {
-                name: 'sigmaMax',
-                xAxis: sigmaMax,
-              },
-              {
-                name: 'sigmaMin',
-                xAxis: sigmaMin,
-              },
+              data: [
+                {
+                  name: 'mean',
+                  xAxis: mean,
+                },
+                {
+                  name: '+3sigma',
+                  xAxis: sigmaMax,
+                },
+                {
+                  name: '-3sigma',
+                  xAxis: sigmaMin,
+                },
               ],
             },
           },
         ],
       }
-    },
-    // cpk数据处理
-    handleCPK (x, u, a) {
-      return (1 / Math.sqrt(2 * Math.PI) * a) * Math.exp(-1 * ((x - u) * (x - u)) / (2 * a * a))
-    },
-    handleLineData (xchartdata, mean, multiplier) {
-      const CPKArr = []
-      for (var j = 0; j < xchartdata.length; j++) {
-        const res = this.handleCPK(xchartdata[j], mean, multiplier).toFixed(2)
-        CPKArr.push(res)
-      }
-      return CPKArr
     },
     // 默认echartsjs赋值
     handleEchart (itemData) {
@@ -685,12 +789,13 @@ export default {
         lsl,
         target,
         usl,
-        sigma,
+        mean,
         sigmaMax,
         sigmaMin,
-        mean,
-        multiplier,
-
+        yArr,
+        // leftindex,
+        // rightindex,
+        // delta,
       } = data
 
       // echarts的参数,option
@@ -698,8 +803,6 @@ export default {
       let echartsOption
 
       // CPK
-      // const x = ['-6486', '-6103', '-5720', '-5337', '-4954', '-4571', '-4188', '-3805', '-3422', '-3039', '-2729', '-2656', '-2273', '-1890', '-1507', '-1124', '-741', '-358', '25', '408', '791', '1174', '1557', '1940', '2323', '2706', '3090', '3473', '3856', '4239', '4622', '5005', '5388', '5771', '6154', '6537', '6920', '7249', '7303', '7686', '8069', '8452', '8835', '9218', '9601', '9984', '10367', '10750', '11133', '11516', '11899', '12282', '12666', '13049', '13432', '13815', '14198', '14581', '14964', '15347', '15730', '16113', '16496', '16879', '17226', '17262', '17645', '18028', '18411', '18794', '19177', '19560', '19943', '20326', '20709', '21092', '21475', '21858', '22242', '22625', '23008', '23391', '23774', '24157', '24540', '24923', '25306', '25689', '26072', '26455', '26838', '27221', '27604', '27987', '28370', '28753', '29136', '29519', '29902', '30285', '30668', '31051', '31434']
-      // const y = ['1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '17', '9', '2', '3', '3', '2', '1', '4', '7', '9', '29', '30', '42', '32', '25', '48', '33', '41', '33', '38', '36', '29', '28', '33', '23', '15', '20', '43', '18', '19', '12', '13', '7', '5', '7', '2', '3', '1', '2', '1', '0', '0', '0', '2', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '1']
       switch (modelCode) {
         case 'Xbar':
           echartsParame = {
@@ -824,47 +927,28 @@ export default {
           break
 
         case 'CPK':
-
-          // 处理lineData
-          // for (var j = 0; j < x.length; j++) {
-          //   const res = this.handleCPK(x[j], 7248.59, 3325.93).toFixed(2)
-          //   CPKArr.push(res)
-          // }
-
-          // echartsParame = {
-          //   dataIndex: x,
-          //   barData: y,
-          //   lineData: CPKArr,
-          //   lsl: '-6486',
-          //   target: '-5337',
-          //   usl: '-4954',
-          //   sigma: '-4188',
-          //   sigmaMax: '16113',
-          //   sigmaMin: '27987',
-          // }
-          console.log('x', JSON.stringify(xchartdata))
-          console.log('y', JSON.stringify(rchartdata))
+          // console.log('xchartdata', JSON.stringify(xchartdata))
+          // console.log('rchartdata', JSON.stringify(rchartdata))
+          // console.log('lineData', this.handleCpkLine(xchartdata, rchartdata))
           echartsParame = {
             modelCode,
             dataIndex: xchartdata,
-            barData: rchartdata,
-            lineData: this.handleLineData(xchartdata, mean, multiplier),
+            barData: this.handleCpkLine(xchartdata, rchartdata),
+            lineData: yArr,
             lsl: (lsl).toString(),
             target: (target).toString(),
             usl: (usl).toString(),
-            sigma: (sigma).toString(),
+            mean: (mean).toString(),
             sigmaMax: (sigmaMax).toString(),
             sigmaMin: (sigmaMin).toString(),
           }
-
           echartsOption = this.drowCPK(echartsParame)
-
           break
       }
 
       return echartsOption
     },
-    // 自定义赋值
+    // 自定义echarts赋值
     getEchart (itemData) {
       const { modelCode, option, data } = itemData
       const {
@@ -888,15 +972,13 @@ export default {
         sdataMax,
         sdataMin,
         // CPK
-        // lsl,
-        // target,
-        // usl,
-        // sigma,
-        // sigmaMax,
-        // sigmaMin,
-        // mean,
-        // multiplier,
-        // firstData,
+        lsl,
+        target,
+        usl,
+        mean,
+        sigmaMax,
+        sigmaMin,
+        yArr,
 
       } = data
 
@@ -979,6 +1061,7 @@ export default {
           echartsParame = [
             {
               modelCode: 'xbax',
+              option,
               data: xchartdata,
               dataindex,
               ucl: xucl,
@@ -1028,27 +1111,45 @@ export default {
 
           echartsOption = this.customXbaxRValue(echartsParame, option)
           break
+
+        case 'CPK':
+          echartsParame = {
+            modelCode,
+            option,
+            dataIndex: xchartdata,
+            barData: this.handleCpkLine(xchartdata, rchartdata),
+            lineData: yArr,
+            lsl: (lsl).toString(),
+            target: (target).toString(),
+            usl: (usl).toString(),
+            mean: (mean).toString(),
+            sigmaMax: (sigmaMax).toString(),
+            sigmaMin: (sigmaMin).toString(),
+          }
+
+          echartsOption = this.customCpkValue(echartsParame)
+          break
       }
 
       return echartsOption
     },
     customXbaxValue (xbaxObj) {
-      // console.log('customObj', customObj)
       const option = (new Function('return ' + xbaxObj.option))()
-      console.log('option', option)
-      const { title, xAxis, yAxis, visualMap, series: [seriesItem] } = option
 
-      title.text = title.text || `[${xbaxObj.modelCode} 控制图]`
-      xAxis.data = xbaxObj.dataindex
-      yAxis.name = yAxis.name || xbaxObj.yName
-      yAxis.max = xbaxObj.max
-      yAxis.min = xbaxObj.min
-      visualMap.pieces.gte = xbaxObj.ucl
-      visualMap.pieces.lte = xbaxObj.lcl
-      seriesItem.name = seriesItem.name || `${xbaxObj.modelCode}图`
-      seriesItem.data = xbaxObj.data
-      seriesItem.markLine.data[1].yAxis = xbaxObj.ucl
-      seriesItem.markLine.data[2].yAxis = xbaxObj.lcl
+      const { title, xAxis, yAxis, visualMap, series: [seriesItem] } = option
+      const { modelCode, dataindex, yName, max, min, ucl, lcl, data } = xbaxObj
+
+      title.text = title.text || `[${modelCode} 控制图]`
+      xAxis.data = dataindex
+      yAxis.name = yAxis.name || yName
+      yAxis.max = max
+      yAxis.min = min
+      visualMap.pieces.gte = ucl
+      visualMap.pieces.lte = lcl
+      seriesItem.name = seriesItem.name || `${modelCode}图`
+      seriesItem.data = data
+      seriesItem.markLine.data[1].yAxis = ucl
+      seriesItem.markLine.data[2].yAxis = lcl
 
       return option
     },
@@ -1061,42 +1162,115 @@ export default {
         visualMap: [visualMapItem1, visualMapItem2],
         series: [seriesItem1, seriesItem2],
       } = option
+
+      const [XbaxRObjItem1, XbaxRObjItem2] = XbaxRObj
       // console.log('option', option)
-      titleItem1.text = titleItem1.text || `[${XbaxRObj[0].modelCode}控制图]`
-      titleItem2.text = titleItem2.text || `[${XbaxRObj[1].modelCode}控制图]`
-      xAxisItem1.data = XbaxRObj[0].dataindex
-      xAxisItem2.data = XbaxRObj[1].dataindex
+      titleItem1.text = titleItem1.text || `[${XbaxRObjItem1.modelCode}控制图]`
+      titleItem2.text = titleItem2.text || `[${XbaxRObjItem2.modelCode}控制图]`
+      xAxisItem1.data = XbaxRObjItem1.dataindex
+      xAxisItem2.data = XbaxRObjItem2.dataindex
 
-      yAxisItem1.name = yAxisItem1.name || XbaxRObj[0].yName
-      yAxisItem1.max = XbaxRObj[0].max
-      yAxisItem1.min = XbaxRObj[0].min
+      yAxisItem1.name = yAxisItem1.name || XbaxRObjItem1.yName
+      yAxisItem1.max = XbaxRObjItem1.max
+      yAxisItem1.min = XbaxRObjItem1.min
 
-      yAxisItem2.name = yAxisItem2.name || XbaxRObj[1].yName
-      yAxisItem2.max = XbaxRObj[1].max
-      yAxisItem2.min = XbaxRObj[1].min
+      yAxisItem2.name = yAxisItem2.name || XbaxRObjItem2.yName
+      yAxisItem2.max = XbaxRObjItem2.max
+      yAxisItem2.min = XbaxRObjItem2.min
 
-      visualMapItem1.pieces.gte = XbaxRObj[0].ucl
-      visualMapItem1.pieces.lte = XbaxRObj[0].lcl
+      visualMapItem1.pieces.gte = XbaxRObjItem1.ucl
+      visualMapItem1.pieces.lte = XbaxRObjItem1.lcl
 
-      visualMapItem2.pieces.gte = XbaxRObj[1].ucl
-      visualMapItem2.pieces.lte = XbaxRObj[1].lcl
+      visualMapItem2.pieces.gte = XbaxRObjItem2.ucl
+      visualMapItem2.pieces.lte = XbaxRObjItem2.lcl
 
-      seriesItem1.name = seriesItem1.name || `${XbaxRObj[0].modelCode}图`
-      seriesItem1.data = XbaxRObj[0].data
-      seriesItem1.markLine.data[1].yAxis = XbaxRObj[0].ucl
-      seriesItem1.markLine.data[2].yAxis = XbaxRObj[0].lcl
+      seriesItem1.name = seriesItem1.name || `${XbaxRObjItem1.modelCode}图`
+      seriesItem1.data = XbaxRObjItem1.data
+      seriesItem1.markLine.data[1].yAxis = XbaxRObjItem1.ucl
+      seriesItem1.markLine.data[2].yAxis = XbaxRObjItem1.lcl
 
-      seriesItem2.name = seriesItem2.name || `${XbaxRObj[1].modelCode}图`
+      seriesItem2.name = seriesItem2.name || `${XbaxRObjItem2.modelCode}图`
       seriesItem2.data = XbaxRObj[1].data
-      seriesItem2.markLine.data[1].yAxis = XbaxRObj[1].ucl
-      seriesItem2.markLine.data[2].yAxis = XbaxRObj[1].lcl
+      seriesItem2.markLine.data[1].yAxis = XbaxRObjItem2.ucl
+      seriesItem2.markLine.data[2].yAxis = XbaxRObjItem2.lcl
 
       return option
+    },
+    customCpkValue (cpkObj) {
+      const option = (new Function('return ' + cpkObj.option))()
+      const { title, xAxis, series } = option
+      const {
+        modelCode,
+        dataIndex,
+        barData,
+        lineData,
+        lsl,
+        target,
+        usl,
+        mean,
+        sigmaMax,
+        sigmaMin,
+      } = cpkObj
+
+      // console.log('option', option)
+      // debugger
+      // option赋值
+
+      title.text = title.text || `[${modelCode} 控制图]`
+      xAxis[0].data = dataIndex
+      series[0].data = barData
+      series[1].data = lineData
+
+      series[2].markLine.data[0].xAxis = lsl
+      series[2].markLine.data[1].xAxis = target
+      series[2].markLine.data[2].xAxis = usl
+
+      series[3].markLine.data[0].xAxis = mean
+      series[3].markLine.data[1].xAxis = sigmaMax
+      series[3].markLine.data[2].xAxis = sigmaMin
+      return option
+    },
+    // 清空cpk赋值
+    clearCPK () {
+      this.cpkList = this.cpkList.map(cpkItem => {
+        const { modelCode, data } = cpkItem
+        if (modelCode === 'CPK') {
+          // for (const i in data) {
+          //   data[i] = ''
+          // }
+          Object.keys(data).map(key => {
+            data[key] = ''
+          })
+        }
+        return cpkItem
+      })
+    },
+    handleCpkLine (xchartdata, rchartdata) {
+      const arrMap = xchartdata.map(xItem => {
+        let [rObj] = rchartdata.filter(rItem => {
+          const Key = Object.keys(rItem)[0]
+          if (Number(Key) === xItem) {
+            return rItem
+          }
+        })
+        rObj = rObj !== undefined ? rObj : { '0': 0 }
+        return rObj
+      })
+        .map(mapItem => {
+          const key = Object.keys(mapItem)[0]
+          return mapItem[key]
+        })
+      return arrMap
     },
   },
 }
 </script>
 <style lang="scss" scoped>
+.custom-wrap{
+padding: 0 20px;
+ height: calc(100vh - 160px);
+ overflow-y: auto;
+}
 .customSearch {
   overflow: hidden;
   width: 100%;
@@ -1126,8 +1300,8 @@ export default {
 .echear-warp {
   margin-top: 15px;
   padding: 10px;
-  height: 550px;
-  background: #eee;
+  height: 600px;
+  background: #f3f3f3;
 }
 // 选择
 .box {
@@ -1137,9 +1311,9 @@ export default {
   flex-wrap: wrap;
   width: 100%;
   height: 100%;
-  background-color: #eee;
+  // background-color: #eee;
   > li {
-    padding: 10px;
+    padding:10px;
     text-align: center;
     box-sizing: border-box;
   }
@@ -1147,7 +1321,59 @@ export default {
   .box-item {
     height: 100%;
     border: 1px solid #aaa;
+    background: #fff;
   }
+  .echarts-box{height: 100%;}
+  .cpk-item{
+    display: flex;
+    .cpk-box{
+     width: 150px;
+     height: 100%;
+
+    }
+    .echarts-box{ flex: auto;}
+    .cpk-box-item{
+      margin:5px 0 0 10px;
+      font-size: 12px;
+      text-align: left;
+      border: 1px solid #aaa;
+      ul{ padding: 3px;}
+       li>span{
+        display: inline-block;
+        text-align: right;
+        width: 65px;
+        }
+      h5{
+        //  margin-bottom:5px;
+        padding-left: 10px;
+        color: $blue-color;
+        border-bottom: 1px solid #aaa;
+      }
+    }
+    .cpk-right{
+      // width: 100px;
+      .cpk-box-item{
+        margin:10px 10px 0 0;
+       li>span{
+        width: 50px;
+        }
+      }
+    }
+
+    // .cpk-left-item1,
+    //  .cpk-left-item2{
+    //   li>span{
+    //     width: 60px;
+    //   }
+    // }
+    //  .cpk-left-item3{
+    //   li>span{
+    //     width: 65px;
+    //   }
+    // }
+
+  }
+
 }
 
 /* 不同的列表*/
@@ -1183,4 +1409,7 @@ export default {
     height: 50%;
   }
 }
+// .mt-40{
+//   margin-top: 30px !important;
+// }
 </style>

@@ -56,7 +56,7 @@ export default {
   background: #f3f3f3;
 }
 .side {
-  overflow: hidden;
+  overflow-y: auto;
   position: absolute;
    top: 0;
    left: 0;

@@ -64,7 +64,7 @@
           >
             <el-input v-model="option.value"/>
           </el-form-item>
-          <div v-if="!formOption.modelOption.length" class="pl-20">请选择分析模型类型</div>
+          <div v-if="!formOption.modelOption.length" class="p-20">请选择分析模型类型</div>
         </div>
         <el-form-item label="清洗条件" prop="cleanData">
           <el-input v-model="formOption.cleanData"/>
@@ -311,4 +311,5 @@ export default {
   margin-bottom: 20px;
   border-bottom: 1px dashed $line-color;
 }
+.p-20{ padding: 0 0 20px 20px;}
 </style>

@@ -64,5 +64,9 @@ export default {
 }
 .none{
   margin-top: 40px;
+  padding: 0 20px;
+}
+.wrap{
+  padding: 0;
 }
 </style>
