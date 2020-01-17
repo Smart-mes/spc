@@ -80,37 +80,45 @@ const actions = {
      * 获取菜单
      */
   queryMenus ({ commit }) {
-    return $http.get('/api/resource/list')
+    return $http
+      .get('/api/resource/list')
       .then(({ data }) => {
         return data
       })
       .then(res => {
         const menusData = res
-        $http.get('/api/analysis/myAnalysis').then(({ data: { list }}) => {
+        // pageSize
+        $http
+          .get('/api/analysis/myAnalysis', {
+            params: {
+              pageSize: 200,
+            },
+          })
+          .then(({ data: { list }}) => {
           // console.log('list', list)
-          if (list.length) {
-            const childArr = list.map(item => {
-              const { id, name } = item
-              return {
-                id,
-                title: name,
-                path: `/analyse/myAnalyse?id=${id}`,
-                componentPath: '/analyse/myAnalyse',
-              }
-            })
-            const menusMap = menusData.map(menus => {
-              if (menus.path === '/analyse/myAnalyse') {
-                menus.children = childArr
+            if (list.length) {
+              const childArr = list.map(item => {
+                const { id, name } = item
+                return {
+                  id,
+                  title: name,
+                  path: `/analyse/myAnalyse?id=${id}`,
+                  componentPath: '/analyse/myAnalyse',
+                }
+              })
+              const menusMap = menusData.map(menus => {
+                if (menus.path === '/analyse/myAnalyse') {
+                  menus.children = childArr
+                  return menus
+                }
                 return menus
-              }
-              return menus
-            })
-            commit('set_state', {
-              menus: menusMap,
-              isRouter: true,
-            })
-          }
-        })
+              })
+              commit('set_state', {
+                menus: menusMap,
+                isRouter: true,
+              })
+            }
+          })
       })
   },
 }

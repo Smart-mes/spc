@@ -207,8 +207,8 @@ export default {
             trigger: 'blur',
           },
           {
-            max: 4,
-            message: '不能超过4个字符',
+            max: 10,
+            message: '不能超过10个字符',
             trigger: 'blur',
           },
         ],
@@ -428,7 +428,7 @@ export default {
       this.modelForm.customList[i].push(customObj)
     },
     customItemDelete (i, j) {
-      console.log(this.modelForm.customList[i][j])
+      // console.log(this.modelForm.customList[i][j])
       this.modelForm.customList[i].splice(j, 1)
 
       if (!this.modelForm.customList[i].length) {

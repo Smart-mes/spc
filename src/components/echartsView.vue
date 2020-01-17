@@ -11,6 +11,7 @@
               v-for="(customItem2,j) in customItem1"
               :key="j"
               :label="customItem2.label +' ('+customItem2.option+')'"
+              :title="customItem2.label +' ('+customItem2.option+')'"
             >
               <el-date-picker
                 v-if="(/^.*(time).*$/gi).test(customItem2.key)"
@@ -619,9 +620,10 @@ export default {
     drowCPK (objParame) {
       const {
         modelCode,
-        dataIndex,
-        barData,
-        lineData,
+        rchartdata,
+        yArr,
+        min,
+        max,
         lsl,
         target,
         usl,
@@ -632,7 +634,7 @@ export default {
 
       return {
         title: {
-          text: `[${modelCode} 控制图]`,
+          text: `[${modelCode}控制图]`,
           top: 'top',
           left: 'center',
           textStyle: {
@@ -648,8 +650,9 @@ export default {
           },
         },
         xAxis: [{
-          type: 'category',
-          data: dataIndex,
+          type: 'value',
+          min: min,
+          max: max,
         }],
         yAxis: [{
           type: 'value',
@@ -663,8 +666,7 @@ export default {
           axisLabel: {
             formatter: '{value}',
           },
-        },
-        {
+        }, {
           type: 'value',
           position: 'left',
           axisLine: {
@@ -675,91 +677,73 @@ export default {
           axisLabel: {
             formatter: '{value}',
           },
+        }],
+        series: [{
+          name: '原数据频率',
+          type: 'bar',
+          yAxisIndex: 1,
+          data: rchartdata,
+        }, {
+          name: '正态分布',
+          type: 'line',
+          smooth: true,
+          yAxisIndex: 0,
+          data: yArr,
         },
-        ],
-        series: [
-          {
-            name: '原数据频率',
-            type: 'bar',
-            yAxisIndex: 1,
-            data: barData,
-          },
-          {
-            name: '正态分布',
-            type: 'line',
-            smooth: true,
-            yAxisIndex: 0,
-            data: lineData,
-          },
-          {
-            name: 'markLine1',
-            type: 'line',
-            markLine: {
-              precision: 3,
-              label: {
-                position: 'end',
-                formatter: function (value) {
-                  return value.value.toFixed(3)
-                },
-                normal: {
-                  formatter: '{b}',
-                },
+        {
+          name: 'markLine1',
+          type: 'line',
+          markLine: {
+            precision: 3,
+            label: {
+              position: 'end',
+              normal: {
+                formatter: '{b}',
               },
-              lineStyle: {
-                type: 'solid',
-                color: '#000000',
-              },
-              data: [
-                {
-                  name: 'lsl',
-                  xAxis: lsl,
-                },
-                {
-                  name: 'target',
-                  xAxis: target,
-                },
-                {
-                  name: 'usl',
-                  xAxis: usl,
-                },
-              ],
             },
-          },
-          {
-            name: 'markLine2',
-            type: 'line',
-            markLine: {
-              precision: 3,
-              label: {
-                position: 'end',
-                formatter: function (value) {
-                  return value.value.toFixed(3)
-                },
-                normal: {
-                  formatter: '{b}',
-                },
-              },
-              lineStyle: {
-                type: 'solid',
-                color: '#6666cc',
-              },
-              data: [
-                {
-                  name: 'mean',
-                  xAxis: mean,
-                },
-                {
-                  name: '+3sigma',
-                  xAxis: sigmaMax,
-                },
-                {
-                  name: '-3sigma',
-                  xAxis: sigmaMin,
-                },
-              ],
+            lineStyle: {
+              type: 'solid',
+              color: '#000000',
             },
+            data: [{
+              name: 'lsl',
+              xAxis: lsl,
+            }, {
+              name: 'target',
+              xAxis: target,
+            }, {
+              name: 'usl',
+              xAxis: usl,
+            }],
           },
-        ],
+        },
+        {
+          name: 'markLine2',
+          type: 'line',
+          markLine: {
+            precision: 3,
+            label: {
+              position: 'end',
+              normal: {
+                formatter: '{b}',
+              },
+            },
+            lineStyle: {
+              type: 'solid',
+              color: '#6666cc',
+            },
+            data: [{
+              name: 'mean',
+              xAxis: mean,
+            }, {
+              name: '+3sigma',
+              xAxis: sigmaMax,
+            }, {
+              name: '-3sigma',
+              xAxis: sigmaMin,
+            }],
+          },
+        }],
       }
     },
     // 默认echartsjs赋值
@@ -786,6 +770,8 @@ export default {
         sdataMax,
         sdataMin,
         // CPK
+        leftindex,
+        rightindex,
         lsl,
         target,
         usl,
@@ -793,9 +779,6 @@ export default {
         sigmaMax,
         sigmaMin,
         yArr,
-        // leftindex,
-        // rightindex,
-        // delta,
       } = data
 
       // echarts的参数,option
@@ -927,20 +910,18 @@ export default {
           break
 
         case 'CPK':
-          // console.log('xchartdata', JSON.stringify(xchartdata))
-          // console.log('rchartdata', JSON.stringify(rchartdata))
-          // console.log('lineData', this.handleCpkLine(xchartdata, rchartdata))
           echartsParame = {
-            modelCode,
-            dataIndex: xchartdata,
-            barData: this.handleCpkLine(xchartdata, rchartdata),
-            lineData: yArr,
-            lsl: (lsl).toString(),
-            target: (target).toString(),
-            usl: (usl).toString(),
-            mean: (mean).toString(),
-            sigmaMax: (sigmaMax).toString(),
-            sigmaMin: (sigmaMin).toString(),
+            modelCode: 'CPK',
+            rchartdata,
+            yArr,
+            min: leftindex,
+            max: rightindex,
+            lsl,
+            target,
+            usl,
+            mean,
+            sigmaMax,
+            sigmaMin,
           }
           echartsOption = this.drowCPK(echartsParame)
           break
@@ -979,6 +960,8 @@ export default {
         sigmaMax,
         sigmaMin,
         yArr,
+        leftindex,
+        rightindex,
 
       } = data
 
@@ -1114,17 +1097,18 @@ export default {
 
         case 'CPK':
           echartsParame = {
-            modelCode,
+            modelCode: 'CPK',
             option,
-            dataIndex: xchartdata,
-            barData: this.handleCpkLine(xchartdata, rchartdata),
-            lineData: yArr,
-            lsl: (lsl).toString(),
-            target: (target).toString(),
-            usl: (usl).toString(),
-            mean: (mean).toString(),
-            sigmaMax: (sigmaMax).toString(),
-            sigmaMin: (sigmaMin).toString(),
+            rchartdata,
+            yArr,
+            min: leftindex,
+            max: rightindex,
+            lsl,
+            target,
+            usl,
+            mean,
+            sigmaMax,
+            sigmaMin,
           }
 
           echartsOption = this.customCpkValue(echartsParame)
@@ -1198,12 +1182,13 @@ export default {
     },
     customCpkValue (cpkObj) {
       const option = (new Function('return ' + cpkObj.option))()
-      const { title, xAxis, series } = option
+      const { title, xAxis: [xAxisItem1], series: [seriesItem1, seriesItem2, seriesItem3, seriesItem4] } = option
       const {
         modelCode,
-        dataIndex,
-        barData,
-        lineData,
+        rchartdata,
+        yArr,
+        min,
+        max,
         lsl,
         target,
         usl,
@@ -1212,22 +1197,19 @@ export default {
         sigmaMin,
       } = cpkObj
 
-      // console.log('option', option)
-      // debugger
-      // option赋值
-
       title.text = title.text || `[${modelCode} 控制图]`
-      xAxis[0].data = dataIndex
-      series[0].data = barData
-      series[1].data = lineData
+      xAxisItem1.min = min
+      xAxisItem1.max = max
+      seriesItem1.data = yArr
+      seriesItem2.data = rchartdata
 
-      series[2].markLine.data[0].xAxis = lsl
-      series[2].markLine.data[1].xAxis = target
-      series[2].markLine.data[2].xAxis = usl
+      seriesItem3.markLine.data[0].xAxis = lsl
+      seriesItem3.markLine.data[1].xAxis = target
+      seriesItem3.markLine.data[2].xAxis = usl
 
-      series[3].markLine.data[0].xAxis = mean
-      series[3].markLine.data[1].xAxis = sigmaMax
-      series[3].markLine.data[2].xAxis = sigmaMin
+      seriesItem4.markLine.data[0].xAxis = mean
+      seriesItem4.markLine.data[1].xAxis = sigmaMax
+      seriesItem4.markLine.data[2].xAxis = sigmaMin
       return option
     },
     // 清空cpk赋值
@@ -1244,23 +1226,6 @@ export default {
         }
         return cpkItem
       })
-    },
-    handleCpkLine (xchartdata, rchartdata) {
-      const arrMap = xchartdata.map(xItem => {
-        let [rObj] = rchartdata.filter(rItem => {
-          const Key = Object.keys(rItem)[0]
-          if (Number(Key) === xItem) {
-            return rItem
-          }
-        })
-        rObj = rObj !== undefined ? rObj : { '0': 0 }
-        return rObj
-      })
-        .map(mapItem => {
-          const key = Object.keys(mapItem)[0]
-          return mapItem[key]
-        })
-      return arrMap
     },
   },
 }
@@ -1283,6 +1248,11 @@ padding: 0 20px;
     margin-bottom: -1px;
     padding: 5px 0;
     border-bottom: 1px dashed $line-color;
+    /deep/.el-form-item__label{
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+  }
   }
 
   .subtitle2 {
@@ -1295,6 +1265,9 @@ padding: 0 20px;
     padding-top: 5px;
     //  border-top:1px dashed $line-color;
     text-align: right;
+  }
+  /deep/ .el-date-editor.el-input{
+    width:160px;
   }
 }
 .echear-warp {
@@ -1313,7 +1286,7 @@ padding: 0 20px;
   height: 100%;
   // background-color: #eee;
   > li {
-    padding:10px;
+    padding:7px;
     text-align: center;
     box-sizing: border-box;
   }
@@ -1359,18 +1332,6 @@ padding: 0 20px;
         }
       }
     }
-
-    // .cpk-left-item1,
-    //  .cpk-left-item2{
-    //   li>span{
-    //     width: 60px;
-    //   }
-    // }
-    //  .cpk-left-item3{
-    //   li>span{
-    //     width: 65px;
-    //   }
-    // }
 
   }
 

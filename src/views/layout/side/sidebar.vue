@@ -13,7 +13,7 @@
         <el-submenu v-if="item.children" :key="item.id" :index="item.path">
           <template slot="title" style="background:#00ff00">
             <div @click="toAnalyse(item)">
-              <i :class="item.icon"/>
+              <i :class="[item.icon,'iconfont']"/>
               <span>{{ item.title }}</span>
             </div>
           </template>
@@ -30,7 +30,7 @@
         </el-submenu>
         <el-menu-item v-else :key="item.id" :index="item.path" @click="toPath(item)">
           <template>
-            <i :class="item.icon"/>
+            <i :class="[item.icon,'iconfont']"/>
             <span slot="title">{{ item.title }}</span>
           </template>
         </el-menu-item>
@@ -86,6 +86,7 @@ export default {
     padding: 0;
   }
   i {
+    padding-right: 5px;
     color: $white-color;
   }
 }
