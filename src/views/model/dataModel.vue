@@ -9,17 +9,30 @@
       <el-table
         v-loading="tableLoading"
         :data="tableData"
+        highlight-current-row
         border
         stripe
         style="width: 100%"
-        @selection-change="tableSelection"
+        @current-change="tableHandleRowChange"
+        @row-dblclick="tableDblclick"
       >
-        <el-table-column type="selection" width="55"/>
-        <el-table-column prop="id" label="ID" width="180"/>
-        <el-table-column prop="name" label="名称" width="180"/>
+        <el-table-column prop="id" label="ID" width="60"/>
+        <el-table-column prop="name" label="名称"/>
         <el-table-column prop="inputCode" label="入参类型"/>
         <el-table-column label="创建时间">
           <template slot-scope="scope">{{ momentTime(scope.row.createTime) }}</template>
+        </el-table-column>
+        <el-table-column label="操作" width="230">
+          <template slot-scope="scope">
+            <div class="operate-btn">
+              <el-button type="primary" @click="tableModify(scope.row)">
+                <i class="iconfont icon-modify"/>修改
+              </el-button>
+              <el-button type="danger" @click="delConfirm(scope.row)">
+                <i class="iconfont icon-delete"/>删除
+              </el-button>
+            </div>
+          </template>
         </el-table-column>
       </el-table>
       <div class="page">
@@ -117,10 +130,10 @@
             <div v-for="(custom,i) in modelForm.customList" :key="i" class="custom-list">
               <div class="custom-list-add">
                 <el-button type="primary" title="添加" size="mini" @click="customItemAdd(i)">
-                  <i class="iconfont add"/>
+                  <i class="iconfont icon-add"/>
                 </el-button>
                 <el-button type="danger" title="删除" size="mini" @click="customDelete(i)">
-                  <i class="iconfont delete"/>
+                  <i class="iconfont icon-delete"/>
                 </el-button>
               </div>
               <div v-for="(item,j) in custom" :key="j" class="custom-item">
@@ -159,7 +172,7 @@
                 <el-form-item>
                   <a class="icon-delete">
                     <el-button type="danger" title="删除" size="mini" @click="customItemDelete(i,j)">
-                      <i class="iconfont delete"/>
+                      <i class="iconfont icon-delete"/>
                     </el-button>
                   </a>
                 </el-form-item>
@@ -217,7 +230,7 @@ export default {
       btnList: [
         {
           type: 'primary',
-          icon: 'add',
+          icon: 'icon-add',
           text: '添加',
           disabled: () => {
             return false
@@ -226,34 +239,11 @@ export default {
             this.tableAdd()
           },
         },
-        {
-          type: 'primary',
-          icon: 'modify',
-          text: '修改',
-          disabled: () => {
-            return this.tableSelected.length !== 1
-          },
-          click: () => {
-            this.tableModify()
-          },
-        },
-        {
-          type: 'danger',
-          icon: 'delete',
-          text: '删除',
-          disabled: () => {
-            return this.tableSelected.length !== 1
-          },
-          click: () => {
-            this.tableDelete()
-          },
-        },
       ],
       // table
       tableLoading: false,
       tableData: [],
-      // currentRow: null,
-      tableSelected: [],
+      tableRow: {},
       // 分页
       pageNum: 1,
       pageSize: 20,
@@ -317,9 +307,32 @@ export default {
     })
   },
   methods: {
+    delConfirm (row) {
+      this.tableRow = row
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        this.tableDelete()
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除',
+        })
+      })
+    },
+    tableHandleRowChange (row) {
+      if (row) {
+        this.tableRow = row
+      }
+    },
+    tableDblclick () {
+      this.tableModify(this.tableRow)
+    },
     // 表格
     tableDelete () {
-      const [{ id }] = this.tableSelected
+      const { id } = this.tableRow
       this.$http
         .delete('/api/dataSource/deleteDataSource', {
           params: {
@@ -341,14 +354,12 @@ export default {
       this.submitType = 'add'
       this.dialogVisible = true
     },
-    tableModify () {
+    tableModify (row) {
       this.dialogTitle = '修改模型'
       this.submitType = 'modify'
+      this.tableRow = row
       this.dialogVisible = true
       this.getModifyData()
-    },
-    tableSelection (val) {
-      this.tableSelected = val
     },
     // 分页
     handlePageSize (val) {
@@ -477,7 +488,7 @@ export default {
         this.$message.error('还没有上传文件不能提交')
         return false
       }
-      const [{ id }] = this.tableSelected
+      const { id } = this.tableRow
       const param = this.handleParam(this.modelForm)
       param.id = id
       this.$http
@@ -495,7 +506,7 @@ export default {
     },
     // 修改获取数据
     getModifyData () {
-      const [{ name, inputCode, param, customParam }] = this.tableSelected
+      const { name, inputCode, param, customParam } = this.tableRow
       const paramObj = JSON.parse(param)
       const modelForm = this.modelForm
       // const paramArr = []
@@ -526,7 +537,6 @@ export default {
           })
           break
       }
-      // console.log('this.tableSelected', this.tableSelected)
     },
     // 获取table数据
     getTable () {
@@ -545,7 +555,7 @@ export default {
           const { list, total } = data
           this.tableData = list
           this.pageTotal = total
-          // console.log(' this.tableData ', this.tableData)
+          this.tableRow = {}
         })
         .catch(() => {
           this.tableLoading = false

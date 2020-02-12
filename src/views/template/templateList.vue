@@ -7,24 +7,38 @@
         :data="tableData"
         stripe
         border
+        highlight-current-row
+        @current-change="tableHandleRowChange"
+        @row-dblclick="tableDblclick"
       >
         <el-table-column prop="id" label="ID" width="60"/>
         <el-table-column prop="name" label="模板名称"/>
-        <el-table-column prop="template" label="布局类型"/>
+        <!-- <el-table-column prop="template" label="布局类型"/> -->
+        <el-table-column label="布局类型">
+          <template slot-scope="scope">
+            <!-- {{ scope.row.template+'个方框' }} -->
+            <div class="templateType">
+              <span class="fl">  {{ scope.row.template+'个方框' }}</span>
+              <choice-grid :grid-num="scope.row.template"/>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="创建时间">
-          <template slot-scope="scope">{{ momentTime(scope.row.createTime) }}</template>
+          <template slot-scope="scope">
+            {{ momentTime(scope.row.createTime) }}
+          </template>
         </el-table-column>
         <el-table-column label="操作" width="320">
           <template slot-scope="scope">
             <div class="operate-btn">
-              <el-button type="primary" @click="tableModify(scope.row)">
-                <i class="iconfont modify"/>修改
-              </el-button>
-              <el-button type="danger" @click="tableDelete(scope.row.id)">
-                <i class="iconfont delete"/>删除
-              </el-button>
               <el-button type="success" @click="tableStartUp(scope.row)">
-                <i class="iconfont startUp"/>启动
+                <i class="iconfont icon-startUp"/>启动
+              </el-button>
+              <el-button type="primary" @click="tableModify(scope.row)">
+                <i class="iconfont icon-modify"/>修改
+              </el-button>
+              <el-button type="danger" @click="delConfirm(scope.row)">
+                <i class="iconfont icon-delete"/>删除
               </el-button>
             </div>
           </template>
@@ -47,16 +61,19 @@
 <script>
 import headTitle from '@/components/headTitle'
 import moment from 'moment'
+import choiceGrid from '@/components/choiceGrid'
 import { mapMutations } from 'vuex'
 export default {
   name: 'TemplateList',
   components: {
     headTitle,
+    choiceGrid,
   },
   data () {
     return {
       // table
       tableLoading: false,
+      tableRow: {},
       tableData: [],
       // 分页
       pageNum: 1,
@@ -80,6 +97,21 @@ export default {
       this.pageNum = val
       this.getTable()
     },
+    delConfirm (row) {
+      this.tableRow = row
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        this.tableDelete()
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除',
+        })
+      })
+    },
     tableModify (row) {
       this.$router.push({
         path: '/template',
@@ -87,9 +119,9 @@ export default {
           id: row.id,
         },
       })
-      // sessionStorage.setItem('analyseRow', JSON.stringify(row))
     },
-    tableDelete (id) {
+    tableDelete () {
+      const { id } = this.tableRow
       this.$http
         .delete('/api/analysis/deleteAnalysis', {
           params: {
@@ -133,6 +165,15 @@ export default {
       this.$router.push({ path: '/analyse/myAnalyse' })
       this.add_tags(item)
     },
+    tableDblclick () {
+      this.tableModify(this.tableRow)
+    },
+    tableHandleRowChange (row) {
+      console.log('row', row)
+      if (row) {
+        this.tableRow = row
+      }
+    },
     getTable () {
       this.tableLoading = true
       this.$http.get('/api/analysis/myAnalysis', {
@@ -145,6 +186,7 @@ export default {
         const { list, total } = data
         this.tableData = list
         this.pageTotal = total
+        this.tableRow = {}
       }).catch(() => {
         this.tableLoading = false
       })
@@ -166,7 +208,17 @@ export default {
 .page {
   margin-top: 10px;
 }
-.operate-btn{
-  text-align: center
+// 修改布局类型
+.templateType {
+  .fl{ margin-right: 10px;}
+  /deep/ .box{
+    padding: 0;
+    width: 25px;
+    height: 25px;
+    >li{
+      padding: 0;
+    }
+
+  }
 }
 </style>

@@ -3,13 +3,13 @@
     <ul :class="['box',getClass()]">
       <li v-for="(item,i) in boxNum" :key="i">
         <div class="box-item">
-          <i v-show="optionList[i]?true:false" class="iconfont tick"/>
+          <i v-show="optionList[i]?true:false" class="iconfont icon-tick"/>
           <div class="operate">
             <el-button type="primary" :disabled="optionList[i]?true:false" @click="add(i)">
-              <i class="iconfont add"/>添加配置
+              <i class="iconfont icon-add"/>添加配置
             </el-button>
             <el-button type="primary" :disabled="!optionList[i]?true:false" @click="modify(i)">
-              <i class="iconfont modify"/>修改配置
+              <i class="iconfont icon-modify"/>修改配置
             </el-button>
           </div>
         </div>
@@ -32,17 +32,10 @@
         class="formInline"
       >
         <el-form-item label="数据源ID" prop="dataSourceId" :rules="rule.mustSelect">
-          <el-input v-model="formOption.dataSourceId" :disabled="true">
+          <el-input v-model="dataSource.name" :disabled="true">
             <el-button slot="append" icon="el-icon-search" @click="dataDialogVisible=true"/>
           </el-input>
-          <!-- <el-select v-model="formOption.dataSourceId">
-            <el-option
-              v-for="data in dataSource"
-              :key="data.id"
-              :label="data.name"
-              :value="data.id"
-            />
-          </el-select> -->
+          <el-input v-show="false" v-model="formOption.dataSourceId" :disabled="true"/>
         </el-form-item>
         <el-form-item label="分析模型" prop="modelCode" :rules="rule.mustSelect">
           <el-select v-model="formOption.modelCode" @change="getModelOption()">
@@ -101,8 +94,8 @@
         highlight-current-row
         @current-change="dataHandleTableRow"
       >
-        <el-table-column prop="id" label="ID" width="180"/>
-        <el-table-column prop="name" label="名称" width="180"/>
+        <el-table-column prop="id" label="ID" width="60"/>
+        <el-table-column prop="name" label="名称"/>
         <el-table-column prop="inputCode" label="入参类型"/>
         <el-table-column label="创建时间">
           <template slot-scope="scope">{{ momentTime(scope.row.createTime) }}</template>
@@ -172,6 +165,7 @@ export default {
         option: '',
 
       },
+      dataSource: { name: '' },
       optionList: [],
       // 请求数据
       modelList: [],
@@ -198,6 +192,7 @@ export default {
       if (!val) {
         this.$refs.formOption.resetFields()
         this.formOption.modelOption = []
+        this.dataSource = { name: '' }
       }
     },
     boxNum (val) {
@@ -206,6 +201,7 @@ export default {
     },
     analysisList (val) {
       this.optionList = JSON.parse(JSON.stringify(val))
+      console.log('this.optionList', this.optionList)
       this.$emit('optionData', this.optionList)
     },
     dataDialogVisible (val) {
@@ -244,6 +240,8 @@ export default {
       this.dialogTitle = `修改配置${i + 1}`
 
       this.formOption = { ...this.optionList[i] }
+      this.dataSource = { ...this.optionList[i].dataSource }
+
       this.dialogVisible = true
     },
     // 表单提交
@@ -324,7 +322,9 @@ export default {
       this.getDataSource()
     },
     dataDialogSubmit () {
-      this.formOption.dataSourceId = this.dataTableRow.id
+      const { id, name } = this.dataTableRow
+      this.formOption.dataSourceId = id
+      this.dataSource.name = name
       this.dataDialogVisible = false
     },
   },
@@ -361,7 +361,7 @@ export default {
     justify-content: center;
     border: 1px solid $grid-line-color;
   }
-  .tick {
+  .icon-tick {
     position: absolute;
     top: 0;
     left: 0;

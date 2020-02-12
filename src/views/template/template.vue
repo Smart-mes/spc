@@ -81,7 +81,7 @@ export default {
       btnList: [
         {
           type: 'primary',
-          icon: 'add',
+          icon: 'icon-add',
           text: '添加布局',
           disabled: () => {
             return !!this.tempType
@@ -92,7 +92,7 @@ export default {
         },
         {
           type: 'primary',
-          icon: 'modify',
+          icon: 'icon-modify',
           text: '修改布局',
           disabled: () => {
             return !this.tempType
@@ -103,7 +103,7 @@ export default {
         },
         {
           type: 'success',
-          icon: 'save',
+          icon: 'icon-save',
           text: '保存模板',
           disabled: () => {
             const layoutLen = !this.tempType ? 0 : Number(this.tempType)
@@ -275,6 +275,7 @@ export default {
             const analysisArr = analysisDetails.map(analys => {
               const {
                 dataSourceId,
+                dataSource: { name },
                 modelCode,
                 modelOption,
                 cleanData,
@@ -284,6 +285,7 @@ export default {
 
               return {
                 dataSourceId,
+                dataSource: { name },
                 modelCode,
                 modelOption: JSON.parse(modelOption),
                 cleanData,

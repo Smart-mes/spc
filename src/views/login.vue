@@ -12,7 +12,7 @@
       >
         <el-row>
           <el-col :span="3">
-            <i class="iconfont icondenglu1"/>
+            <i class="iconfont icon-user"/>
           </el-col>
           <el-col :span="21">
             <el-form-item prop="username">
@@ -22,7 +22,7 @@
         </el-row>
         <el-row>
           <el-col :span="3">
-            <i class="iconfont iconmima"/>
+            <i class="iconfont icon-password"/>
           </el-col>
           <el-col :span="21">
             <el-form-item prop="password">

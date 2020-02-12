@@ -6,10 +6,10 @@
           <i v-show="optionList[i]?true:false" class="iconfont tick"/>
           <div class="operate">
             <el-button type="primary" :disabled="optionList[i]?true:false" @click="add(i)">
-              <i class="iconfont add"/>添加配置
+              <i class="iconfont icon-add"/>添加配置
             </el-button>
             <el-button type="primary" :disabled="!optionList[i]?true:false" @click="modify(i)">
-              <i class="iconfont modify"/>修改配置
+              <i class="iconfont icon-modify"/>修改配置
             </el-button>
           </div>
         </div>
