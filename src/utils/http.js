@@ -1,7 +1,7 @@
 import axios from 'axios'
 import qs from 'qs'
 import { MessageBox } from 'element-ui'
-import router from '@/router/index'
+// import router from '@/router/index'
 
 const instance = axios.create({
   headers: { 'Content-Type': 'application/json;charset=UTF-8' },
@@ -33,7 +33,7 @@ instance.interceptors.response.use(response => {
         MessageBox('请登录', {
           type: 'error',
         }).then(() => {
-          router.push({ path: '/login' })
+          window.location.href = '/login'
         })
         break
       case 500:
@@ -55,7 +55,7 @@ instance.interceptors.response.use(response => {
       MessageBox('请登录', {
         type: 'error',
       }).then(() => {
-        router.push({ path: '/login' })
+        window.location.href = '/login'
       })
       break
     case 500:

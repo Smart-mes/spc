@@ -119,6 +119,13 @@ const actions = {
               })
             }
           })
+      }).catch(() => {
+        // console.log('err', err)
+        // let errNum = 0
+        commit('set_state', {
+          isRouter: true,
+        })
+        // console.log(++errNum)
       })
   },
 }

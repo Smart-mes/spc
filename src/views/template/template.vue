@@ -81,7 +81,7 @@ export default {
       btnList: [
         {
           type: 'primary',
-          icon: 'icontianjia',
+          icon: 'add',
           text: '添加布局',
           disabled: () => {
             return !!this.tempType
@@ -92,7 +92,7 @@ export default {
         },
         {
           type: 'primary',
-          icon: 'iconxiugai',
+          icon: 'modify',
           text: '修改布局',
           disabled: () => {
             return !this.tempType
@@ -103,7 +103,7 @@ export default {
         },
         {
           type: 'success',
-          icon: 'iconbaocun',
+          icon: 'save',
           text: '保存模板',
           disabled: () => {
             const layoutLen = !this.tempType ? 0 : Number(this.tempType)

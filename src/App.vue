@@ -5,7 +5,8 @@
 </template>
 
 <style lang="scss">
-@import '~@/assets/css/font/iconfont.css';
+// @import '~@/assets/css/font/iconfont.css';
+ @import '~@/assets/css/iconfont.css';
 html,
 body {
   margin: 0;

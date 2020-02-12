@@ -3,13 +3,13 @@
     <ul :class="['box',getClass()]">
       <li v-for="(item,i) in boxNum" :key="i">
         <div class="box-item">
-          <i v-show="optionList[i]?true:false" class="iconfont iconsanjiaodagou"/>
+          <i v-show="optionList[i]?true:false" class="iconfont tick"/>
           <div class="operate">
             <el-button type="primary" :disabled="optionList[i]?true:false" @click="add(i)">
-              <i class="iconfont icontianjia"/>添加配置
+              <i class="iconfont add"/>添加配置
             </el-button>
             <el-button type="primary" :disabled="!optionList[i]?true:false" @click="modify(i)">
-              <i class="iconfont iconxiugai"/>修改配置
+              <i class="iconfont modify"/>修改配置
             </el-button>
           </div>
         </div>
@@ -258,7 +258,7 @@ export default {
     justify-content: center;
     border: 1px solid $grid-line-color;
   }
-  .iconsanjiaodagou {
+  .tick {
     position: absolute;
     top: 0;
     left: 0;

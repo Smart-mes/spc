@@ -31,7 +31,7 @@
         </div>
         <div class="btn">
           <el-button type="primary" @click="search">
-            <i class="iconfont iconsousuo"/>搜索
+            <i class="iconfont search"/>搜索
           </el-button>
           <el-button @click="clearSearch">清空搜索</el-button>
         </div>

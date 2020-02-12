@@ -18,13 +18,13 @@
           <template slot-scope="scope">
             <div class="operate-btn">
               <el-button type="primary" @click="tableModify(scope.row)">
-                <i class="iconfont iconxiugai"/>修改
+                <i class="iconfont modify"/>修改
               </el-button>
               <el-button type="danger" @click="tableDelete(scope.row.id)">
-                <i class="iconfont iconicon7"/>删除
+                <i class="iconfont delete"/>删除
               </el-button>
               <el-button type="success" @click="tableStartUp(scope.row)">
-                <i class="iconfont iconqidong"/>启动
+                <i class="iconfont startUp"/>启动
               </el-button>
             </div>
           </template>

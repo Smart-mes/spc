@@ -117,10 +117,10 @@
             <div v-for="(custom,i) in modelForm.customList" :key="i" class="custom-list">
               <div class="custom-list-add">
                 <el-button type="primary" title="添加" size="mini" @click="customItemAdd(i)">
-                  <i class="iconfont icontianjia"/>
+                  <i class="iconfont add"/>
                 </el-button>
                 <el-button type="danger" title="删除" size="mini" @click="customDelete(i)">
-                  <i class="iconfont iconicon7"/>
+                  <i class="iconfont delete"/>
                 </el-button>
               </div>
               <div v-for="(item,j) in custom" :key="j" class="custom-item">
@@ -159,7 +159,7 @@
                 <el-form-item>
                   <a class="icon-delete">
                     <el-button type="danger" title="删除" size="mini" @click="customItemDelete(i,j)">
-                      <i class="iconfont iconicon7"/>
+                      <i class="iconfont delete"/>
                     </el-button>
                   </a>
                 </el-form-item>
@@ -217,7 +217,7 @@ export default {
       btnList: [
         {
           type: 'primary',
-          icon: 'icontianjia',
+          icon: 'add',
           text: '添加',
           disabled: () => {
             return false
@@ -228,7 +228,7 @@ export default {
         },
         {
           type: 'primary',
-          icon: 'iconxiugai',
+          icon: 'modify',
           text: '修改',
           disabled: () => {
             return this.tableSelected.length !== 1
@@ -239,7 +239,7 @@ export default {
         },
         {
           type: 'danger',
-          icon: 'iconicon7',
+          icon: 'delete',
           text: '删除',
           disabled: () => {
             return this.tableSelected.length !== 1

@@ -56,6 +56,7 @@ router.beforeEach(async (to, from, next) => {
   const isQrCode = /\/qrCode/.test(path)
   // const token = $store.state.token
 
+  console.log('isLogin', to.path)
   if (isLogin || isQrCode) {
     next()
   } else {
@@ -65,7 +66,7 @@ router.beforeEach(async (to, from, next) => {
       await $store.dispatch('queryMenus')
       const { routes } = $store.getters
       // console.log('routes:::', routes)
-      if (routes.length) {
+      if (routes && routes.length) {
         routes.push(
           {
             path: '*',
