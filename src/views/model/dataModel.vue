@@ -27,7 +27,7 @@
           :current-page="pageNum"
           :page-size="pageSize"
           :total="pageTotal"
-          :page-sizes="[20, 30, 40, 50]"
+          :page-sizes="[10,20, 30, 40]"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handlePageSize"
           @current-change="handlePageNum"
@@ -589,9 +589,6 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.page {
-  margin-top: 10px;
-}
 
 .dialog-step {
   margin: 0 auto 40px auto;

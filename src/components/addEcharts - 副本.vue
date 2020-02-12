@@ -16,13 +16,13 @@
       </li>
     </ul>
     <div v-if="!boxNum">还没有添加布局</div>
-    <!-- 添加配置弹窗 -->
+    <!-- /列表 -->
     <el-dialog
       :title="dialogTitle"
       :visible.sync="dialogVisible"
+      label-width="90px"
       width="700px"
       class="demo-form-inline"
-      @open="dialogOpen"
     >
       <el-form
         ref="formOption"
@@ -31,18 +31,15 @@
         label-width="90px"
         class="formInline"
       >
-        <el-form-item label="数据源ID" prop="dataSourceId" :rules="rule.mustSelect">
-          <el-input v-model="formOption.dataSourceId" :disabled="true">
-            <el-button slot="append" icon="el-icon-search" @click="dataDialogVisible=true"/>
-          </el-input>
-          <!-- <el-select v-model="formOption.dataSourceId">
+        <el-form-item label="数据源" prop="dataSourceId" :rules="rule.mustSelect">
+          <el-select v-model="formOption.dataSourceId">
             <el-option
               v-for="data in dataSource"
               :key="data.id"
               :label="data.name"
               :value="data.id"
             />
-          </el-select> -->
+          </el-select>
         </el-form-item>
         <el-form-item label="分析模型" prop="modelCode" :rules="rule.mustSelect">
           <el-select v-model="formOption.modelCode" @change="getModelOption()">
@@ -85,55 +82,10 @@
         <el-button type="primary" @click="dialogSubmit">确 定</el-button>
       </span>
     </el-dialog>
-    <!-- 添加数据源的弹窗 -->
-    <el-dialog
-      :title="dataDialogTitle"
-      :visible.sync="dataDialogVisible"
-      width="50%"
-      @open="dataDialogOpen"
-    >
-      <el-table
-        v-loading="dataTableLoading"
-        border
-        style="width: 100%"
-        height="500"
-        :data="dataTable"
-        highlight-current-row
-        @current-change="dataHandleTableRow"
-      >
-        <el-table-column prop="id" label="ID" width="180"/>
-        <el-table-column prop="name" label="名称" width="180"/>
-        <el-table-column prop="inputCode" label="入参类型"/>
-        <el-table-column label="创建时间">
-          <template slot-scope="scope">{{ momentTime(scope.row.createTime) }}</template>
-        </el-table-column>
-      </el-table>
-      <div class="page">
-        <el-pagination
-          :current-page="dataPageNum"
-          :page-size="dataPageSize"
-          :total="dataPageTotal"
-          :page-sizes="[10,20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          @current-change="dataHandlePageNum"
-          @size-change="dataHandlePageSize"
-        />
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dataDialogVisible = false">取 消</el-button>
-        <el-button
-          type="primary"
-          :disabled="!Object.keys(dataTableRow).length"
-          @click="dataDialogSubmit"
-        >
-          确 定
-        </el-button>
-      </span>
-    </el-dialog>
+    <!-- /弹窗 -->
   </div>
 </template>
 <script>
-import moment from 'moment'
 export default {
   name: 'AddEcharts',
   props: {
@@ -174,18 +126,8 @@ export default {
       },
       optionList: [],
       // 请求数据
+      dataSource: [],
       modelList: [],
-      // 添加数据源
-      dataDialogVisible: false,
-      dataDialogTitle: '添加数据源',
-
-      dataPageNum: 1,
-      dataPageSize: 10,
-      dataPageTotal: 0,
-
-      dataTableLoading: false,
-      dataTable: [],
-      dataTableRow: {},
     }
   },
   computed: {
@@ -208,15 +150,14 @@ export default {
       this.optionList = JSON.parse(JSON.stringify(val))
       this.$emit('optionData', this.optionList)
     },
-    dataDialogVisible (val) {
-      if (!val) {
-        this.dataPageNum = 1
-        this.dataPageSize = 10
-        this.dataPageTotal = 0
-        this.dataTable = []
-        this.dataTableRow = {}
-      }
-    },
+  },
+  mounted () {
+    this.$nextTick(() => {
+      // this.optionList = JSON.parse(JSON.stringify(this.analysisList))
+      // this.$emit('optionData', this.optionList)
+      this.getDataSource()
+      this.getModelList()
+    })
   },
   methods: {
     // 获取不同的class
@@ -263,26 +204,9 @@ export default {
       })
     },
     // 获取数据源
-    getDataSource () {
-      this.dataTableLoading = true
-      this.$http
-        .get('/api/dataSource/myDataSource', {
-          params: {
-            from: '',
-            pageNum: this.dataPageNum,
-            pageSize: this.dataPageSize,
-            to: '',
-          },
-        })
-        .then(({ data }) => {
-          this.dataTableLoading = false
-          const { list, total } = data
-          this.dataTable = list
-          this.dataPageTotal = total
-        })
-        .catch(() => {
-          this.dataTableLoading = false
-        })
+    async getDataSource () {
+      const { data: { list }} = await this.$http.get('/api/dataSource/myDataSource')
+      this.dataSource = list
     },
     async getModelList () {
       const { data } = await this.$http.get('/api/model/list')
@@ -299,33 +223,6 @@ export default {
           const { param } = data
           this.formOption.modelOption = JSON.parse(param)
         })
-    },
-    dialogOpen () {
-      this.getModelList()
-    },
-    // 添加数据源
-    dataDialogOpen () {
-      this.getDataSource()
-    },
-    momentTime (item) {
-      return moment(item).format('YYYY-MM-DD HH:mm:ss')
-    },
-    dataHandleTableRow (row) {
-      if (row) {
-        this.dataTableRow = row
-      }
-    },
-    dataHandlePageNum (val) {
-      this.dataPageNum = val
-      this.getDataSource()
-    },
-    dataHandlePageSize (val) {
-      this.dataPageSize = val
-      this.getDataSource()
-    },
-    dataDialogSubmit () {
-      this.formOption.dataSourceId = this.dataTableRow.id
-      this.dataDialogVisible = false
     },
   },
 }
