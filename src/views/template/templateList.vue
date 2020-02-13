@@ -49,7 +49,7 @@
           :current-page="pageNum"
           :page-size="pageSize"
           :total="pageTotal"
-          :page-sizes="[20, 30, 40, 50]"
+          :page-sizes="[10,20, 30, 40]"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handlePageSize"
           @current-change="handlePageNum"
@@ -150,8 +150,8 @@ export default {
           }
           this.set_state({ tags: [], tagsNo: 0 })
         })
-        .catch(() => {
-          this.$message.error('删除失败')
+        .catch((error) => {
+          this.$message.error(error)
         })
     },
     tableStartUp (row) {

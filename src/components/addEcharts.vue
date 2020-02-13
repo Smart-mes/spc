@@ -31,9 +31,18 @@
         label-width="90px"
         class="formInline"
       >
-        <el-form-item label="数据源ID" prop="dataSourceId" :rules="rule.mustSelect">
+        <el-form-item
+          label="数据源"
+          prop="dataSourceId"
+          :rules="rule.mustSelect"
+          class="dataAdd"
+        >
           <el-input v-model="dataSource.name" :disabled="true">
-            <el-button slot="append" icon="el-icon-search" @click="dataDialogVisible=true"/>
+            <el-button
+              slot="append"
+              icon="el-icon-search"
+              @click="dataDialogVisible=true"
+            />
           </el-input>
           <el-input v-show="false" v-model="formOption.dataSourceId" :disabled="true"/>
         </el-form-item>
@@ -278,8 +287,9 @@ export default {
           this.dataTable = list
           this.dataPageTotal = total
         })
-        .catch(() => {
+        .catch((error) => {
           this.dataTableLoading = false
+          this.$message.error(error)
         })
     },
     async getModelList () {
@@ -415,4 +425,14 @@ export default {
   border-bottom: 1px dashed $line-color;
 }
 .p-20{ padding: 0 0 20px 20px;}
+// 搜索
+.dataAdd{
+  /deep/ .el-input__inner {
+    width: 150px;
+}
+/deep/ .el-input-group__append{
+  background: #fff;
+}
+}
+
 </style>

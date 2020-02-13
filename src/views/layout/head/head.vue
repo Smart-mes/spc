@@ -5,7 +5,7 @@
       <h1 class="logo-text">数据分析平台</h1>
     </div>
     <div class="icon fl">
-      <i :class="[isCollapse ? 'iconshouqi' : 'iconzhankai', 'iconfont']" :title="[isCollapse ? '收起' : '展开']" @click="set_collapse"/>
+      <i :class="[isCollapse ? 'icon-shouqi' : 'icon-zhankai', 'iconfont']" :title="[isCollapse ? '收起' : '展开']" @click="set_collapse"/>
     </div>
     <div class="user fr">
       <span>欢迎您，{{ userInfo.username }}</span>

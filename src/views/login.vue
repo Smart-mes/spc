@@ -84,7 +84,7 @@ export default {
             })
             .catch(error => {
               this.btnLoading = false
-              this.$message.error(error.message)
+              this.$message.error(error)
             })
         } else {
           return false

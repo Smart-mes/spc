@@ -1,3 +1,18 @@
+
+// 颜色
+$white-color:#fff;
+$blue-color:#2376c4;
+$Grass-green-color:#0fcd1a;
+
+// 文字颜色
+$title-color:#333;
+$font-gray:#666;
+$font-light-gray:#999;
+$font-blue:#2274be;
+// 其他
+$line-color:#ededed;
+$grid-line-color:#bbb;
+//-------------------------------------------
 // 重置代码
 body,
 ol,
@@ -73,19 +88,6 @@ p {
     }
 }
 
-// 颜色
-$white-color:#fff;
-$blue-color:#2376c4;
-$Grass-green-color:#0fcd1a;
-
-// 文字颜色
-$title-color:#333;
-$font-gray:#666;
-$font-light-gray:#999;
-$font-blue:#2274be;
-// 其他
-$line-color:#ededed;
-$grid-line-color:#bbb;
 
 // 公共
   .wrap{padding:0 20px 20px 20px;}

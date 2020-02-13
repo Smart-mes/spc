@@ -345,8 +345,8 @@ export default {
             type: 'success',
           })
           this.getTable()
-        }).catch(() => {
-          this.$message.error('删除失败')
+        }).catch((error) => {
+          this.$message.error(error)
         })
     },
     tableAdd () {
@@ -372,7 +372,7 @@ export default {
     },
     // 上传exl
     handleRemove (file, fileList) {
-      console.log(file, fileList)
+      this.fileList = fileList
     },
     beforeUpload (file) {
       const isXls =
@@ -411,8 +411,8 @@ export default {
           this.fileList = [{ name: filename, url: path }]
           console.log('this.fileList', this.fileList)
         })
-        .catch(() => {
-          this.$message.error('上传失败')
+        .catch((error) => {
+          this.$message.error(error)
         })
     },
     // Step
@@ -479,8 +479,8 @@ export default {
           })
           this.dialogVisible = false
         })
-        .catch(() => {
-          this.$message.error('添加失败')
+        .catch((error) => {
+          this.$message.error(error)
         })
     },
     submitModify () {
@@ -500,8 +500,8 @@ export default {
           })
           this.dialogVisible = false
         })
-        .catch(() => {
-          this.$message.error('修改失败')
+        .catch((error) => {
+          this.$message.error(error)
         })
     },
     // 修改获取数据

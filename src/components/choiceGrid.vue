@@ -64,14 +64,7 @@ export default {
 }
 
 /* 不同的列表*/
-.box1 {
-  > li {
-    flex: 1;
-    height: 100%;
-  }
-}
-
-.box2 {
+.box1,.box2 {
   > li {
     flex: 1;
     height: 100%;
@@ -79,17 +72,15 @@ export default {
 }
 
 .box3 {
-  > li {
+    > li {
     width: 50%;
     height: 50%;
   }
-}
-
-.box3 {
   > li:last-child {
     width: 100%;
   }
 }
+
 .box4 {
   > li {
     width: 50%;

@@ -30,15 +30,27 @@
           </div>
         </div>
         <div class="btn">
-          <el-button type="primary" @click="search">
+          <el-button
+            type="primary"
+            :disabled="isBtnSearch"
+            @click="search"
+          >
             <i class="iconfont icon-search"/>搜索
           </el-button>
-          <el-button @click="clearSearch">清空搜索</el-button>
+          <el-button
+            @click="clearSearch"
+          >
+            清空搜索
+          </el-button>
         </div>
       </el-form>
     </div>
     <!-- 搜索条件 -->
-    <div :id="`echear${tagsItem.no}`" class="echear-warp">
+    <div
+      :id="`echarts${tagsItem.no}`"
+      v-loading="echartsLoading"
+      class="echarts-warp"
+    >
       <ul :class="['box',getClass()]">
         <li v-for="(item,i) in boxNum" :key="i">
           <div v-if="cpkList[i].modelCode==='CPK'" class="box-item cpk-item">
@@ -54,6 +66,12 @@
               </div>
               <!-- /统计样本 -->
               <div class="cpk-box-item">
+                <div
+                  v-show="isEchartsList[i].isDisplay"
+                  class="none"
+                >
+                  暂时没有数据
+                </div>
                 <h5>常量</h5>
                 <ul>
                   <li><span>子组大小：</span>{{ cpkList[i].data.size }}</li>
@@ -97,6 +115,7 @@
           </div>
           <div v-else class="box-item">
             <div class="echarts-box"/>
+            <div v-show="isEchartsList[i].isDisplay" class="none">没有数据</div>
           </div>
         </li>
       </ul>
@@ -117,6 +136,8 @@ export default {
   },
   data () {
     return {
+      isBtnSearch: false,
+      echartsLoading: false,
       dataList: [],
       formCustom: {
         customList: [],
@@ -144,6 +165,8 @@ export default {
         ca: '',
       },
       cpkList: [],
+      // 搜索后获得数据
+      isEchartsList: [],
     }
   },
   computed: {
@@ -221,6 +244,11 @@ export default {
             return { modelCode, data: {}}
           }
         })
+        // 判断echarts是否执行
+        for (let i = 0; i < this.boxNum; i++) {
+          const isEchartsObj = { isDisplay: true }
+          this.isEchartsList.push(isEchartsObj)
+        }
       })
       .then(() => {
         // 搜索表单赋值
@@ -231,18 +259,16 @@ export default {
   },
   methods: {
     getClass () {
-      switch (this.boxNum) {
-        case 1:
-          return 'box1'
-        case 2:
-          return 'box2'
-        case 3:
-          return 'box3'
-        case 4:
-          return 'box4'
+      if (this.boxNum === 1 || this.boxNum === 2) {
+        return 'boxDefault'
+      } else {
+        const className = (this.boxNum % 2 === 0) ? 'boxEven' : 'boxOdd'
+        return className
       }
     },
     search () {
+      this.isBtnSearch = true
+      this.echartsLoading = true
       // 清空CPK的数据
       this.clearCPK()
 
@@ -283,6 +309,8 @@ export default {
       const newParame = { id, analysisDetails: analysisArr }
 
       this.$http.post('/api/analysis/doMyAnalysis', newParame).then(res => {
+        this.isBtnSearch = false
+        this.echartsLoading = false
         const { data: { data }} = res
 
         // 组装data
@@ -300,9 +328,9 @@ export default {
           }
         })
 
-        // 存cpk的数据
         echartArr.map((echartItem, i) => {
           const { modelCode, data } = echartItem
+          // 存cpk的数据
           if (modelCode === 'CPK' && data !== null) {
             const cpkObj = {}
             Object.keys(this.cpkKey).map(key => {
@@ -310,16 +338,21 @@ export default {
             })
             this.cpkList[i].data = cpkObj
           }
+          this.isEchartsList[i].isDisplay = data === null
         })
-
+        console.log('echartArr', echartArr)
         this.echartInit(echartArr)
+      }).catch((error) => {
+        this.$message.error(error)
+        this.isBtnSearch = false
+        this.echartsLoading = false
       })
     },
     // 执行echarts
     echartInit (echartData) {
       echartData.map((item, i) => {
         const div = document
-          .getElementById(`echear${this.tagsItem.no}`)
+          .getElementById(`echarts${this.tagsItem.no}`)
           .getElementsByClassName('echarts-box')[i]
         const chart = this.$echarts.init(div)
         const { option, data } = item
@@ -1270,10 +1303,10 @@ padding: 0 20px;
     width:160px;
   }
 }
-.echear-warp {
+.echarts-warp {
   margin-top: 15px;
   padding: 10px;
-  height: 600px;
+  // height: 600px;
   background: #f3f3f3;
 }
 // 选择
@@ -1289,12 +1322,23 @@ padding: 0 20px;
     padding:7px;
     text-align: center;
     box-sizing: border-box;
+    height: 320px;
   }
 
   .box-item {
+    position: relative;
     height: 100%;
     border: 1px solid #aaa;
     background: #fff;
+    .none{
+      position: absolute;
+      top: 50%;
+      vertical-align:middle;
+      width: 100%;
+      line-height:100%;
+      text-align: center;
+      color: $font-light-gray
+    }
   }
   .echarts-box{height: 100%;}
   .cpk-item{
@@ -1338,39 +1382,24 @@ padding: 0 20px;
 }
 
 /* 不同的列表*/
-.box1 {
+.boxDefault {
   > li {
     flex: 1;
-    height: 100%;
   }
 }
-
-.box2 {
-  > li {
-    flex: 1;
-    height: 100%;
-  }
-}
-
-.box3 {
+.boxOdd{
   > li {
     width: 50%;
-    height: 50%;
   }
-}
-
-.box3 {
   > li:last-child {
     width: 100%;
   }
 }
-.box4 {
+
+.boxEven {
   > li {
     width: 50%;
-    height: 50%;
   }
 }
-// .mt-40{
-//   margin-top: 30px !important;
-// }
+
 </style>

@@ -25,7 +25,7 @@ instance.interceptors.request.use(config => {
 // 添加响应拦截器
 instance.interceptors.response.use(response => {
   const data = response.data
-  const { code } = data
+  const { code, message } = data
 
   if (code !== 0) {
     switch (code) {
@@ -43,7 +43,7 @@ instance.interceptors.response.use(response => {
         break
     }
 
-    return Promise.reject(response)
+    return Promise.reject(message)
   }
   return data
 }
