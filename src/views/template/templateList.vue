@@ -13,12 +13,10 @@
       >
         <el-table-column prop="id" label="ID" width="60"/>
         <el-table-column prop="name" label="模板名称"/>
-        <!-- <el-table-column prop="template" label="布局类型"/> -->
         <el-table-column label="布局类型">
           <template slot-scope="scope">
-            <!-- {{ scope.row.template+'个方框' }} -->
             <div class="templateType">
-              <span class="fl">  {{ scope.row.template+'个方框' }}</span>
+              <span class="fl">  {{ scope.row.template+'布局' }}</span>
               <choice-grid :grid-num="scope.row.template"/>
             </div>
           </template>
@@ -176,20 +174,21 @@ export default {
     },
     getTable () {
       this.tableLoading = true
-      this.$http.get('/api/analysis/myAnalysis', {
-        params: {
-          pageNum: this.pageNum,
-          pageSize: this.pageSize,
-        },
-      }).then(({ data }) => {
-        this.tableLoading = false
-        const { list, total } = data
-        this.tableData = list
-        this.pageTotal = total
-        this.tableRow = {}
-      }).catch(() => {
-        this.tableLoading = false
-      })
+      this.$http
+        .get('/api/analysis/myAnalysis', {
+          params: {
+            pageNum: this.pageNum,
+            pageSize: this.pageSize,
+          },
+        }).then(({ data }) => {
+          this.tableLoading = false
+          const { list, total } = data
+          this.tableData = list
+          this.pageTotal = total
+          this.tableRow = {}
+        }).catch(() => {
+          this.tableLoading = false
+        })
     },
     // --公共的函数--
     momentTime (item) {

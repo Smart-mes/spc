@@ -259,7 +259,7 @@ export default {
   },
   methods: {
     getClass () {
-      if (this.boxNum === 1 || this.boxNum === 2) {
+      if (this.boxNum === 1) {
         return 'boxDefault'
       } else {
         const className = (this.boxNum % 2 === 0) ? 'boxEven' : 'boxOdd'
@@ -340,7 +340,6 @@ export default {
           }
           this.isEchartsList[i].isDisplay = data === null
         })
-        console.log('echartArr', echartArr)
         this.echartInit(echartArr)
       }).catch((error) => {
         this.$message.error(error)
@@ -396,9 +395,10 @@ export default {
     },
     // 图形配置
     drowxbar (objParame) {
+      const { modelCode, dataindex, yName, max, min, cl, ucl, lcl, data } = objParame
       return {
         title: {
-          text: `[${objParame.modelCode} 控制图]`,
+          text: `[${modelCode} 控制图]`,
           top: 'top',
           left: 'center',
           textStyle: {
@@ -415,15 +415,15 @@ export default {
         },
         xAxis: {
           type: 'category',
-          data: objParame.dataindex,
+          data: dataindex,
         },
         yAxis: {
-          name: objParame.yName,
+          name: yName,
           nameLocation: 'middle',
           nameGap: 50,
           splitNumber: 5,
-          max: objParame.max,
-          min: objParame.min,
+          max: max,
+          min: min,
           splitLine: {
             show: false,
           },
@@ -432,8 +432,8 @@ export default {
           show: false,
           dimension: 1,
           pieces: [{
-            gte: objParame.ucl,
-            lte: objParame.lcl,
+            gte: ucl,
+            lte: lcl,
             color: 'red',
           }],
           outOfRange: {
@@ -441,8 +441,8 @@ export default {
           },
         },
         series: [{
-          name: `${objParame.modelCode}图`,
-          data: objParame.data,
+          name: `${modelCode}图`,
+          data: data,
           type: 'line',
           markLine: {
             symbol: ['none', 'none'],
@@ -457,16 +457,16 @@ export default {
             },
             data: [
               {
-                type: 'average',
                 name: 'CL',
+                yAxis: cl,
               },
               {
                 name: 'UCL',
-                yAxis: objParame.ucl,
+                yAxis: ucl,
               },
               {
                 name: 'LCL',
-                yAxis: objParame.lcl,
+                yAxis: lcl,
               },
             ],
           },
@@ -474,10 +474,11 @@ export default {
       }
     },
     drowXbarR (dataParame) {
+      const [xbarRItem1, xbarRItem2] = dataParame
       return {
         title: [
           {
-            text: `[${dataParame[0].modelCode}控制图]`,
+            text: `[${xbarRItem1.modelCode}控制图]`,
             top: 'top',
             left: 'center',
             textStyle: {
@@ -486,7 +487,7 @@ export default {
             },
           },
           {
-            text: `[${dataParame[1].modelCode}控制图]`,
+            text: `[${xbarRItem2.modelCode}控制图]`,
             top: '50%',
             left: 'center',
             textStyle: {
@@ -519,35 +520,35 @@ export default {
         },
         xAxis: [{
           type: 'category',
-          data: dataParame[0].dataindex,
+          data: xbarRItem1.dataindex,
         },
         {
           type: 'category',
-          data: dataParame[1].dataindex,
+          data: xbarRItem2.dataindex,
           gridIndex: 1,
         },
         ],
         yAxis: [{
-          name: dataParame[0].yName,
+          name: xbarRItem1.yName,
           nameLocation: 'middle',
           nameGap: 50,
           splitNumber: 5,
           splitLine: {
             show: false,
           },
-          max: dataParame[0].max,
-          min: dataParame[0].min,
+          max: xbarRItem1.max,
+          min: xbarRItem1.min,
         },
         {
-          name: dataParame[1].yName,
+          name: xbarRItem2.yName,
           nameLocation: 'middle',
           nameGap: 50,
           splitNumber: 5,
           splitLine: {
             show: false,
           },
-          max: dataParame[1].max,
-          min: dataParame[1].min,
+          max: xbarRItem2.max,
+          min: xbarRItem2.min,
           gridIndex: 1,
         },
         ],
@@ -556,8 +557,8 @@ export default {
           show: false,
           dimension: 1,
           pieces: [{
-            gte: dataParame[0].ucl,
-            lte: dataParame[0].lcl,
+            gte: xbarRItem1.ucl,
+            lte: xbarRItem1.lcl,
             color: 'red',
           }],
           outOfRange: {
@@ -569,8 +570,8 @@ export default {
           show: false,
           dimension: 1,
           pieces: [{
-            gte: dataParame[1].ucl,
-            lte: dataParame[1].lcl,
+            gte: xbarRItem2.ucl,
+            lte: xbarRItem2.lcl,
             color: 'red',
           }],
           outOfRange: {
@@ -581,8 +582,8 @@ export default {
         ],
         series: [
           {
-            name: `${dataParame[0].modelCode}图`,
-            data: dataParame[0].data,
+            name: `${xbarRItem1.modelCode}图`,
+            data: xbarRItem1.data,
             type: 'line',
             markLine: {
               symbol: ['none', 'none'],
@@ -596,23 +597,23 @@ export default {
                 },
               },
               data: [{
-                type: 'average',
-                name: 'Cl',
+                name: 'CL',
+                yAxis: xbarRItem1.cl,
               },
               {
                 name: 'UCL',
-                yAxis: dataParame[0].ucl,
+                yAxis: xbarRItem1.ucl,
               },
               {
                 name: 'LCL',
-                yAxis: dataParame[0].lcl,
+                yAxis: xbarRItem1.lcl,
               },
               ],
             },
           },
           {
-            name: `${dataParame[1].modelCode}图`,
-            data: dataParame[1].data,
+            name: `${xbarRItem2.modelCode}图`,
+            data: xbarRItem2.data,
             type: 'line',
             xAxisIndex: 1,
             yAxisIndex: 1,
@@ -628,16 +629,16 @@ export default {
                 },
               },
               data: [{
-                type: 'average',
                 name: 'CL',
+                yAxis: xbarRItem2.cl,
               },
               {
                 name: 'UCL',
-                yAxis: dataParame[1].ucl,
+                yAxis: xbarRItem2.ucl,
               },
               {
                 name: 'LCL',
-                yAxis: dataParame[1].lcl,
+                yAxis: xbarRItem2.lcl,
               },
               ],
               itemStyle: {
@@ -786,18 +787,21 @@ export default {
         // xbax
         xchartdata,
         dataindex,
+        xcl,
         xucl,
         xlcl,
         xdataMax,
         xdataMin,
         // R
         rchartdata,
+        rcl,
         rucl,
         rlcl,
         rdataMax,
         rdataMin,
         // S
         schartdata,
+        scl,
         sucl,
         slcl,
         sdataMax,
@@ -825,6 +829,7 @@ export default {
             modelCode,
             data: xchartdata,
             dataindex,
+            cl: xcl,
             ucl: xucl,
             lcl: xlcl,
             yName: '平均值',
@@ -839,6 +844,7 @@ export default {
             modelCode,
             data: rchartdata,
             dataindex,
+            cl: rcl,
             ucl: rucl,
             lcl: rlcl,
             yName: '极差值',
@@ -853,6 +859,7 @@ export default {
             modelCode,
             data: schartdata,
             dataindex,
+            cl: scl,
             ucl: sucl,
             lcl: slcl,
             yName: '标准值',
@@ -868,6 +875,7 @@ export default {
               modelCode: 'xbax',
               data: xchartdata,
               dataindex,
+              cl: xcl,
               ucl: xucl,
               lcl: xlcl,
               yName: '平均值',
@@ -878,6 +886,7 @@ export default {
               modelCode: 'R',
               data: rchartdata,
               dataindex,
+              cl: rcl,
               ucl: rucl,
               lcl: rlcl,
               yName: '极差值',
@@ -894,6 +903,7 @@ export default {
               modelCode: 'xbax',
               data: xchartdata,
               dataindex,
+              cl: xcl,
               ucl: xucl,
               lcl: xlcl,
               yName: '平均值',
@@ -904,6 +914,7 @@ export default {
               modelCode: 'S',
               data: schartdata,
               dataindex,
+              cl: scl,
               ucl: sucl,
               lcl: slcl,
               yName: '标准值',
@@ -921,6 +932,7 @@ export default {
               modelCode: 'xbax',
               data: xchartdata,
               dataindex,
+              cl: xcl,
               ucl: xucl,
               lcl: xlcl,
               yName: '单值',
@@ -931,6 +943,7 @@ export default {
               modelCode: 'R',
               data: rchartdata,
               dataindex: dataindex,
+              cl: rcl,
               ucl: rucl,
               lcl: rlcl,
               yName: '移动极差值',
@@ -969,18 +982,21 @@ export default {
         // xbax
         xchartdata,
         dataindex,
+        xcl,
         xucl,
         xlcl,
         xdataMax,
         xdataMin,
         // R
         rchartdata,
+        rcl,
         rucl,
         rlcl,
         rdataMax,
         rdataMin,
         // S
         schartdata,
+        scl,
         sucl,
         slcl,
         sdataMax,
@@ -1009,6 +1025,7 @@ export default {
             option,
             data: xchartdata,
             dataindex,
+            cl: xcl,
             ucl: xucl,
             lcl: xlcl,
             yName: '平均值',
@@ -1024,6 +1041,7 @@ export default {
             option,
             data: rchartdata,
             dataindex,
+            cl: rcl,
             ucl: rucl,
             lcl: rlcl,
             yName: '极差值',
@@ -1039,6 +1057,7 @@ export default {
             option,
             data: schartdata,
             dataindex,
+            cl: scl,
             ucl: sucl,
             lcl: slcl,
             yName: '标准值',
@@ -1053,6 +1072,7 @@ export default {
               modelCode: 'xbax',
               data: xchartdata,
               dataindex,
+              cl: xcl,
               ucl: xucl,
               lcl: xlcl,
               yName: '平均值',
@@ -1063,6 +1083,7 @@ export default {
               modelCode: 'R',
               data: rchartdata,
               dataindex,
+              cl: rcl,
               ucl: rucl,
               lcl: rlcl,
               yName: '极差值',
@@ -1080,6 +1101,7 @@ export default {
               option,
               data: xchartdata,
               dataindex,
+              cl: xcl,
               ucl: xucl,
               lcl: xlcl,
               yName: '平均值',
@@ -1090,6 +1112,7 @@ export default {
               modelCode: 'S',
               data: schartdata,
               dataindex,
+              cl: scl,
               ucl: sucl,
               lcl: slcl,
               yName: '标准值',
@@ -1107,6 +1130,7 @@ export default {
               modelCode: 'xbax',
               data: xchartdata,
               dataindex,
+              cl: xcl,
               ucl: xucl,
               lcl: xlcl,
               yName: '单值',
@@ -1117,6 +1141,7 @@ export default {
               modelCode: 'R',
               data: rchartdata,
               dataindex: dataindex,
+              cl: rcl,
               ucl: rucl,
               lcl: rlcl,
               yName: '移动极差值',
@@ -1154,7 +1179,7 @@ export default {
       const option = (new Function('return ' + xbaxObj.option))()
 
       const { title, xAxis, yAxis, visualMap, series: [seriesItem] } = option
-      const { modelCode, dataindex, yName, max, min, ucl, lcl, data } = xbaxObj
+      const { modelCode, dataindex, yName, max, min, cl, ucl, lcl, data } = xbaxObj
 
       title.text = title.text || `[${modelCode} 控制图]`
       xAxis.data = dataindex
@@ -1165,6 +1190,7 @@ export default {
       visualMap.pieces.lte = lcl
       seriesItem.name = seriesItem.name || `${modelCode}图`
       seriesItem.data = data
+      seriesItem.markLine.data[0].yAxis = cl
       seriesItem.markLine.data[1].yAxis = ucl
       seriesItem.markLine.data[2].yAxis = lcl
 
@@ -1203,11 +1229,15 @@ export default {
 
       seriesItem1.name = seriesItem1.name || `${XbaxRObjItem1.modelCode}图`
       seriesItem1.data = XbaxRObjItem1.data
+
+      seriesItem1.markLine.data[0].yAxis = XbaxRObjItem1.cl
       seriesItem1.markLine.data[1].yAxis = XbaxRObjItem1.ucl
       seriesItem1.markLine.data[2].yAxis = XbaxRObjItem1.lcl
 
       seriesItem2.name = seriesItem2.name || `${XbaxRObjItem2.modelCode}图`
-      seriesItem2.data = XbaxRObj[1].data
+      seriesItem2.data = XbaxRObjItem2.data
+
+      seriesItem2.markLine.data[0].yAxis = XbaxRObjItem2.cl
       seriesItem2.markLine.data[1].yAxis = XbaxRObjItem2.ucl
       seriesItem2.markLine.data[2].yAxis = XbaxRObjItem2.lcl
 
@@ -1355,11 +1385,17 @@ padding: 0 20px;
       text-align: left;
       border: 1px solid #aaa;
       ul{ padding: 3px;}
-       li>span{
+
+       li{
+         overflow: hidden;
+         text-overflow:ellipsis;
+         white-space: nowrap;
+         >span{
         display: inline-block;
         text-align: right;
         width: 65px;
         }
+       }
       h5{
         //  margin-bottom:5px;
         padding-left: 10px;

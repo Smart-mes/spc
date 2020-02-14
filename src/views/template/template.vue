@@ -228,8 +228,8 @@ export default {
               this.$router.push({ path: '/templateList' })
             })
         })
-        .catch(() => {
-          this.$message.error('添加失败')
+        .catch((error) => {
+          this.$message.error(error)
         })
     },
     // 处理参数
@@ -316,22 +316,24 @@ export default {
 
       modifyParame.id = analyseData.id
 
-      this.$http.put('/api/analysis/updateDesign', modifyParame).then(res => {
-        this.clearData()
-        this.$confirm('修改成功！', '提示', {
-          confirmButtonText: '继续添加',
-          cancelButtonText: '查看列表',
-          type: 'success',
+      this.$http.put('/api/analysis/updateDesign', modifyParame)
+        .then(res => {
+          this.clearData()
+          this.$confirm('修改成功！', '提示', {
+            confirmButtonText: '继续添加',
+            cancelButtonText: '查看列表',
+            type: 'success',
+          })
+            .then(() => {
+              this.$router.push({ path: '/template' })
+            })
+            .catch(() => {
+              this.$router.push({ path: '/templateList' })
+            })
         })
-          .then(() => {
-            this.$router.push({ path: '/template' })
-          })
-          .catch(() => {
-            this.$router.push({ path: '/templateList' })
-          })
-      }).catch(() => {
-        this.$message.error('修改失败')
-      })
+        .catch((error) => {
+          this.$message.error(error)
+        })
     },
   },
 }
