@@ -113,13 +113,44 @@
               <!-- /短期工序能力-->
             </div>
           </div>
-          <div v-else class="box-item">
+          <div
+            v-else
+            class="box-item"
+            @mouseover="sigmaBtnList[i].isBtn=true"
+            @mouseleave="sigmaBtnList[i].isBtn=false"
+          >
             <div class="echarts-box"/>
+            <div v-show="sigmaBtnList[i].isBtn" class="btn-box"><el-button size="mini" @click="sigmaDialogOpen(i)">配置</el-button></div>
             <div v-show="isEchartsList[i].isDisplay" class="none">没有数据</div>
           </div>
         </li>
       </ul>
     </div>
+    <!--sigma 弹窗-->
+    <el-dialog
+      :title="sigmaDialogTitle"
+      :visible.sync="sigmaDialogVisible"
+      width="840px"
+    >
+      <el-form :model="sigmaForm" label-width="50px">
+        <el-form-item label="" prop="type" class="sigmaFrom">
+          <el-checkbox-group v-model="sigmaForm.type">
+            <el-checkbox label="r1" name="type">R1,1个点落在A区以外</el-checkbox>
+            <el-checkbox label="r2" name="type">R2,连续9个点落在中心线的同一侧</el-checkbox>
+            <el-checkbox label="r3" name="type">R3,连续6个点递增或者递减</el-checkbox>
+            <el-checkbox label="r4" name="type">R4,连续14个点中相邻点上下交错</el-checkbox>
+            <el-checkbox label="r5" name="type">R5,连续3个点有2个点落在中心线同一侧B区以外</el-checkbox>
+            <el-checkbox label="r6" name="type">R6,连续5个点有4个点落在中心线同一侧C区以外</el-checkbox>
+            <el-checkbox label="r7" name="type">R7,连续15个点落在中心线两侧的C区以内</el-checkbox>
+            <el-checkbox label="r8" name="type">R8,连续8个点落在中心线两次且无一在C区内</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="sigmaDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="sigmaSubmit">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -142,9 +173,9 @@ export default {
       formCustom: {
         customList: [],
       },
-      // 图表显示
+      // 模板类型
       tempType: '',
-      optionList: [],
+      // optionList: [],
       // cpk
       cpkKey: {
         totalnum: '',
@@ -165,7 +196,18 @@ export default {
         ca: '',
       },
       cpkList: [],
-      // 搜索后获得数据
+      // sigma
+      sigmaDialogVisible: false,
+      sigmaDialogTitle: 'SPC个八判异',
+
+      sigmaList: [],
+      sigmaBtnList: [],
+
+      sigmaForm: {
+        type: [],
+      },
+      sigmaIndex: 0,
+      // 搜索后判断是否有数据
       isEchartsList: [],
     }
   },
@@ -219,6 +261,13 @@ export default {
       return customArr
     },
   },
+  watch: {
+    sigmaDialogVisible (val) {
+      if (!val) {
+        this.sigmaForm.type = []
+      }
+    },
+  },
   mounted () {
     const { id } = this.tagsItem
     this.$http
@@ -228,9 +277,19 @@ export default {
         this.dataList = data
         this.tempType = template
 
-        //  cpk存储数据
-        this.cpkList = analysisDetails.map(analysisItem => {
+        this.cpkList = analysisDetails.map((analysisItem, i) => {
           const { modelCode } = analysisItem
+          // 存储sigmaList
+          this.sigmaList.push([])
+
+          // 判断echarts是否执行
+          const isEchartsObj = { isDisplay: true }
+          const isBtnObj = { isBtn: false }
+
+          this.isEchartsList.push(isEchartsObj)
+          this.sigmaBtnList.push(isBtnObj)
+
+          //  cpk存储数据
           if (modelCode === 'CPK') {
             const cpkObj = {}
             Object.keys(this.cpkKey).map(key => {
@@ -244,11 +303,14 @@ export default {
             return { modelCode, data: {}}
           }
         })
-        // 判断echarts是否执行
-        for (let i = 0; i < this.boxNum; i++) {
-          const isEchartsObj = { isDisplay: true }
-          this.isEchartsList.push(isEchartsObj)
-        }
+        // // 判断echarts是否执行
+        // for (let i = 0; i < this.boxNum; i++) {
+        //   const isEchartsObj = { isDisplay: true }
+        //   const isBtnObj = { isBtn: false }
+
+        //   this.isEchartsList.push(isEchartsObj)
+        //   this.sigmaBtnList.push(isBtnObj)
+        // }
       })
       .then(() => {
         // 搜索表单赋值
@@ -784,6 +846,14 @@ export default {
     handleEchart (itemData) {
       const { modelCode, data } = itemData
       const {
+        // +sigma
+        // rsigma,
+        // rsigma2,
+        // rsigma3,
+        // // -sigma
+        // lsigma,
+        // lsigma2,
+        // lsigma3,
         // xbax
         xchartdata,
         dataindex,
@@ -979,6 +1049,7 @@ export default {
     getEchart (itemData) {
       const { modelCode, option, data } = itemData
       const {
+        // 6个sigma
         // xbax
         xchartdata,
         dataindex,
@@ -1290,6 +1361,17 @@ export default {
         return cpkItem
       })
     },
+    // sigma勾选
+    sigmaDialogOpen (i) {
+      this.sigmaDialogVisible = true
+      this.sigmaDialogTitle = `SPC个八判异-${i + 1}`
+      this.sigmaForm.type = this.sigmaList[i]
+      this.sigmaIndex = i
+    },
+    sigmaSubmit () {
+      this.sigmaList[this.sigmaIndex] = this.sigmaForm.type
+      this.sigmaDialogVisible = false
+    },
   },
 }
 </script>
@@ -1309,7 +1391,7 @@ padding: 0 20px;
   .list-box {
     overflow: hidden;
     margin-bottom: -1px;
-    padding: 5px 0;
+    padding: 3px 0;
     border-bottom: 1px dashed $line-color;
     /deep/.el-form-item__label{
     overflow: hidden;
@@ -1325,9 +1407,9 @@ padding: 0 20px;
     margin-bottom: 5px;
   }
   .btn {
-    padding-top: 5px;
+    padding: 5px 0 0 20px;
     //  border-top:1px dashed $line-color;
-    text-align: right;
+    text-align: left;
   }
   /deep/ .el-date-editor.el-input{
     width:160px;
@@ -1360,6 +1442,11 @@ padding: 0 20px;
     height: 100%;
     border: 1px solid #aaa;
     background: #fff;
+    .btn-box{
+      position: absolute;
+      top: 10px;
+      right:10px;
+    }
     .none{
       position: absolute;
       top: 50%;
@@ -1416,7 +1503,6 @@ padding: 0 20px;
   }
 
 }
-
 /* 不同的列表*/
 .boxDefault {
   > li {
@@ -1435,6 +1521,11 @@ padding: 0 20px;
 .boxEven {
   > li {
     width: 50%;
+  }
+}
+.sigmaFrom{
+  /deep/ .el-checkbox{
+   width: 330px;
   }
 }
 
