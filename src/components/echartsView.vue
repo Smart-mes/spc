@@ -155,6 +155,8 @@
 </template>
 
 <script>
+import unusual from '@/assets/js/unusual'
+
 export default {
   name: 'EchartsView',
   props: {
@@ -416,7 +418,7 @@ export default {
           .getElementById(`echarts${this.tagsItem.no}`)
           .getElementsByClassName('echarts-box')[i]
         const chart = this.$echarts.init(div)
-        const { option, data } = item
+        const { data } = item
         // 清空为空的数据
         if (data === null) {
           chart.clear()
@@ -424,12 +426,12 @@ export default {
         }
 
         //  获取echartsOption
-        let echartsOption
-        if (option !== '') {
-          echartsOption = this.getEchart(item)
-        } else {
-          echartsOption = this.handleEchart(item)
-        }
+        // let echartsOption
+        // if (option !== '') {
+        const echartsOption = this.getEchart({ ...item, i })
+        // } else {
+        //   echartsOption = this.handleEchart({ ...item, i })
+        // }
 
         chart.setOption(echartsOption, true)
         // 浏览器重置
@@ -457,7 +459,7 @@ export default {
     },
     // 图形配置
     drowxbar (objParame) {
-      const { modelCode, dataindex, yName, max, min, cl, ucl, lcl, data } = objParame
+      const { modelCode, dataindex, yName, max, min, cl, ucl, lcl, data, problemData } = objParame
       return {
         title: {
           text: `[${modelCode} 控制图]`,
@@ -490,22 +492,24 @@ export default {
             show: false,
           },
         },
-        visualMap: { // 区间内控制显示颜色
-          show: false,
-          dimension: 1,
-          pieces: [{
-            gte: ucl,
-            lte: lcl,
-            color: 'red',
-          }],
-          outOfRange: {
-            color: '#000000',
-          },
-        },
         series: [{
           name: `${modelCode}图`,
           data: data,
           type: 'line',
+          itemStyle: {
+            normal: {
+              color: function (parame) { // 折点颜色
+                const { dataIndex } = parame
+                if (problemData.includes(dataIndex)) {
+                  return '#ff0000'
+                }
+                return '#000000'
+              },
+              lineStyle: {
+                color: '#000000', // 折线颜色
+              },
+            },
+          },
           markLine: {
             symbol: ['none', 'none'],
             precision: 3,
@@ -516,6 +520,9 @@ export default {
               normal: {
                 formatter: '{b}:{c}',
               },
+            },
+            lineStyle: {
+              color: '#ff0000',
             },
             data: [
               {
@@ -590,63 +597,50 @@ export default {
           gridIndex: 1,
         },
         ],
-        yAxis: [{
-          name: xbarRItem1.yName,
-          nameLocation: 'middle',
-          nameGap: 50,
-          splitNumber: 5,
-          splitLine: {
-            show: false,
+        yAxis: [
+          {
+            name: xbarRItem1.yName,
+            nameLocation: 'middle',
+            nameGap: 50,
+            splitNumber: 5,
+            splitLine: {
+              show: false,
+            },
+            max: xbarRItem1.max,
+            min: xbarRItem1.min,
           },
-          max: xbarRItem1.max,
-          min: xbarRItem1.min,
-        },
-        {
-          name: xbarRItem2.yName,
-          nameLocation: 'middle',
-          nameGap: 50,
-          splitNumber: 5,
-          splitLine: {
-            show: false,
+          {
+            name: xbarRItem2.yName,
+            nameLocation: 'middle',
+            nameGap: 50,
+            splitNumber: 5,
+            splitLine: {
+              show: false,
+            },
+            max: xbarRItem2.max,
+            min: xbarRItem2.min,
+            gridIndex: 1,
           },
-          max: xbarRItem2.max,
-          min: xbarRItem2.min,
-          gridIndex: 1,
-        },
-        ],
-        // 区间内控制显示颜色
-        visualMap: [{
-          show: false,
-          dimension: 1,
-          pieces: [{
-            gte: xbarRItem1.ucl,
-            lte: xbarRItem1.lcl,
-            color: 'red',
-          }],
-          outOfRange: {
-            color: '#000000',
-          },
-          seriesIndex: 0,
-        },
-        {
-          show: false,
-          dimension: 1,
-          pieces: [{
-            gte: xbarRItem2.ucl,
-            lte: xbarRItem2.lcl,
-            color: 'red',
-          }],
-          outOfRange: {
-            color: '#009900',
-          },
-          seriesIndex: 1,
-        },
         ],
         series: [
           {
             name: `${xbarRItem1.modelCode}图`,
             data: xbarRItem1.data,
             type: 'line',
+            itemStyle: {
+              normal: {
+                color: function (parame) {
+                  const { dataIndex } = parame
+                  if (xbarRItem1.problemData.includes(dataIndex)) {
+                    return '#ff0000'
+                  }
+                  return '#000000'
+                },
+                lineStyle: {
+                  color: '#000000',
+                },
+              },
+            },
             markLine: {
               symbol: ['none', 'none'],
               precision: 3, // 精度
@@ -658,27 +652,42 @@ export default {
                   formatter: '{b}:{c}',
                 },
               },
-              data: [{
-                name: 'CL',
-                yAxis: xbarRItem1.cl,
-              },
-              {
-                name: 'UCL',
-                yAxis: xbarRItem1.ucl,
-              },
-              {
-                name: 'LCL',
-                yAxis: xbarRItem1.lcl,
-              },
+              data: [
+                {
+                  name: 'CL',
+                  yAxis: xbarRItem1.cl,
+                },
+                {
+                  name: 'UCL',
+                  yAxis: xbarRItem1.ucl,
+                },
+                {
+                  name: 'LCL',
+                  yAxis: xbarRItem1.lcl,
+                },
               ],
             },
           },
           {
             name: `${xbarRItem2.modelCode}图`,
             data: xbarRItem2.data,
-            type: 'line',
             xAxisIndex: 1,
             yAxisIndex: 1,
+            type: 'line',
+            itemStyle: {
+              normal: {
+                color: function (parame) { // 折点颜色
+                  const { dataIndex } = parame
+                  if (xbarRItem2.problemData.includes(dataIndex)) {
+                    return '#ff0000'
+                  }
+                  return '#000000'
+                },
+                lineStyle: {
+                  color: '#000000', // 折线颜色
+                },
+              },
+            },
             markLine: {
               symbol: ['none', 'none'],
               precision: 3,
@@ -690,24 +699,25 @@ export default {
                   formatter: '{b}:{c}',
                 },
               },
-              data: [{
-                name: 'CL',
-                yAxis: xbarRItem2.cl,
-              },
-              {
-                name: 'UCL',
-                yAxis: xbarRItem2.ucl,
-              },
-              {
-                name: 'LCL',
-                yAxis: xbarRItem2.lcl,
-              },
-              ],
-              itemStyle: {
-                normal: {
-                  color: '#d53a35',
+              data: [
+                {
+                  name: 'CL',
+                  yAxis: xbarRItem2.cl,
                 },
-              },
+                {
+                  name: 'UCL',
+                  yAxis: xbarRItem2.ucl,
+                },
+                {
+                  name: 'LCL',
+                  yAxis: xbarRItem2.lcl,
+                },
+              ],
+              // itemStyle: {
+              //   normal: {
+              //     color: '#d53a35',
+              //   },
+              // },
             },
           },
         ],
@@ -844,16 +854,16 @@ export default {
     },
     // 默认echartsjs赋值
     handleEchart (itemData) {
-      const { modelCode, data } = itemData
+      const { i, modelCode, option, data } = itemData
       const {
         // +sigma
-        // rsigma,
-        // rsigma2,
-        // rsigma3,
+        rsigma,
+        rsigma2,
+        rsigma3,
         // // -sigma
-        // lsigma,
-        // lsigma2,
-        // lsigma3,
+        lsigma,
+        lsigma2,
+        lsigma3,
         // xbax
         xchartdata,
         dataindex,
@@ -888,13 +898,33 @@ export default {
         yArr,
       } = data
 
+      const sigmaData = {
+        upSigma: rsigma,
+        up2Sigma: rsigma2,
+        up3Sigma: rsigma3,
+        downSigma: lsigma,
+        down2Sigma: lsigma2,
+        down3Sigma: lsigma3,
+      }
       // echarts的参数,option
       let echartsParame
       let echartsOption
+      // 单图
+      let problemData
+      // 组合图
+      let problemData1
+      let problemData2
 
       // CPK
       switch (modelCode) {
         case 'Xbar':
+          problemData = this.getSPCProblem({
+            i,
+            data: xchartdata,
+            cl: xcl,
+            sigmaData,
+          })
+
           echartsParame = {
             modelCode,
             data: xchartdata,
@@ -905,11 +935,26 @@ export default {
             yName: '平均值',
             max: xdataMax,
             min: xdataMin,
+            problemData,
           }
-          echartsOption = this.drowxbar(echartsParame)
+
+          if (option !== '') {
+            echartsParame.option = option
+            echartsOption = this.customXbaxValue(echartsParame)
+          } else {
+            echartsOption = this.drowxbar(echartsParame)
+          }
+
           break
 
         case 'R':
+          problemData = this.getSPCProblem({
+            i,
+            data: rchartdata,
+            cl: rcl,
+            sigmaData,
+          })
+
           echartsParame = {
             modelCode,
             data: rchartdata,
@@ -920,11 +965,26 @@ export default {
             yName: '极差值',
             max: rdataMax,
             min: rdataMin,
+            problemData,
           }
-          echartsOption = this.drowxbar(echartsParame)
+
+          if (option !== '') {
+            echartsParame.option = option
+            echartsOption = this.customXbaxValue(echartsParame)
+          } else {
+            echartsOption = this.drowxbar(echartsParame)
+          }
+
           break
 
         case 'S':
+          problemData = this.getSPCProblem({
+            i,
+            data: schartdata,
+            cl: scl,
+            sigmaData,
+          })
+
           echartsParame = {
             modelCode,
             data: schartdata,
@@ -935,11 +995,33 @@ export default {
             yName: '标准值',
             max: sdataMax,
             min: sdataMin,
+            problemData,
           }
-          echartsOption = this.drowxbar(echartsParame)
+
+          if (option !== '') {
+            echartsParame.option = option
+            echartsOption = this.customXbaxValue(echartsParame)
+          } else {
+            echartsOption = this.drowxbar(echartsParame)
+          }
+
           break
 
         case 'Xbar-R':
+          problemData1 = this.getSPCProblem({
+            i,
+            data: xchartdata,
+            cl: xcl,
+            sigmaData,
+          })
+
+          problemData2 = this.getSPCProblem({
+            i,
+            data: rchartdata,
+            cl: rcl,
+            sigmaData,
+          })
+
           echartsParame = [
             {
               modelCode: 'xbax',
@@ -951,6 +1033,7 @@ export default {
               yName: '平均值',
               max: xdataMax,
               min: xdataMin,
+              problemData: problemData1,
             },
             {
               modelCode: 'R',
@@ -962,12 +1045,33 @@ export default {
               yName: '极差值',
               max: rdataMax,
               min: rdataMin,
+              problemData: problemData2,
             },
           ]
-          echartsOption = this.drowXbarR(echartsParame)
+
+          if (option !== '') {
+            echartsOption = this.customXbaxRValue(echartsParame, option)
+          } else {
+            echartsOption = this.drowXbarR(echartsParame)
+          }
+
           break
 
         case 'Xbar-S':
+          problemData1 = this.getSPCProblem({
+            i,
+            data: xchartdata,
+            cl: xcl,
+            sigmaData,
+          })
+
+          problemData2 = this.getSPCProblem({
+            i,
+            data: schartdata,
+            cl: scl,
+            sigmaData,
+          })
+
           echartsParame = [
             {
               modelCode: 'xbax',
@@ -979,6 +1083,7 @@ export default {
               yName: '平均值',
               max: xdataMax,
               min: xdataMin,
+              problemData: problemData1,
             },
             {
               modelCode: 'S',
@@ -990,13 +1095,41 @@ export default {
               yName: '标准值',
               max: sdataMax,
               min: sdataMin,
+              problemData: problemData2,
             },
           ]
-          echartsOption = this.drowXbarR(echartsParame)
+
+          if (option !== '') {
+            echartsOption = this.customXbaxRValue(echartsParame, option)
+          } else {
+            echartsOption = this.drowXbarR(echartsParame)
+          }
+
           break
 
         case 'I-MR':
           rchartdata[0] = ''
+
+          problemData1 = this.getSPCProblem({
+            i,
+            data: xchartdata,
+            cl: xcl,
+            sigmaData,
+          })
+
+          problemData2 = this.getSPCProblem({
+            i,
+            data: rchartdata.slice(1),
+            cl: rcl,
+            sigmaData,
+          })
+
+          if (problemData2.length > 0) {
+            problemData2 = problemData2.map(proItem => {
+              proItem + 1
+            })
+          }
+
           echartsParame = [
             {
               modelCode: 'xbax',
@@ -1008,6 +1141,7 @@ export default {
               yName: '单值',
               max: xdataMax,
               min: xdataMin,
+              problemData: problemData1,
             },
             {
               modelCode: 'R',
@@ -1019,10 +1153,14 @@ export default {
               yName: '移动极差值',
               max: rdataMax,
               min: rdataMin,
+              problemData: problemData2,
             },
           ]
-
-          echartsOption = this.drowXbarR(echartsParame)
+          if (option !== '') {
+            echartsOption = this.customXbaxRValue(echartsParame, option)
+          } else {
+            echartsOption = this.drowXbarR(echartsParame)
+          }
           break
 
         case 'CPK':
@@ -1039,228 +1177,343 @@ export default {
             sigmaMax,
             sigmaMin,
           }
-          echartsOption = this.drowCPK(echartsParame)
+
+          if (option !== '') {
+            echartsParame.option = option
+            echartsOption = this.customCpkValue(echartsParame)
+          } else {
+            echartsOption = this.drowCPK(echartsParame)
+          }
           break
       }
 
       return echartsOption
     },
-    // 自定义echarts赋值
-    getEchart (itemData) {
-      const { modelCode, option, data } = itemData
-      const {
-        // 6个sigma
-        // xbax
-        xchartdata,
-        dataindex,
-        xcl,
-        xucl,
-        xlcl,
-        xdataMax,
-        xdataMin,
-        // R
-        rchartdata,
-        rcl,
-        rucl,
-        rlcl,
-        rdataMax,
-        rdataMin,
-        // S
-        schartdata,
-        scl,
-        sucl,
-        slcl,
-        sdataMax,
-        sdataMin,
-        // CPK
-        lsl,
-        target,
-        usl,
-        mean,
-        sigmaMax,
-        sigmaMin,
-        yArr,
-        leftindex,
-        rightindex,
+    // // 自定义echarts赋值
+    // getEchart (itemData) {
+    //   const { i, modelCode, option, data } = itemData
+    //   const {
+    //     // +sigma
+    //     rsigma,
+    //     rsigma2,
+    //     rsigma3,
+    //     // // -sigma
+    //     lsigma,
+    //     lsigma2,
+    //     lsigma3,
+    //     // xbax
+    //     xchartdata,
+    //     dataindex,
+    //     xcl,
+    //     xucl,
+    //     xlcl,
+    //     xdataMax,
+    //     xdataMin,
+    //     // R
+    //     rchartdata,
+    //     rcl,
+    //     rucl,
+    //     rlcl,
+    //     rdataMax,
+    //     rdataMin,
+    //     // S
+    //     schartdata,
+    //     scl,
+    //     sucl,
+    //     slcl,
+    //     sdataMax,
+    //     sdataMin,
+    //     // CPK
+    //     lsl,
+    //     target,
+    //     usl,
+    //     mean,
+    //     sigmaMax,
+    //     sigmaMin,
+    //     yArr,
+    //     leftindex,
+    //     rightindex,
 
-      } = data
+    //   } = data
+    //   const sigmaData = {
+    //     upSigma: rsigma,
+    //     up2Sigma: rsigma2,
+    //     up3Sigma: rsigma3,
+    //     downSigma: lsigma,
+    //     down2Sigma: lsigma2,
+    //     down3Sigma: lsigma3,
+    //   }
 
-      // echarts的参数,option
-      let echartsParame
-      let echartsOption
+    //   // echarts的参数,option
+    //   let echartsParame
+    //   let echartsOption
+    //   // 单图
+    //   let problemData
+    //   // 组合图
+    //   let problemData1
+    //   let problemData2
 
-      switch (modelCode) {
-        case 'Xbar':
-          echartsParame = {
-            modelCode,
-            option,
-            data: xchartdata,
-            dataindex,
-            cl: xcl,
-            ucl: xucl,
-            lcl: xlcl,
-            yName: '平均值',
-            max: xdataMax,
-            min: xdataMin,
-          }
-          echartsOption = this.customXbaxValue(echartsParame)
-          break
+    //   switch (modelCode) {
+    //     case 'Xbar':
+    //       problemData = this.getSPCProblem({
+    //         i,
+    //         data: xchartdata,
+    //         cl: xcl,
+    //         sigmaData,
+    //       })
 
-        case 'R':
-          echartsParame = {
-            modelCode,
-            option,
-            data: rchartdata,
-            dataindex,
-            cl: rcl,
-            ucl: rucl,
-            lcl: rlcl,
-            yName: '极差值',
-            max: rdataMax,
-            min: rdataMin,
-          }
-          echartsOption = this.customXbaxValue(echartsParame)
-          break
+    //       echartsParame = {
+    //         modelCode,
+    //         option,
+    //         data: xchartdata,
+    //         dataindex,
+    //         cl: xcl,
+    //         ucl: xucl,
+    //         lcl: xlcl,
+    //         yName: '平均值',
+    //         max: xdataMax,
+    //         min: xdataMin,
+    //         problemData,
+    //       }
 
-        case 'S':
-          echartsParame = {
-            modelCode,
-            option,
-            data: schartdata,
-            dataindex,
-            cl: scl,
-            ucl: sucl,
-            lcl: slcl,
-            yName: '标准值',
-            max: sdataMax,
-            min: sdataMin,
-          }
-          echartsOption = this.customXbaxValue(echartsParame)
-          break
-        case 'Xbar-R':
-          echartsParame = [
-            {
-              modelCode: 'xbax',
-              data: xchartdata,
-              dataindex,
-              cl: xcl,
-              ucl: xucl,
-              lcl: xlcl,
-              yName: '平均值',
-              max: xdataMax,
-              min: xdataMin,
-            },
-            {
-              modelCode: 'R',
-              data: rchartdata,
-              dataindex,
-              cl: rcl,
-              ucl: rucl,
-              lcl: rlcl,
-              yName: '极差值',
-              max: rdataMax,
-              min: rdataMin,
-            },
-          ]
-          echartsOption = this.customXbaxRValue(echartsParame, option)
-          break
+    //       echartsOption = this.customXbaxValue(echartsParame)
 
-        case 'Xbar-S':
-          echartsParame = [
-            {
-              modelCode: 'xbax',
-              option,
-              data: xchartdata,
-              dataindex,
-              cl: xcl,
-              ucl: xucl,
-              lcl: xlcl,
-              yName: '平均值',
-              max: xdataMax,
-              min: xdataMin,
-            },
-            {
-              modelCode: 'S',
-              data: schartdata,
-              dataindex,
-              cl: scl,
-              ucl: sucl,
-              lcl: slcl,
-              yName: '标准值',
-              max: sdataMax,
-              min: sdataMin,
-            },
-          ]
-          echartsOption = this.customXbaxRValue(echartsParame, option)
-          break
+    //       break
 
-        case 'I-MR':
-          rchartdata[0] = ''
-          echartsParame = [
-            {
-              modelCode: 'xbax',
-              data: xchartdata,
-              dataindex,
-              cl: xcl,
-              ucl: xucl,
-              lcl: xlcl,
-              yName: '单值',
-              max: xdataMax,
-              min: xdataMin,
-            },
-            {
-              modelCode: 'R',
-              data: rchartdata,
-              dataindex: dataindex,
-              cl: rcl,
-              ucl: rucl,
-              lcl: rlcl,
-              yName: '移动极差值',
-              max: rdataMax,
-              min: rdataMin,
-            },
-          ]
+    //     case 'R':
+    //       problemData = this.getSPCProblem({
+    //         i,
+    //         data: rchartdata,
+    //         cl: rcl,
+    //         sigmaData,
+    //       })
 
-          echartsOption = this.customXbaxRValue(echartsParame, option)
-          break
+    //       echartsParame = {
+    //         modelCode,
+    //         option,
+    //         data: rchartdata,
+    //         dataindex,
+    //         cl: rcl,
+    //         ucl: rucl,
+    //         lcl: rlcl,
+    //         yName: '极差值',
+    //         max: rdataMax,
+    //         min: rdataMin,
+    //         problemData,
+    //       }
+    //       echartsOption = this.customXbaxValue(echartsParame)
+    //       break
 
-        case 'CPK':
-          echartsParame = {
-            modelCode: 'CPK',
-            option,
-            rchartdata,
-            yArr,
-            min: leftindex,
-            max: rightindex,
-            lsl,
-            target,
-            usl,
-            mean,
-            sigmaMax,
-            sigmaMin,
-          }
+    //     case 'S':
+    //       problemData = this.getSPCProblem({
+    //         i,
+    //         data: schartdata,
+    //         cl: scl,
+    //         sigmaData,
+    //       })
 
-          echartsOption = this.customCpkValue(echartsParame)
-          break
-      }
+    //       echartsParame = {
+    //         modelCode,
+    //         option,
+    //         data: schartdata,
+    //         dataindex,
+    //         cl: scl,
+    //         ucl: sucl,
+    //         lcl: slcl,
+    //         yName: '标准值',
+    //         max: sdataMax,
+    //         min: sdataMin,
+    //         problemData,
+    //       }
 
-      return echartsOption
-    },
+    //       echartsOption = this.customXbaxValue(echartsParame)
+    //       break
+    //     case 'Xbar-R':
+    //       problemData1 = this.getSPCProblem({
+    //         i,
+    //         data: xchartdata,
+    //         cl: xcl,
+    //         sigmaData,
+    //       })
+
+    //       problemData2 = this.getSPCProblem({
+    //         i,
+    //         data: rchartdata,
+    //         cl: rcl,
+    //         sigmaData,
+    //       })
+
+    //       echartsParame = [
+    //         {
+    //           modelCode: 'xbax',
+    //           data: xchartdata,
+    //           dataindex,
+    //           cl: xcl,
+    //           ucl: xucl,
+    //           lcl: xlcl,
+    //           yName: '平均值',
+    //           max: xdataMax,
+    //           min: xdataMin,
+    //           problemData: problemData1,
+    //         },
+    //         {
+    //           modelCode: 'R',
+    //           data: rchartdata,
+    //           dataindex,
+    //           cl: rcl,
+    //           ucl: rucl,
+    //           lcl: rlcl,
+    //           yName: '极差值',
+    //           max: rdataMax,
+    //           min: rdataMin,
+    //           problemData: problemData2,
+    //         },
+    //       ]
+    //       echartsOption = this.customXbaxRValue(echartsParame, option)
+    //       break
+
+    //     case 'Xbar-S':
+
+    //       problemData1 = this.getSPCProblem({
+    //         i,
+    //         data: xchartdata,
+    //         cl: xcl,
+    //         sigmaData,
+    //       })
+
+    //       problemData2 = this.getSPCProblem({
+    //         i,
+    //         data: schartdata,
+    //         cl: scl,
+    //         sigmaData,
+    //       })
+
+    //       echartsParame = [
+    //         {
+    //           modelCode: 'xbax',
+    //           option,
+    //           data: xchartdata,
+    //           dataindex,
+    //           cl: xcl,
+    //           ucl: xucl,
+    //           lcl: xlcl,
+    //           yName: '平均值',
+    //           max: xdataMax,
+    //           min: xdataMin,
+    //           problemData: problemData1,
+    //         },
+    //         {
+    //           modelCode: 'S',
+    //           data: schartdata,
+    //           dataindex,
+    //           cl: scl,
+    //           ucl: sucl,
+    //           lcl: slcl,
+    //           yName: '标准值',
+    //           max: sdataMax,
+    //           min: sdataMin,
+    //           problemData: problemData2,
+    //         },
+    //       ]
+    //       echartsOption = this.customXbaxRValue(echartsParame, option)
+    //       break
+
+    //     case 'I-MR':
+    //       rchartdata[0] = ''
+
+    //       problemData1 = this.getSPCProblem({
+    //         i,
+    //         data: xchartdata,
+    //         cl: xcl,
+    //         sigmaData,
+    //       })
+
+    //       problemData2 = this.getSPCProblem({
+    //         i,
+    //         data: rchartdata.slice(1),
+    //         cl: rcl,
+    //         sigmaData,
+    //       })
+
+    //       if (problemData2.length > 0) {
+    //         problemData2 = problemData2.map(proItem => {
+    //           proItem + 1
+    //         })
+    //       }
+
+    //       echartsParame = [
+    //         {
+    //           modelCode: 'xbax',
+    //           data: xchartdata,
+    //           dataindex,
+    //           cl: xcl,
+    //           ucl: xucl,
+    //           lcl: xlcl,
+    //           yName: '单值',
+    //           max: xdataMax,
+    //           min: xdataMin,
+    //           problemData: problemData1,
+    //         },
+    //         {
+    //           modelCode: 'R',
+    //           data: rchartdata,
+    //           dataindex: dataindex,
+    //           cl: rcl,
+    //           ucl: rucl,
+    //           lcl: rlcl,
+    //           yName: '移动极差值',
+    //           max: rdataMax,
+    //           min: rdataMin,
+    //           problemData: problemData2,
+    //         },
+    //       ]
+
+    //       echartsOption = this.customXbaxRValue(echartsParame, option)
+    //       break
+
+    //     case 'CPK':
+    //       echartsParame = {
+    //         modelCode: 'CPK',
+    //         option,
+    //         rchartdata,
+    //         yArr,
+    //         min: leftindex,
+    //         max: rightindex,
+    //         lsl,
+    //         target,
+    //         usl,
+    //         mean,
+    //         sigmaMax,
+    //         sigmaMin,
+    //       }
+
+    //       echartsOption = this.customCpkValue(echartsParame)
+    //       break
+    //   }
+
+    //   return echartsOption
+    // },
     customXbaxValue (xbaxObj) {
       const option = (new Function('return ' + xbaxObj.option))()
-
-      const { title, xAxis, yAxis, visualMap, series: [seriesItem] } = option
-      const { modelCode, dataindex, yName, max, min, cl, ucl, lcl, data } = xbaxObj
+      const { title, xAxis, yAxis, series: [seriesItem] } = option
+      const { modelCode, dataindex, yName, max, min, cl, ucl, lcl, data, problemData } = xbaxObj
 
       title.text = title.text || `[${modelCode} 控制图]`
       xAxis.data = dataindex
       yAxis.name = yAxis.name || yName
       yAxis.max = max
       yAxis.min = min
-      visualMap.pieces.gte = ucl
-      visualMap.pieces.lte = lcl
+      // visualMap.pieces.gte = ucl
+      // visualMap.pieces.lte = lcl
       seriesItem.name = seriesItem.name || `${modelCode}图`
       seriesItem.data = data
+      seriesItem.itemStyle.normal.color = function (parame) {
+        const {	dataIndex } = parame
+        if (problemData.includes[dataIndex]) {
+          return '#ff0000'
+        }
+        return seriesItem.itemStyle.normal.color || '#000000'
+      }
       seriesItem.markLine.data[0].yAxis = cl
       seriesItem.markLine.data[1].yAxis = ucl
       seriesItem.markLine.data[2].yAxis = lcl
@@ -1273,7 +1526,7 @@ export default {
         title: [titleItem1, titleItem2],
         xAxis: [xAxisItem1, xAxisItem2],
         yAxis: [yAxisItem1, yAxisItem2],
-        visualMap: [visualMapItem1, visualMapItem2],
+        // visualMap: [visualMapItem1, visualMapItem2],
         series: [seriesItem1, seriesItem2],
       } = option
 
@@ -1292,14 +1545,16 @@ export default {
       yAxisItem2.max = XbaxRObjItem2.max
       yAxisItem2.min = XbaxRObjItem2.min
 
-      visualMapItem1.pieces.gte = XbaxRObjItem1.ucl
-      visualMapItem1.pieces.lte = XbaxRObjItem1.lcl
-
-      visualMapItem2.pieces.gte = XbaxRObjItem2.ucl
-      visualMapItem2.pieces.lte = XbaxRObjItem2.lcl
-
       seriesItem1.name = seriesItem1.name || `${XbaxRObjItem1.modelCode}图`
       seriesItem1.data = XbaxRObjItem1.data
+
+      seriesItem1.itemStyle.normal.color = function (parame) {
+        const {	dataIndex } = parame
+        if (XbaxRObjItem1.problemData.includes[dataIndex]) {
+          return '#ff0000'
+        }
+        return seriesItem1.itemStyle.normal.color || '#000000'
+      }
 
       seriesItem1.markLine.data[0].yAxis = XbaxRObjItem1.cl
       seriesItem1.markLine.data[1].yAxis = XbaxRObjItem1.ucl
@@ -1307,6 +1562,14 @@ export default {
 
       seriesItem2.name = seriesItem2.name || `${XbaxRObjItem2.modelCode}图`
       seriesItem2.data = XbaxRObjItem2.data
+
+      seriesItem2.itemStyle.normal.color = function (parame) {
+        const {	dataIndex } = parame
+        if (XbaxRObjItem2.problemData.includes[dataIndex]) {
+          return '#ff0000'
+        }
+        return seriesItem2.itemStyle.normal.color || '#000000'
+      }
 
       seriesItem2.markLine.data[0].yAxis = XbaxRObjItem2.cl
       seriesItem2.markLine.data[1].yAxis = XbaxRObjItem2.ucl
@@ -1371,6 +1634,63 @@ export default {
     sigmaSubmit () {
       this.sigmaList[this.sigmaIndex] = this.sigmaForm.type
       this.sigmaDialogVisible = false
+    },
+    getSPCProblem (spcParame) {
+      const {
+        i,
+        data,
+        cl,
+        sigmaData: {
+          upSigma,
+          up2Sigma,
+          up3Sigma,
+          downSigma,
+          down2Sigma,
+          down3Sigma,
+        },
+      } = spcParame
+
+      const resultArr = []
+
+      this.sigmaList[i].forEach(sigmaItem => {
+        let newArr = []
+        switch (sigmaItem) {
+          case 'r1':
+            newArr = unusual.getSpc1({ data, up3Sigma, down3Sigma })
+            break
+
+          case 'r2':
+            newArr = unusual.getSpc2({ data, greater: cl, less: cl, segment: 9, total: 9 })
+            break
+
+          case 'r3':
+            newArr = unusual.getSpc3({ data, segment: 6, total: 5 })
+            break
+
+          case 'r4':
+            newArr = unusual.getSpc4({ data, segment: 14 })
+            break
+
+          case 'r5':
+            newArr = unusual.getSpc2({ data, greater: up2Sigma, less: down2Sigma, segment: 3, total: 2 })
+            break
+
+          case 'r6':
+            newArr = unusual.getSpc2({ data, greater: upSigma, less: downSigma, segment: 5, total: 4 })
+            break
+
+          case 'r7':
+            newArr = unusual.getSpc7({ data, segment: 15, total: 15, greater: downSigma, less: upSigma, cl, type: 'seven' })
+            break
+
+          case 'r8':
+            newArr = unusual.getSpc7({ data, segment: 8, total: 8, greater: upSigma, less: downSigma, cl, type: 'eight' })
+            break
+        }
+        resultArr.push(...newArr)
+      })
+      console.log('resultArr', i, resultArr)
+      return resultArr
     },
   },
 }
