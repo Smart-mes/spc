@@ -428,9 +428,9 @@ export default {
         //  获取echartsOption
         // let echartsOption
         // if (option !== '') {
-        const echartsOption = this.getEchart({ ...item, i })
+        // const echartsOption = this.getEchart({ ...item, i })
         // } else {
-        //   echartsOption = this.handleEchart({ ...item, i })
+        const echartsOption = this.handleEchart({ ...item, i })
         // }
 
         chart.setOption(echartsOption, true)
@@ -1689,7 +1689,7 @@ export default {
         }
         resultArr.push(...newArr)
       })
-      console.log('resultArr', i, resultArr)
+
       return resultArr
     },
   },
