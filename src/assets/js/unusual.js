@@ -8,13 +8,15 @@
 const getSpc1 = (parameObj) => {
   const {
     data,
-    up3Sigma,
-    down3Sigma,
+    greater,
+    less,
+    // up3Sigma,
+    // down3Sigma,
 
   } = parameObj
 
   const spcArr = data.map((MapItem, i) => {
-    if (MapItem > up3Sigma || MapItem < down3Sigma) {
+    if (MapItem > greater || MapItem < less) {
       return i
     }
   }).filter(filterItem => {
