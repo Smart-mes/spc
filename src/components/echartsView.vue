@@ -346,20 +346,12 @@ export default {
         this.formCustom.customList = JSON.parse(
           JSON.stringify(this.customParamList)
         )
-        // console.log('len', this.formCustom.customList)
+        // 搜索列表展开收起
         const custom = this.formCustom.customList
 
-        // if (custom.length > 0 && custom[0].customParam.length > 0) {
         this.customDisplay = custom.map(item => {
           return { isDisplay: true }
         })
-        // }
-        // console.log('custom', custom)
-        // console.log('this.customDisplay', this.customDisplay)
-
-        // this.formCustom.customList.map(item => {
-        //   console.log(item.customParam.length)
-        // })
       })
   },
   methods: {
@@ -687,6 +679,11 @@ export default {
                   formatter: '{b}:{c}',
                 },
               },
+              itemStyle: {
+                normal: {
+                  color: '#d53a35',
+                },
+              },
               data: [
                 {
                   name: 'CL',
@@ -734,6 +731,11 @@ export default {
                   formatter: '{b}:{c}',
                 },
               },
+              itemStyle: {
+                normal: {
+                  color: '#d53a35',
+                },
+              },
               data: [
                 {
                   name: 'CL',
@@ -748,11 +750,6 @@ export default {
                   yAxis: xbarRItem2.lcl,
                 },
               ],
-              // itemStyle: {
-              //   normal: {
-              //     color: '#d53a35',
-              //   },
-              // },
             },
           },
         ],
@@ -1198,12 +1195,14 @@ export default {
       // visualMap.pieces.lte = lcl
       seriesItem.name = seriesItem.name || `${modelCode}图`
       seriesItem.data = data
+
+      const spotColor = seriesItem.itemStyle.normal.color || '#000000'
       seriesItem.itemStyle.normal.color = function (parame) {
         const {	dataIndex } = parame
         if (problemData.includes[dataIndex]) {
           return '#ff0000'
         }
-        return seriesItem.itemStyle.normal.color || '#000000'
+        return spotColor
       }
       seriesItem.markLine.data[0].yAxis = cl
       seriesItem.markLine.data[1].yAxis = ucl
@@ -1240,12 +1239,13 @@ export default {
       seriesItem1.name = seriesItem1.name || `${XbaxRObjItem1.modelCode}图`
       seriesItem1.data = XbaxRObjItem1.data
 
+      const spotColor1 = seriesItem1.itemStyle.normal.color || '#000000'
       seriesItem1.itemStyle.normal.color = function (parame) {
         const {	dataIndex } = parame
         if (XbaxRObjItem1.problemData.includes[dataIndex]) {
           return '#ff0000'
         }
-        return seriesItem1.itemStyle.normal.color || '#000000'
+        return spotColor1
       }
 
       seriesItem1.markLine.data[0].yAxis = XbaxRObjItem1.cl
@@ -1255,12 +1255,13 @@ export default {
       seriesItem2.name = seriesItem2.name || `${XbaxRObjItem2.modelCode}图`
       seriesItem2.data = XbaxRObjItem2.data
 
+      const spotColor2 = seriesItem2.itemStyle.normal.color || '#000000'
       seriesItem2.itemStyle.normal.color = function (parame) {
         const {	dataIndex } = parame
         if (XbaxRObjItem2.problemData.includes[dataIndex]) {
           return '#ff0000'
         }
-        return seriesItem2.itemStyle.normal.color || '#000000'
+        return spotColor2
       }
 
       seriesItem2.markLine.data[0].yAxis = XbaxRObjItem2.cl

@@ -47,7 +47,6 @@ export default {
   watch: {
     $route (newValue) {
       // 监听路由的变化获取最新的路由信息
-      console.log('newValue', newValue)
       this.setTags(newValue)
     },
   },

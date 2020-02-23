@@ -55,8 +55,6 @@ router.beforeEach(async (to, from, next) => {
   const isLogin = /\/login/.test(path)
   const isQrCode = /\/qrCode/.test(path)
   // const token = $store.state.token
-
-  console.log('isLogin', to.path)
   if (isLogin || isQrCode) {
     next()
   } else {

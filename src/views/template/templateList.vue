@@ -167,7 +167,6 @@ export default {
       this.tableModify(this.tableRow)
     },
     tableHandleRowChange (row) {
-      console.log('row', row)
       if (row) {
         this.tableRow = row
       }

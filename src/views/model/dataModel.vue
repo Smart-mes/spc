@@ -393,7 +393,6 @@ export default {
       )
     },
     httpRequest (params) {
-      console.log('params', params)
       const formdata = new FormData()
       formdata.append('file', params.file)
       // formdata.append('name', params.file.name)
@@ -409,7 +408,6 @@ export default {
           this.$message.success('上传成功')
           const { filename, path } = data
           this.fileList = [{ name: filename, url: path }]
-          console.log('this.fileList', this.fileList)
         })
         .catch((error) => {
           this.$message.error(error)
