@@ -170,11 +170,9 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item>
-                  <a class="icon-delete">
-                    <el-button type="danger" title="删除" size="mini" @click="customItemDelete(i,j)">
-                      <i class="iconfont icon-delete"/>
-                    </el-button>
-                  </a>
+                  <el-button type="danger" title="删除" size="mini" @click="customItemDelete(i,j)">
+                    <i class="iconfont icon-delete"/>
+                  </el-button>
                 </el-form-item>
               </div>
             </div>

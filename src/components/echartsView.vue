@@ -1,7 +1,7 @@
 <template>
   <div class="custom-wrap">
     <div class="customSearch">
-      <el-form :inline="true" label-width="150px">
+      <el-form :inline="true" label-width="105px" class="formInline">
         <div
           v-for="(custom,customIndex) in formCustom.customList"
           :key="custom.id"
@@ -161,14 +161,15 @@
       <el-form :model="sigmaForm" label-width="50px">
         <el-form-item label="" prop="type" class="sigmaFrom">
           <el-checkbox-group v-model="sigmaForm.type">
-            <el-checkbox label="r1" name="type">R1,1个点落在A区以外</el-checkbox>
+            <el-checkbox label="r0" name="type">R0,超出上限下限</el-checkbox>
+            <el-checkbox v-show="proDisabled()" label="r1" name="type">R1,1个点落在A区以外</el-checkbox>
             <el-checkbox label="r2" name="type">R2,连续9个点落在中心线的同一侧</el-checkbox>
             <el-checkbox label="r3" name="type">R3,连续6个点递增或者递减</el-checkbox>
             <el-checkbox label="r4" name="type">R4,连续14个点中相邻点上下交错</el-checkbox>
-            <el-checkbox label="r5" name="type">R5,连续3个点有2个点落在中心线同一侧B区以外</el-checkbox>
-            <el-checkbox label="r6" name="type">R6,连续5个点有4个点落在中心线同一侧C区以外</el-checkbox>
-            <el-checkbox label="r7" name="type">R7,连续15个点落在中心线两侧的C区以内</el-checkbox>
-            <el-checkbox label="r8" name="type">R8,连续8个点落在中心线两次且无一在C区内</el-checkbox>
+            <el-checkbox v-show="proDisabled()" label="r5" name="type">R5,连续3个点有2个点落在中心线同一侧B区以外</el-checkbox>
+            <el-checkbox v-show="proDisabled()" label="r6" name="type">R6,连续5个点有4个点落在中心线同一侧C区以外</el-checkbox>
+            <el-checkbox v-show="proDisabled()" label="r7" name="type">R7,连续15个点落在中心线两侧的C区以内</el-checkbox>
+            <el-checkbox v-show="proDisabled()" label="r8" name="type">R8,连续8个点落在中心线两次且无一在C区内</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </el-form>
@@ -228,14 +229,14 @@ export default {
       // sigma
       sigmaDialogVisible: false,
       sigmaDialogTitle: 'SPC个八判异',
-
       sigmaList: [],
       sigmaBtnList: [],
-
       sigmaForm: {
         type: [],
       },
       sigmaIndex: 0,
+      // 判异类型
+      problemType: '',
       // 搜索后判断是否有数据
       isEchartsList: [],
     }
@@ -336,7 +337,6 @@ export default {
         // for (let i = 0; i < this.boxNum; i++) {
         //   const isEchartsObj = { isDisplay: true }
         //   const isBtnObj = { isBtn: false }
-
         //   this.isEchartsList.push(isEchartsObj)
         //   this.sigmaBtnList.push(isBtnObj)
         // }
@@ -348,7 +348,6 @@ export default {
         )
         // 搜索列表展开收起
         const custom = this.formCustom.customList
-
         this.customDisplay = custom.map(item => {
           return { isDisplay: true }
         })
@@ -571,6 +570,7 @@ export default {
     },
     drowXbarR (dataParame) {
       const [xbarRItem1, xbarRItem2] = dataParame
+      console.log('xbarRItem2', xbarRItem2)
       return {
         title: [
           {
@@ -944,21 +944,26 @@ export default {
       const upSigma4 = (rsigma3 + (rsigma3 - rsigma2)).toFixed(3)
       const downSigma4 = (lsigma3 - (lsigma2 - lsigma3)).toFixed(3)
 
-      // console.log('sigmaData', sigmaData)
-      // console.log(upSigma4, upSigma4)
-
       // echarts的参数,option
       let echartsParame
       let echartsOption
       // 单图
       let problemData
       // 组合图
+      // let sigmafilter
       let problemData1
       let problemData2
 
       switch (modelCode) {
         case 'Xbar':
-          problemData = !sigmaLen ? [] : this.getSPCProblem({ i, data: xchartdata, cl: xcl, sigmaData })
+          problemData = !sigmaLen ? [] : this.getSPCProblem({
+            sigmaList: this.sigmaList[i],
+            data: xchartdata,
+            cl: xcl,
+            ucl: xucl,
+            lcl: xlcl,
+            sigmaData,
+          })
 
           echartsParame = {
             option,
@@ -966,8 +971,8 @@ export default {
             data: xchartdata,
             dataindex,
             cl: xcl,
-            ucl: !sigmaLen ? xucl : rsigma3,
-            lcl: !sigmaLen ? xlcl : lsigma3,
+            ucl: xucl,
+            lcl: xlcl,
             yName: '平均值',
             max: !sigmaLen ? xdataMax : upSigma4,
             min: !sigmaLen ? xdataMin : downSigma4,
@@ -983,7 +988,14 @@ export default {
           break
 
         case 'R':
-          problemData = !sigmaLen ? [] : this.getSPCProblem({ i, data: rchartdata, cl: rcl, sigmaData })
+          problemData = !sigmaLen ? [] : this.getSPCProblem({
+            sigmaList: this.sigmaList[i],
+            data: rchartdata,
+            cl: rcl,
+            ucl: rucl,
+            lcl: rlcl,
+            sigmaData,
+          })
 
           echartsParame = {
             option,
@@ -991,11 +1003,11 @@ export default {
             data: rchartdata,
             dataindex,
             cl: rcl,
-            ucl: !sigmaLen ? rucl : rsigma3,
-            lcl: !sigmaLen ? rlcl : lsigma3,
+            ucl: rucl,
+            lcl: rlcl,
             yName: '极差值',
-            max: !sigmaLen ? rdataMax : upSigma4,
-            min: !sigmaLen ? rdataMin : downSigma4,
+            max: rdataMax,
+            min: rdataMin,
             problemData,
           }
 
@@ -1008,7 +1020,14 @@ export default {
           break
 
         case 'S':
-          problemData = !sigmaLen ? [] : this.getSPCProblem({ i, data: schartdata, cl: scl, sigmaData })
+          problemData = !sigmaLen ? [] : this.getSPCProblem({
+            sigmaList: this.sigmaList[i],
+            data: schartdata,
+            cl: scl,
+            ucl: sucl,
+            lcl: slcl,
+            sigmaData,
+          })
 
           echartsParame = {
             option,
@@ -1016,11 +1035,11 @@ export default {
             data: schartdata,
             dataindex,
             cl: scl,
-            ucl: !sigmaLen ? sucl : rsigma3,
-            lcl: !sigmaLen ? slcl : lsigma3,
+            ucl: sucl,
+            lcl: slcl,
             yName: '标准值',
-            max: !sigmaLen ? sdataMax : upSigma4,
-            min: !sigmaLen ? sdataMin : downSigma4,
+            max: sdataMax,
+            min: sdataMin,
             problemData,
           }
 
@@ -1033,8 +1052,25 @@ export default {
           break
 
         case 'Xbar-R':
-          problemData1 = !sigmaLen ? [] : this.getSPCProblem({ i, data: xchartdata, cl: xcl, sigmaData })
-          problemData2 = !sigmaLen ? [] : this.getSPCProblem({ i, data: rchartdata, cl: rcl, sigmaData })
+          problemData1 = !sigmaLen ? [] : this.getSPCProblem({
+            sigmaList: this.sigmaList[i],
+            data: xchartdata,
+            cl: xcl,
+            ucl: xucl,
+            lcl: xlcl,
+            sigmaData,
+          })
+
+          problemData2 = !sigmaLen ? [] : this.getSPCProblem({
+            sigmaList: this.sigmafilter(this.sigmaList[i]),
+            data: rchartdata,
+            cl: rcl,
+            ucl: rucl,
+            lcl: rlcl,
+            sigmaData,
+          })
+
+          console.log(' problemData2 ', problemData2)
 
           echartsParame = [
             {
@@ -1042,8 +1078,8 @@ export default {
               data: xchartdata,
               dataindex,
               cl: xcl,
-              ucl: !sigmaLen ? xucl : rsigma3,
-              lcl: !sigmaLen ? xlcl : lsigma3,
+              ucl: xucl,
+              lcl: xlcl,
               yName: '平均值',
               max: !sigmaLen ? xdataMax : upSigma4,
               min: !sigmaLen ? xdataMin : downSigma4,
@@ -1054,11 +1090,11 @@ export default {
               data: rchartdata,
               dataindex,
               cl: rcl,
-              ucl: !sigmaLen ? rucl : rsigma3,
-              lcl: !sigmaLen ? rlcl : lsigma3,
+              ucl: rucl,
+              lcl: rlcl,
               yName: '极差值',
-              max: !sigmaLen ? rdataMax : upSigma4,
-              min: !sigmaLen ? rdataMin : downSigma4,
+              max: rdataMax,
+              min: rdataMin,
               problemData: problemData2,
             },
           ]
@@ -1072,8 +1108,22 @@ export default {
           break
 
         case 'Xbar-S':
-          problemData1 = !sigmaLen ? [] : this.getSPCProblem({ i, data: xchartdata, cl: xcl, sigmaData })
-          problemData2 = !sigmaLen ? [] : this.getSPCProblem({ i, data: schartdata, cl: scl, sigmaData })
+          problemData1 = !sigmaLen ? [] : this.getSPCProblem({
+            sigmaList: this.sigmaList[i],
+            data: xchartdata,
+            cl: xcl,
+            ucl: xucl,
+            lcl: xlcl,
+            sigmaData,
+          })
+          problemData2 = !sigmaLen ? [] : this.getSPCProblem({
+            sigmaList: this.sigmafilter(this.sigmaList[i]),
+            data: schartdata,
+            cl: scl,
+            ucl: sucl,
+            lcl: slcl,
+            sigmaData,
+          })
 
           echartsParame = [
             {
@@ -1081,8 +1131,8 @@ export default {
               data: xchartdata,
               dataindex,
               cl: xcl,
-              ucl: !sigmaLen ? xucl : rsigma3,
-              lcl: !sigmaLen ? xlcl : lsigma3,
+              ucl: xucl,
+              lcl: xlcl,
               yName: '平均值',
               max: !sigmaLen ? xdataMax : upSigma4,
               min: !sigmaLen ? xdataMin : downSigma4,
@@ -1093,11 +1143,11 @@ export default {
               data: schartdata,
               dataindex,
               cl: scl,
-              ucl: !sigmaLen ? sucl : rsigma3,
-              lcl: !sigmaLen ? slcl : lsigma3,
+              ucl: sucl,
+              lcl: slcl,
               yName: '标准值',
-              max: !sigmaLen ? sdataMax : upSigma4,
-              min: !sigmaLen ? sdataMin : downSigma4,
+              max: sdataMax,
+              min: sdataMin,
               problemData: problemData2,
             },
           ]
@@ -1113,8 +1163,22 @@ export default {
         case 'I-MR':
           rchartdata[0] = ''
 
-          problemData1 = !sigmaLen ? [] : this.getSPCProblem({ i, data: xchartdata, cl: xcl, sigmaData })
-          problemData2 = !sigmaLen ? [] : this.getSPCProblem({ i, data: rchartdata.slice(1), cl: rcl, sigmaData })
+          problemData1 = !sigmaLen ? [] : this.getSPCProblem({
+            sigmaList: this.sigmaList[i],
+            data: xchartdata,
+            cl: xcl,
+            ucl: xucl,
+            lcl: xlcl,
+            sigmaData,
+          })
+          problemData2 = !sigmaLen ? [] : this.getSPCProblem({
+            sigmaList: this.sigmafilter(this.sigmaList[i]),
+            data: rchartdata.slice(1),
+            cl: rcl,
+            ucl: rucl,
+            lcl: rlcl,
+            sigmaData,
+          })
 
           if (problemData2.length > 0) {
             problemData2 = problemData2.map(proItem => {
@@ -1128,8 +1192,8 @@ export default {
               data: xchartdata,
               dataindex,
               cl: xcl,
-              ucl: !sigmaLen ? xucl : rsigma3,
-              lcl: !sigmaLen ? xlcl : lsigma3,
+              ucl: xucl,
+              lcl: xlcl,
               yName: '单值',
               max: !sigmaLen ? xdataMax : upSigma4,
               min: !sigmaLen ? xdataMin : downSigma4,
@@ -1140,11 +1204,11 @@ export default {
               data: rchartdata,
               dataindex: dataindex,
               cl: rcl,
-              ucl: !sigmaLen ? rucl : rsigma3,
-              lcl: !sigmaLen ? rlcl : lsigma3,
+              ucl: rucl,
+              lcl: rlcl,
               yName: '移动极差值',
-              max: !sigmaLen ? rdataMax : upSigma4,
-              min: !sigmaLen ? rdataMin : downSigma4,
+              max: rdataMax,
+              min: rdataMin,
               problemData: problemData2,
             },
           ]
@@ -1183,6 +1247,7 @@ export default {
     },
     customXbaxValue (xbaxObj) {
       const option = (new Function('return ' + xbaxObj.option))()
+
       const { title, xAxis, yAxis, series: [seriesItem] } = option
       const { modelCode, dataindex, yName, max, min, cl, ucl, lcl, data, problemData } = xbaxObj
 
@@ -1319,10 +1384,14 @@ export default {
     },
     // sigma勾选
     sigmaDialogOpen (i) {
+      const { analysisDetails } = this.dataList
+
       this.sigmaDialogVisible = true
       this.sigmaDialogTitle = `SPC个八判异-${i + 1}`
       this.sigmaForm.type = this.sigmaList[i]
       this.sigmaIndex = i
+
+      this.problemType = analysisDetails[i].modelCode
     },
     sigmaSubmit () {
       this.sigmaList[this.sigmaIndex] = this.sigmaForm.type
@@ -1330,9 +1399,11 @@ export default {
     },
     getSPCProblem (spcParame) {
       const {
-        i,
+        sigmaList,
         data,
         cl,
+        ucl,
+        lcl,
         sigmaData: {
           upSigma,
           up2Sigma,
@@ -1343,50 +1414,73 @@ export default {
         },
       } = spcParame
 
+      console.log('sigmaList', sigmaList)
+
       const resultArr = []
 
-      this.sigmaList[i].forEach(sigmaItem => {
+      sigmaList.forEach(sigmaItem => {
         let newArr = []
         switch (sigmaItem) {
+          case 'r0':
+            newArr = unusual.getSpc1({ data, greater: ucl, less: lcl })
+            console.log('r0', newArr)
+            break
           case 'r1':
             newArr = unusual.getSpc1({ data, greater: up3Sigma, less: down3Sigma })
+            console.log('r1', newArr)
             break
 
           case 'r2':
             newArr = unusual.getSpc2({ data, greater: cl, less: cl, segment: 9, total: 9 })
+            console.log('r2', newArr)
             break
 
           case 'r3':
             newArr = unusual.getSpc3({ data, segment: 6, total: 5 })
+            console.log('r3', newArr)
             break
 
           case 'r4':
             newArr = unusual.getSpc4({ data, segment: 14 })
+            console.log('r4', newArr)
             break
 
           case 'r5':
             newArr = unusual.getSpc2({ data, greater: up2Sigma, less: down2Sigma, segment: 3, total: 2 })
+            console.log('r5', newArr)
             break
 
           case 'r6':
             newArr = unusual.getSpc2({ data, greater: upSigma, less: downSigma, segment: 5, total: 4 })
+            console.log('r6', newArr)
             break
 
           case 'r7':
             newArr = unusual.getSpc7({ data, segment: 15, total: 15, greater: downSigma, less: upSigma, cl, type: 'seven' })
+            console.log('r7', newArr)
             break
 
           case 'r8':
+            console.log('r8', newArr)
             newArr = unusual.getSpc7({ data, segment: 8, total: 8, greater: upSigma, less: downSigma, cl, type: 'eight' })
             break
         }
         resultArr.push(...newArr)
       })
-
-      return resultArr
+      console.log('暂时测试-------------------------------------')
+      return Array.from(new Set(resultArr))
     },
     customDisplayFn (i) {
       this.customDisplay[i].isDisplay = !this.customDisplay[i].isDisplay
+    },
+    // 判异类型禁用
+    proDisabled () {
+      return !(this.problemType === 'R' || this.problemType === 'S')
+    },
+    sigmafilter (parameArr) {
+      return parameArr.filter(item => {
+        return !['r1', 'r5', 'r6', 'r', 'r8'].includes(item)
+      })
     },
   },
 }
@@ -1407,7 +1501,7 @@ padding: 0 20px;
   .list-box {
     overflow: hidden;
     margin-bottom: -1px;
-    padding: 3px 0;
+    padding:5px 20px 0 20px;
     border-bottom: 1px dashed $line-color;
     /deep/.el-form-item__label{
     overflow: hidden;
@@ -1430,7 +1524,6 @@ padding: 0 20px;
   }
   .btn {
     padding: 5px 0 0 20px;
-    //  border-top:1px dashed $line-color;
     text-align: left;
   }
   /deep/ .el-date-editor.el-input{
@@ -1440,7 +1533,6 @@ padding: 0 20px;
 .echarts-warp {
   margin-top: 15px;
   padding: 10px;
-  // height: 600px;
   background: #f3f3f3;
 }
 // 选择
@@ -1549,6 +1641,11 @@ padding: 0 20px;
   /deep/ .el-checkbox{
    width: 330px;
   }
+}
+.formInline{
+    /deep/.el-input__inner{
+        width: 180px;
+    }
 }
 
 </style>
