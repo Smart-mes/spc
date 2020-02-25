@@ -7,12 +7,9 @@
           :key="custom.id"
           class="custom-box"
         >
-          <div
-            class="subtitle2"
-          >
+          <div v-if="custom.customParam.length>0" class="subtitle2">
             <h4 class="fl">{{ custom.name }}</h4>
             <i
-              v-if="custom.customParam.length>0"
               :title="customDisplay[customIndex].isDisplay?'展开':'收起'"
               :class="['fr','iconfont',customDisplay[customIndex].isDisplay?'icon-drown':'icon-up']"
               @click="customDisplayFn(customIndex)"
@@ -47,21 +44,34 @@
             </div>
           </div>
         </div>
-        <div class="btn">
-          <el-button
-            type="primary"
-            :disabled="isBtnSearch"
-            @click="search"
-          >
-            <i class="iconfont icon-search"/>搜索
-          </el-button>
-          <el-button
-            @click="clearSearch"
-          >
-            清空搜索
-          </el-button>
-        </div>
+        <el-form-item label="判异选择" class="problem">
+          <el-checkbox-group v-model="formCustom.type">
+            <el-checkbox label="r0" name="type" disabled>r0,超出规格</el-checkbox>
+            <el-checkbox label="r1" name="type">r1,落在3倍sigma区以外</el-checkbox>
+            <el-checkbox label="r2" name="type">r2,连续9个点在中心线同侧</el-checkbox>
+            <el-checkbox label="r3" name="type">r3,连续6点递增或递减</el-checkbox>
+            <el-checkbox label="r4" name="type">r4,连续14点中相邻点交替上下</el-checkbox>
+            <el-checkbox label="r5" name="type">r5,连续3个点中有2点在中心线同侧2倍sigma区以外</el-checkbox>
+            <el-checkbox label="r6" name="type">r6,连续5个点中有4点在中心线同侧1倍sigma区以外</el-checkbox>
+            <el-checkbox label="r7" name="type">r7,连续15个点落在中心线两侧的1倍的sigma区内</el-checkbox>
+            <el-checkbox label="r8" name="type">r8,连续8个点落在中心线两侧且无在1倍sigma区内</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
       </el-form>
+      <div class="btn">
+        <el-button
+          type="primary"
+          :disabled="isBtnSearch"
+          @click="search"
+        >
+          <i class="iconfont icon-search"/>搜索
+        </el-button>
+        <el-button
+          @click="clearSearch"
+        >
+          清空搜索
+        </el-button>
+      </div>
     </div>
     <!-- 搜索条件 -->
     <div
@@ -134,15 +144,15 @@
           <div
             v-else
             class="box-item"
-            @mouseover="sigmaBtnList[i].isBtn=true"
-            @mouseleave="sigmaBtnList[i].isBtn=false"
+            @mouseover="problemBtnList[i].isBtn=true"
+            @mouseleave="problemBtnList[i].isBtn=false"
           >
             <div class="echarts-box"/>
-            <div v-show="sigmaBtnList[i].isBtn" class="btn-box">
+            <div v-show="problemBtnList[i].isBtn" class="btn-box">
               <el-button
                 size="mini"
-                :type="sigmaList[i].length?'primary':''"
-                @click="sigmaDialogOpen(i)"
+                :type="problemList[i].length>1?'primary':''"
+                @click="problemOpen(i)"
               >
                 配置
               </el-button>
@@ -154,28 +164,28 @@
     </div>
     <!--sigma 弹窗-->
     <el-dialog
-      :title="sigmaDialogTitle"
-      :visible.sync="sigmaDialogVisible"
-      width="840px"
+      :title="problemTitle"
+      :visible.sync="problemVisible"
+      width="850px"
     >
-      <el-form :model="sigmaForm" label-width="50px">
-        <el-form-item label="" prop="type" class="sigmaFrom">
-          <el-checkbox-group v-model="sigmaForm.type">
-            <el-checkbox label="r0" name="type">R0,超出上限下限</el-checkbox>
-            <el-checkbox v-show="proDisabled()" label="r1" name="type">R1,1个点落在A区以外</el-checkbox>
-            <el-checkbox label="r2" name="type">R2,连续9个点落在中心线的同一侧</el-checkbox>
-            <el-checkbox label="r3" name="type">R3,连续6个点递增或者递减</el-checkbox>
-            <el-checkbox label="r4" name="type">R4,连续14个点中相邻点上下交错</el-checkbox>
-            <el-checkbox v-show="proDisabled()" label="r5" name="type">R5,连续3个点有2个点落在中心线同一侧B区以外</el-checkbox>
-            <el-checkbox v-show="proDisabled()" label="r6" name="type">R6,连续5个点有4个点落在中心线同一侧C区以外</el-checkbox>
-            <el-checkbox v-show="proDisabled()" label="r7" name="type">R7,连续15个点落在中心线两侧的C区以内</el-checkbox>
-            <el-checkbox v-show="proDisabled()" label="r8" name="type">R8,连续8个点落在中心线两次且无一在C区内</el-checkbox>
+      <el-form :model="problemForm" label-width="50px">
+        <el-form-item label="" prop="type" class="problemFrom">
+          <el-checkbox-group v-model="problemForm.type">
+            <el-checkbox label="r0" name="type" disabled>r0,超出规格</el-checkbox>
+            <el-checkbox v-show="proDisabled()" label="r1" name="type">r1,落在3倍sigma区以外</el-checkbox>
+            <el-checkbox label="r2" name="type">r2,连续9个点在中心线同侧</el-checkbox>
+            <el-checkbox label="r3" name="type">r3,连续6点递增或递减</el-checkbox>
+            <el-checkbox label="r4" name="type">r4,连续14点中相邻点交替上下</el-checkbox>
+            <el-checkbox v-show="proDisabled()" label="r5" name="type">r5,连续3个点中有2点在中心线同侧2倍sigma区以外</el-checkbox>
+            <el-checkbox v-show="proDisabled()" label="r6" name="type">r6,连续5个点中有4点在中心线同侧1倍sigma区以外</el-checkbox>
+            <el-checkbox v-show="proDisabled()" label="r7" name="type">r7,连续15个点落在中心线两侧的1倍的sigma区内</el-checkbox>
+            <el-checkbox v-show="proDisabled()" label="r8" name="type">r8,连续8个点落在中心线两侧且无在1倍sigma区内</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="sigmaDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="sigmaSubmit">确 定</el-button>
+        <el-button @click="problemVisible = false">取 消</el-button>
+        <el-button type="primary" @click="problemSubmit">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -201,6 +211,7 @@ export default {
       dataList: [],
       formCustom: {
         customList: [],
+        type: ['r0'],
       },
       customDisplay: [],
       // 模板类型
@@ -226,17 +237,19 @@ export default {
         ca: '',
       },
       cpkList: [],
-      // sigma
-      sigmaDialogVisible: false,
-      sigmaDialogTitle: 'SPC个八判异',
-      sigmaList: [],
-      sigmaBtnList: [],
-      sigmaForm: {
+      // 判异
+      problemVisible: false,
+      problemTitle: 'SPC个八判异',
+      problemList: [],
+      problemBtnList: [],
+      problemForm: {
         type: [],
       },
-      sigmaIndex: 0,
-      // 判异类型
+      problemIndex: 0,
       problemType: '',
+      // 最后判异
+      ProList: [],
+
       // 搜索后判断是否有数据
       isEchartsList: [],
     }
@@ -292,9 +305,9 @@ export default {
     },
   },
   watch: {
-    sigmaDialogVisible (val) {
+    problemVisible (val) {
       if (!val) {
-        this.sigmaForm.type = []
+        this.problemForm.type = []
       }
     },
   },
@@ -309,15 +322,15 @@ export default {
 
         this.cpkList = analysisDetails.map((analysisItem, i) => {
           const { modelCode } = analysisItem
-          // 存储sigmaList
-          this.sigmaList.push([])
+          // 存储problemList
+          this.problemList.push(['r0'])
 
           // 判断echarts是否执行
           const isEchartsObj = { isDisplay: true }
           const isBtnObj = { isBtn: false }
 
           this.isEchartsList.push(isEchartsObj)
-          this.sigmaBtnList.push(isBtnObj)
+          this.problemBtnList.push(isBtnObj)
 
           //  cpk存储数据
           if (modelCode === 'CPK') {
@@ -338,7 +351,7 @@ export default {
         //   const isEchartsObj = { isDisplay: true }
         //   const isBtnObj = { isBtn: false }
         //   this.isEchartsList.push(isEchartsObj)
-        //   this.sigmaBtnList.push(isBtnObj)
+        //   this.problemBtnList.push(isBtnObj)
         // }
       })
       .then(() => {
@@ -469,6 +482,7 @@ export default {
     // 清空搜索
     clearSearch () {
       const { customList } = this.formCustom
+      this.formCustom.type = ['r0']
       customList.forEach(custom => {
         const { customParam } = custom
 
@@ -938,9 +952,11 @@ export default {
         down2Sigma: lsigma2,
         down3Sigma: lsigma3,
       }
+      // 判异处理
+      this.getProList()
 
       // 判断判异变量
-      const sigmaLen = this.sigmaList[i].length
+      const problemLen = this.isScaleFn(this.ProList[i])
       const upSigma4 = (rsigma3 + (rsigma3 - rsigma2)).toFixed(3)
       const downSigma4 = (lsigma3 - (lsigma2 - lsigma3)).toFixed(3)
 
@@ -950,14 +966,15 @@ export default {
       // 单图
       let problemData
       // 组合图
-      // let sigmafilter
+
       let problemData1
       let problemData2
 
       switch (modelCode) {
         case 'Xbar':
-          problemData = !sigmaLen ? [] : this.getSPCProblem({
-            sigmaList: this.sigmaList[i],
+
+          problemData = this.getProblem({
+            problemList: this.ProList[i],
             data: xchartdata,
             cl: xcl,
             ucl: xucl,
@@ -974,8 +991,8 @@ export default {
             ucl: xucl,
             lcl: xlcl,
             yName: '平均值',
-            max: !sigmaLen ? xdataMax : upSigma4,
-            min: !sigmaLen ? xdataMin : downSigma4,
+            max: !problemLen ? xdataMax : upSigma4,
+            min: !problemLen ? xdataMin : downSigma4,
             problemData,
           }
 
@@ -988,8 +1005,8 @@ export default {
           break
 
         case 'R':
-          problemData = !sigmaLen ? [] : this.getSPCProblem({
-            sigmaList: this.sigmaList[i],
+          problemData = this.getProblem({
+            problemList: this.proFilter(this.ProList[i]),
             data: rchartdata,
             cl: rcl,
             ucl: rucl,
@@ -1020,8 +1037,8 @@ export default {
           break
 
         case 'S':
-          problemData = !sigmaLen ? [] : this.getSPCProblem({
-            sigmaList: this.sigmaList[i],
+          problemData = this.getProblem({
+            problemList: this.proFilter(this.ProList[i]),
             data: schartdata,
             cl: scl,
             ucl: sucl,
@@ -1052,8 +1069,8 @@ export default {
           break
 
         case 'Xbar-R':
-          problemData1 = !sigmaLen ? [] : this.getSPCProblem({
-            sigmaList: this.sigmaList[i],
+          problemData1 = this.getProblem({
+            problemList: this.ProList[i],
             data: xchartdata,
             cl: xcl,
             ucl: xucl,
@@ -1061,16 +1078,14 @@ export default {
             sigmaData,
           })
 
-          problemData2 = !sigmaLen ? [] : this.getSPCProblem({
-            sigmaList: this.sigmafilter(this.sigmaList[i]),
+          problemData2 = this.getProblem({
+            problemList: this.proFilter(this.ProList[i]),
             data: rchartdata,
             cl: rcl,
             ucl: rucl,
             lcl: rlcl,
             sigmaData,
           })
-
-          console.log(' problemData2 ', problemData2)
 
           echartsParame = [
             {
@@ -1081,8 +1096,8 @@ export default {
               ucl: xucl,
               lcl: xlcl,
               yName: '平均值',
-              max: !sigmaLen ? xdataMax : upSigma4,
-              min: !sigmaLen ? xdataMin : downSigma4,
+              max: !problemLen ? xdataMax : upSigma4,
+              min: !problemLen ? xdataMin : downSigma4,
               problemData: problemData1,
             },
             {
@@ -1108,16 +1123,16 @@ export default {
           break
 
         case 'Xbar-S':
-          problemData1 = !sigmaLen ? [] : this.getSPCProblem({
-            sigmaList: this.sigmaList[i],
+          problemData1 = this.getProblem({
+            problemList: this.ProList[i],
             data: xchartdata,
             cl: xcl,
             ucl: xucl,
             lcl: xlcl,
             sigmaData,
           })
-          problemData2 = !sigmaLen ? [] : this.getSPCProblem({
-            sigmaList: this.sigmafilter(this.sigmaList[i]),
+          problemData2 = this.getProblem({
+            problemList: this.proFilter(this.ProList[i]),
             data: schartdata,
             cl: scl,
             ucl: sucl,
@@ -1134,8 +1149,8 @@ export default {
               ucl: xucl,
               lcl: xlcl,
               yName: '平均值',
-              max: !sigmaLen ? xdataMax : upSigma4,
-              min: !sigmaLen ? xdataMin : downSigma4,
+              max: !problemLen ? xdataMax : upSigma4,
+              min: !problemLen ? xdataMin : downSigma4,
               problemData: problemData1,
             },
             {
@@ -1162,17 +1177,16 @@ export default {
 
         case 'I-MR':
           rchartdata[0] = ''
-
-          problemData1 = !sigmaLen ? [] : this.getSPCProblem({
-            sigmaList: this.sigmaList[i],
+          problemData1 = this.getProblem({
+            problemList: this.ProList[i],
             data: xchartdata,
             cl: xcl,
             ucl: xucl,
             lcl: xlcl,
             sigmaData,
           })
-          problemData2 = !sigmaLen ? [] : this.getSPCProblem({
-            sigmaList: this.sigmafilter(this.sigmaList[i]),
+          problemData2 = this.getProblem({
+            problemList: this.proFilter(this.ProList[i]),
             data: rchartdata.slice(1),
             cl: rcl,
             ucl: rucl,
@@ -1180,11 +1194,9 @@ export default {
             sigmaData,
           })
 
-          if (problemData2.length > 0) {
-            problemData2 = problemData2.map(proItem => {
-              return proItem + 1
-            })
-          }
+          problemData2 = problemData2.map(proItem => {
+            return proItem + 1
+          })
 
           echartsParame = [
             {
@@ -1195,8 +1207,8 @@ export default {
               ucl: xucl,
               lcl: xlcl,
               yName: '单值',
-              max: !sigmaLen ? xdataMax : upSigma4,
-              min: !sigmaLen ? xdataMin : downSigma4,
+              max: !problemLen ? xdataMax : upSigma4,
+              min: !problemLen ? xdataMin : downSigma4,
               problemData: problemData1,
             },
             {
@@ -1383,23 +1395,23 @@ export default {
       })
     },
     // sigma勾选
-    sigmaDialogOpen (i) {
+    problemOpen (i) {
       const { analysisDetails } = this.dataList
 
-      this.sigmaDialogVisible = true
-      this.sigmaDialogTitle = `SPC个八判异-${i + 1}`
-      this.sigmaForm.type = this.sigmaList[i]
-      this.sigmaIndex = i
+      this.problemVisible = true
+      this.problemTitle = `SPC个八判异-${i + 1}`
+      this.problemForm.type = this.problemList[i]
+      this.problemIndex = i
 
       this.problemType = analysisDetails[i].modelCode
     },
-    sigmaSubmit () {
-      this.sigmaList[this.sigmaIndex] = this.sigmaForm.type
-      this.sigmaDialogVisible = false
+    problemSubmit () {
+      this.problemList[this.problemIndex] = this.problemForm.type
+      this.problemVisible = false
     },
-    getSPCProblem (spcParame) {
+    getProblem (spcParame) {
       const {
-        sigmaList,
+        problemList,
         data,
         cl,
         ucl,
@@ -1414,11 +1426,11 @@ export default {
         },
       } = spcParame
 
-      console.log('sigmaList', sigmaList)
-
       const resultArr = []
 
-      sigmaList.forEach(sigmaItem => {
+      // console.log('criteriaList', this.criteriaList)
+
+      problemList.forEach(sigmaItem => {
         let newArr = []
         switch (sigmaItem) {
           case 'r0':
@@ -1477,9 +1489,22 @@ export default {
     proDisabled () {
       return !(this.problemType === 'R' || this.problemType === 'S')
     },
-    sigmafilter (parameArr) {
+    proFilter (parameArr) {
       return parameArr.filter(item => {
-        return !['r1', 'r5', 'r6', 'r', 'r8'].includes(item)
+        return !['r1', 'r5', 'r6', 'r7', 'r8'].includes(item)
+      })
+    },
+    // xbax判断刻度
+    isScaleFn (parameArr) {
+      const arr = parameArr.filter(item => {
+        return ['r1', 'r5', 'r6', 'r7', 'r8'].includes(item)
+      })
+      return arr.length
+    },
+    // 得到最新的判异
+    getProList () {
+      this.ProList = this.problemList.map(item => {
+        return item.length > 1 ? item : this.formCustom.type
       })
     },
   },
@@ -1637,15 +1662,21 @@ padding: 0 20px;
     width: 50%;
   }
 }
-.sigmaFrom{
+.problemFrom{
   /deep/ .el-checkbox{
-   width: 330px;
+   width: 340px;
   }
 }
 .formInline{
     /deep/.el-input__inner{
         width: 180px;
     }
+}
+
+.problem{
+  /deep/ .el-form-item__content{
+    max-width: 1300px;
+  }
 }
 
 </style>
