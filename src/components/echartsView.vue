@@ -32,6 +32,8 @@
                   v-model="customItem2.value"
                   size="mini"
                   type="datetime"
+                  value-format="yyyy-MM-dd HH:mm:ss"
+                  default-time="08:00:00"
                   placeholder="选择日期时间"
                 />
 
@@ -380,10 +382,9 @@ export default {
       this.echartsLoading = true
       // 清空CPK的数据
       this.clearCPK()
-
       // 处理表单的数据
-      let { customList } = this.formCustom
-      customList = customList.map(custom => {
+      const { customList } = this.formCustom
+      const customArr = customList.map(custom => {
         const { id, name, customParam } = custom
         return {
           id,
@@ -394,10 +395,11 @@ export default {
 
       // 参数合并, 遍历数据
       const { id, analysisDetails } = this.dataList
-      const analysisArr = analysisDetails.map((analysis) => {
+
+      const analyseArr = analysisDetails.map((analysis) => {
         const { id, analysisId, modelCode, modelOption, dataSource } = analysis
 
-        const [customObj] = customList.filter(custom => {
+        const [customObj] = customArr.filter(custom => {
           if (dataSource.id === custom.id) {
             return custom
           }
@@ -415,46 +417,46 @@ export default {
         }
       })
 
-      const newParame = { id, analysisDetails: analysisArr }
+      this.$http
+        .post('/api/analysis/doMyAnalysis', { id, analysisDetails: analyseArr })
+        .then(res => {
+          this.isBtnSearch = false
+          this.echartsLoading = false
+          const { data: { data }} = res
 
-      this.$http.post('/api/analysis/doMyAnalysis', newParame).then(res => {
-        this.isBtnSearch = false
-        this.echartsLoading = false
-        const { data: { data }} = res
-
-        // 组装data
-        const { analysisDetails } = this.dataList
-        const echartArr = analysisDetails.map(analysisItem => {
-          const { modelCode, option } = analysisItem
-          const [filterItem] = data.filter(filterItem => {
-            const { id, dataSourceId } = filterItem
-            return analysisItem.id === id && analysisItem.dataSourceId === dataSourceId
-          })
-          return {
-            modelCode,
-            option,
-            ...filterItem,
-          }
-        })
-
-        echartArr.map((echartItem, i) => {
-          const { modelCode, data } = echartItem
-          // 存cpk的数据
-          if (modelCode === 'CPK' && data !== null) {
-            const cpkObj = {}
-            Object.keys(this.cpkKey).map(key => {
-              cpkObj[key] = data[key]
+          // 组装data
+          const { analysisDetails } = this.dataList
+          const echartArr = analysisDetails.map(analysisItem => {
+            const { modelCode, option } = analysisItem
+            const [filterItem] = data.filter(filterItem => {
+              const { id, dataSourceId } = filterItem
+              return analysisItem.id === id && analysisItem.dataSourceId === dataSourceId
             })
-            this.cpkList[i].data = cpkObj
-          }
-          this.isEchartsList[i].isDisplay = data === null
+            return {
+              modelCode,
+              option,
+              ...filterItem,
+            }
+          })
+
+          echartArr.map((echartItem, i) => {
+            const { modelCode, data } = echartItem
+            // 存cpk的数据
+            if (modelCode === 'CPK' && data !== null) {
+              const cpkObj = {}
+              Object.keys(this.cpkKey).map(key => {
+                cpkObj[key] = data[key]
+              })
+              this.cpkList[i].data = cpkObj
+            }
+            this.isEchartsList[i].isDisplay = data === null
+          })
+          this.echartInit(echartArr)
+        }).catch((error) => {
+          this.$message.error(error)
+          this.isBtnSearch = false
+          this.echartsLoading = false
         })
-        this.echartInit(echartArr)
-      }).catch((error) => {
-        this.$message.error(error)
-        this.isBtnSearch = false
-        this.echartsLoading = false
-      })
     },
     // 执行echarts
     echartInit (echartData) {
@@ -972,7 +974,6 @@ export default {
 
       switch (modelCode) {
         case 'Xbar':
-
           problemData = this.getProblem({
             problemList: this.ProList[i],
             data: xchartdata,
@@ -1668,14 +1669,29 @@ padding: 0 20px;
   }
 }
 .formInline{
-    /deep/.el-input__inner{
-        width: 180px;
+    /deep/.el-input__inner,
+    /deep/.el-input{
+         width: 175px !important;
     }
+
 }
 
 .problem{
-  /deep/ .el-form-item__content{
-    max-width: 1300px;
+  // /deep/ .el-form-item__content{
+  //   max-width: 1300px;
+  // }
+  overflow: hidden;
+  /deep/.el-form-item__label{
+    background: #ff0000;
+  }
+  /deep/.el-form-item__content{
+    background: #aaa;
+  }
+
+  /deep/ .el-checkbox{
+    overflow: hidden;
+    width: 350px;
+    background: #00ff00;
   }
 }
 
