@@ -1193,9 +1193,11 @@ export default {
             sigmaData,
           })
 
-          problemData2 = problemData2.map(proItem => {
-            return proItem + 1
-          })
+          if (problemData2.length) {
+            problemData2 = problemData2.map(proItem => {
+              return proItem + 1
+            })
+          }
 
           echartsParame = [
             {
