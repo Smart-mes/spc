@@ -52,7 +52,8 @@ export default {
       isCollapse: state => state.isCollapse,
     }),
     active () {
-      return this.$route.fullPath
+      // return this.$route.fullPath
+      return this.$route.path
     },
   },
   methods: {
@@ -61,7 +62,7 @@ export default {
       const [path, dataParams] = item.path.split('?')
       if (dataParams && path === '/analyse/myAnalyse') {
         this.$router.push({ path: path })
-        //  this.$router.push({ name: 'myAnalyse', params: dataParams })
+
         this.add_tags(item)
       } else {
         this.$router.push({ path: path })

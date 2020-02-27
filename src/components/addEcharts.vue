@@ -21,7 +21,6 @@
       :title="dialogTitle"
       :visible.sync="dialogVisible"
       width="700px"
-      class="demo-form-inline"
       @open="dialogOpen"
     >
       <el-form
@@ -40,9 +39,10 @@
           <el-input v-model="dataSource.name" :disabled="true">
             <el-button
               slot="append"
-              icon="el-icon-search"
               @click="dataDialogVisible=true"
-            />
+            >
+              <i class="el-icon-search"/>
+            </el-button>
           </el-input>
           <el-input v-show="false" v-model="formOption.dataSourceId" :disabled="true"/>
         </el-form-item>
@@ -433,6 +433,9 @@ export default {
 /deep/ .el-input-group__append{
   background: #fff;
 }
+}
+.el-icon-search{
+  color:$blue-color;
 }
 
 </style>

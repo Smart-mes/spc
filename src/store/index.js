@@ -87,15 +87,13 @@ const actions = {
       })
       .then(res => {
         const menusData = res
-        // pageSize
         $http
           .get('/api/analysis/myAnalysis', {
             params: {
-              pageSize: 200,
+              pageSize: 300,
             },
           })
           .then(({ data: { list }}) => {
-          // console.log('list', list)
             if (list.length) {
               const childArr = list.map(item => {
                 const { id, name } = item
@@ -120,12 +118,9 @@ const actions = {
             }
           })
       }).catch(() => {
-        // console.log('err', err)
-        // let errNum = 0
         commit('set_state', {
           isRouter: true,
         })
-        // console.log(++errNum)
       })
   },
 }
@@ -133,7 +128,6 @@ const actions = {
 const getters = {
   routes (state) {
     const menus = state.menus
-
     // 处理数据
     const menusData = menus.map((item, i) => {
       if (item.path !== '/analyse/myAnalyse') {

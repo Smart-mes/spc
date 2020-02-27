@@ -46,19 +46,30 @@
             </div>
           </div>
         </div>
-        <el-form-item label="判异选择" class="problem">
-          <el-checkbox-group v-model="formCustom.type">
-            <el-checkbox label="r0" name="type" disabled>r0,超出规格</el-checkbox>
-            <el-checkbox label="r1" name="type">r1,落在3倍sigma区以外</el-checkbox>
-            <el-checkbox label="r2" name="type">r2,连续9个点在中心线同侧</el-checkbox>
-            <el-checkbox label="r3" name="type">r3,连续6点递增或递减</el-checkbox>
-            <el-checkbox label="r4" name="type">r4,连续14点中相邻点交替上下</el-checkbox>
-            <el-checkbox label="r5" name="type">r5,连续3个点中有2点在中心线同侧2倍sigma区以外</el-checkbox>
-            <el-checkbox label="r6" name="type">r6,连续5个点中有4点在中心线同侧1倍sigma区以外</el-checkbox>
-            <el-checkbox label="r7" name="type">r7,连续15个点落在中心线两侧的1倍的sigma区内</el-checkbox>
-            <el-checkbox label="r8" name="type">r8,连续8个点落在中心线两侧且无在1倍sigma区内</el-checkbox>
-          </el-checkbox-group>
-        </el-form-item>
+        <!-- SPC判异 -->
+        <div class="subtitle2">
+          <h4 class="fl">spc判异</h4>
+          <i
+            :title="spcDisplay?'展开':'收起'"
+            :class="['fr','iconfont',spcDisplay?'icon-drown':'icon-up']"
+            @click="spcDisplay=!spcDisplay"
+          />
+        </div>
+        <div v-show="spcDisplay" class="problem">
+          <el-form-item label="判异选择">
+            <el-checkbox-group v-model="formCustom.type">
+              <el-checkbox label="r0" name="type" disabled>r0,超出规格</el-checkbox>
+              <el-checkbox label="r1" name="type">r1,落在3倍sigma区以外</el-checkbox>
+              <el-checkbox label="r2" name="type">r2,连续9个点在中心线同侧</el-checkbox>
+              <el-checkbox label="r3" name="type">r3,连续6点递增或递减</el-checkbox>
+              <el-checkbox label="r4" name="type">r4,连续14点中相邻点交替上下</el-checkbox>
+              <el-checkbox label="r5" name="type">r5,连续3个点中有2点在中心线同侧2倍sigma区以外</el-checkbox>
+              <el-checkbox label="r6" name="type">r6,连续5个点中有4点在中心线同侧1倍sigma区以外</el-checkbox>
+              <el-checkbox label="r7" name="type">r7,连续15个点落在中心线两侧的1倍的sigma区内</el-checkbox>
+              <el-checkbox label="r8" name="type">r8,连续8个点落在中心线两侧且无在1倍sigma区内</el-checkbox>
+            </el-checkbox-group>
+          </el-form-item>
+        </div>
       </el-form>
       <div class="btn">
         <el-button
@@ -216,9 +227,9 @@ export default {
         type: ['r0'],
       },
       customDisplay: [],
+      spcDisplay: true,
       // 模板类型
       tempType: '',
-      // optionList: [],
       // cpk
       cpkKey: {
         totalnum: '',
@@ -249,9 +260,8 @@ export default {
       },
       problemIndex: 0,
       problemType: '',
-      // 最后判异
+      // 最后获得判异
       ProList: [],
-
       // 搜索后判断是否有数据
       isEchartsList: [],
     }
@@ -327,12 +337,11 @@ export default {
           // 存储problemList
           this.problemList.push(['r0'])
 
-          // 判断echarts是否执行
-          const isEchartsObj = { isDisplay: true }
-          const isBtnObj = { isBtn: false }
+          // echarts是否有数据
+          this.isEchartsList.push({ isDisplay: true })
 
-          this.isEchartsList.push(isEchartsObj)
-          this.problemBtnList.push(isBtnObj)
+          // spc弹窗是否选中
+          this.problemBtnList.push({ isBtn: false })
 
           //  cpk存储数据
           if (modelCode === 'CPK') {
@@ -348,13 +357,6 @@ export default {
             return { modelCode, data: {}}
           }
         })
-        // // 判断echarts是否执行
-        // for (let i = 0; i < this.boxNum; i++) {
-        //   const isEchartsObj = { isDisplay: true }
-        //   const isBtnObj = { isBtn: false }
-        //   this.isEchartsList.push(isEchartsObj)
-        //   this.problemBtnList.push(isBtnObj)
-        // }
       })
       .then(() => {
         // 搜索表单赋值
@@ -586,7 +588,7 @@ export default {
     },
     drowXbarR (dataParame) {
       const [xbarRItem1, xbarRItem2] = dataParame
-      console.log('xbarRItem2', xbarRItem2)
+      // console.log('xbarRItem2', xbarRItem2)
       return {
         title: [
           {
@@ -954,21 +956,17 @@ export default {
         down2Sigma: lsigma2,
         down3Sigma: lsigma3,
       }
-      // 判异处理
-      this.getProList()
 
-      // 判断判异变量
-      const problemLen = this.isScaleFn(this.ProList[i])
-      const upSigma4 = (rsigma3 + (rsigma3 - rsigma2)).toFixed(3)
-      const downSigma4 = (lsigma3 - (lsigma2 - lsigma3)).toFixed(3)
+      // 获取判异数组
+      this.getProList()
 
       // echarts的参数,option
       let echartsParame
       let echartsOption
+
       // 单图
       let problemData
       // 组合图
-
       let problemData1
       let problemData2
 
@@ -992,8 +990,8 @@ export default {
             ucl: xucl,
             lcl: xlcl,
             yName: '平均值',
-            max: !problemLen ? xdataMax : upSigma4,
-            min: !problemLen ? xdataMin : downSigma4,
+            max: xdataMax,
+            min: xdataMin,
             problemData,
           }
 
@@ -1097,8 +1095,8 @@ export default {
               ucl: xucl,
               lcl: xlcl,
               yName: '平均值',
-              max: !problemLen ? xdataMax : upSigma4,
-              min: !problemLen ? xdataMin : downSigma4,
+              max: xdataMax,
+              min: xdataMin,
               problemData: problemData1,
             },
             {
@@ -1150,8 +1148,8 @@ export default {
               ucl: xucl,
               lcl: xlcl,
               yName: '平均值',
-              max: !problemLen ? xdataMax : upSigma4,
-              min: !problemLen ? xdataMin : downSigma4,
+              max: xdataMax,
+              min: xdataMin,
               problemData: problemData1,
             },
             {
@@ -1208,8 +1206,8 @@ export default {
               ucl: xucl,
               lcl: xlcl,
               yName: '单值',
-              max: !problemLen ? xdataMax : upSigma4,
-              min: !problemLen ? xdataMin : downSigma4,
+              max: xdataMax,
+              min: xdataMin,
               problemData: problemData1,
             },
             {
@@ -1269,15 +1267,15 @@ export default {
       yAxis.name = yAxis.name || yName
       yAxis.max = max
       yAxis.min = min
-      // visualMap.pieces.gte = ucl
-      // visualMap.pieces.lte = lcl
+
       seriesItem.name = seriesItem.name || `${modelCode}图`
       seriesItem.data = data
 
       const spotColor = seriesItem.itemStyle.normal.color || '#000000'
+
       seriesItem.itemStyle.normal.color = function (parame) {
         const {	dataIndex } = parame
-        if (problemData.includes[dataIndex]) {
+        if (problemData.includes(dataIndex)) {
           return '#ff0000'
         }
         return spotColor
@@ -1320,7 +1318,7 @@ export default {
       const spotColor1 = seriesItem1.itemStyle.normal.color || '#000000'
       seriesItem1.itemStyle.normal.color = function (parame) {
         const {	dataIndex } = parame
-        if (XbaxRObjItem1.problemData.includes[dataIndex]) {
+        if (XbaxRObjItem1.problemData.includes(dataIndex)) {
           return '#ff0000'
         }
         return spotColor1
@@ -1336,7 +1334,7 @@ export default {
       const spotColor2 = seriesItem2.itemStyle.normal.color || '#000000'
       seriesItem2.itemStyle.normal.color = function (parame) {
         const {	dataIndex } = parame
-        if (XbaxRObjItem2.problemData.includes[dataIndex]) {
+        if (XbaxRObjItem2.problemData.includes(dataIndex)) {
           return '#ff0000'
         }
         return spotColor2
@@ -1429,8 +1427,6 @@ export default {
 
       const resultArr = []
 
-      // console.log('criteriaList', this.criteriaList)
-
       problemList.forEach(sigmaItem => {
         let newArr = []
         switch (sigmaItem) {
@@ -1480,6 +1476,7 @@ export default {
         }
         resultArr.push(...newArr)
       })
+
       console.log('暂时测试-------------------------------------')
       return Array.from(new Set(resultArr))
     },
@@ -1671,27 +1668,28 @@ padding: 0 20px;
 .formInline{
     /deep/.el-input__inner,
     /deep/.el-input{
-         width: 175px !important;
+         width: 180px !important;
     }
 
 }
 
 .problem{
-  // /deep/ .el-form-item__content{
-  //   max-width: 1300px;
-  // }
+  position: relative;
   overflow: hidden;
+
   /deep/.el-form-item__label{
-    background: #ff0000;
+    position:absolute;
+    left:15px;
+    z-index: 99;
   }
   /deep/.el-form-item__content{
-    background: #aaa;
+  padding-left:125px;
   }
 
   /deep/ .el-checkbox{
-    overflow: hidden;
+    display: block;
+    float: left;
     width: 350px;
-    background: #00ff00;
   }
 }
 
