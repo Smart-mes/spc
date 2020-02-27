@@ -47,28 +47,30 @@
           </div>
         </div>
         <!-- SPC判异 -->
-        <div class="subtitle2">
-          <h4 class="fl">spc判异</h4>
-          <i
-            :title="spcDisplay?'展开':'收起'"
-            :class="['fr','iconfont',spcDisplay?'icon-drown':'icon-up']"
-            @click="spcDisplay=!spcDisplay"
-          />
-        </div>
-        <div v-show="spcDisplay" class="problem">
-          <el-form-item label="判异选择">
-            <el-checkbox-group v-model="formCustom.type">
-              <el-checkbox label="r0" name="type" disabled>r0,超出规格</el-checkbox>
-              <el-checkbox label="r1" name="type">r1,落在3倍sigma区以外</el-checkbox>
-              <el-checkbox label="r2" name="type">r2,连续9个点在中心线同侧</el-checkbox>
-              <el-checkbox label="r3" name="type">r3,连续6点递增或递减</el-checkbox>
-              <el-checkbox label="r4" name="type">r4,连续14点中相邻点交替上下</el-checkbox>
-              <el-checkbox label="r5" name="type">r5,连续3个点中有2点在中心线同侧2倍sigma区以外</el-checkbox>
-              <el-checkbox label="r6" name="type">r6,连续5个点中有4点在中心线同侧1倍sigma区以外</el-checkbox>
-              <el-checkbox label="r7" name="type">r7,连续15个点落在中心线两侧的1倍的sigma区内</el-checkbox>
-              <el-checkbox label="r8" name="type">r8,连续8个点落在中心线两侧且无在1倍sigma区内</el-checkbox>
-            </el-checkbox-group>
-          </el-form-item>
+        <div v-if="searchVisible">
+          <div class="subtitle2">
+            <h4 class="fl">spc判异</h4>
+            <i
+              :title="spcDisplay?'展开':'收起'"
+              :class="['fr','iconfont',spcDisplay?'icon-drown':'icon-up']"
+              @click="spcDisplay=!spcDisplay"
+            />
+          </div>
+          <div v-show="spcDisplay" class="problem">
+            <el-form-item label="判异选择">
+              <el-checkbox-group v-model="formCustom.type">
+                <el-checkbox label="r0" name="type" disabled>r0,超出规格</el-checkbox>
+                <el-checkbox label="r1" name="type">r1,落在3倍sigma区以外</el-checkbox>
+                <el-checkbox label="r2" name="type">r2,连续9个点在中心线同侧</el-checkbox>
+                <el-checkbox label="r3" name="type">r3,连续6点递增或递减</el-checkbox>
+                <el-checkbox label="r4" name="type">r4,连续14点中相邻点交替上下</el-checkbox>
+                <el-checkbox label="r5" name="type">r5,连续3个点中有2点在中心线同侧2倍sigma区以外</el-checkbox>
+                <el-checkbox label="r6" name="type">r6,连续5个点中有4点在中心线同侧1倍sigma区以外</el-checkbox>
+                <el-checkbox label="r7" name="type">r7,连续15个点落在中心线两侧的1倍的sigma区内</el-checkbox>
+                <el-checkbox label="r8" name="type">r8,连续8个点落在中心线两侧且无在1倍sigma区内</el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+          </div>
         </div>
       </el-form>
       <div class="btn">
@@ -314,6 +316,14 @@ export default {
       }
 
       return customArr
+    },
+    searchVisible () {
+      const arr = this.cpkList.map(mapItem => {
+        return mapItem.modelCode
+      }).filter(filterItem => {
+        return filterItem !== 'CPK'
+      })
+      return !!arr.length
     },
   },
   watch: {
