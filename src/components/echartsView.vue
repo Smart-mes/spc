@@ -1489,7 +1489,6 @@ export default {
         resultArr.push(...newArr)
       })
 
-      console.log('暂时测试-------------------------------------')
       return Array.from(new Set(resultArr))
     },
     customDisplayFn (i) {

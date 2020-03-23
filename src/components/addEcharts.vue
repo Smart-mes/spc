@@ -30,55 +30,58 @@
         label-width="90px"
         class="formInline"
       >
-        <el-form-item
-          label="数据源"
-          prop="dataSourceId"
-          :rules="rule.mustSelect"
-          class="dataAdd"
-        >
-          <el-input v-model="dataSource.name" :disabled="true">
-            <el-button
-              slot="append"
-              @click="dataDialogVisible=true"
-            >
-              <i class="el-icon-search"/>
-            </el-button>
-          </el-input>
-          <el-input v-show="false" v-model="formOption.dataSourceId" :disabled="true"/>
-        </el-form-item>
-        <el-form-item label="分析模型" prop="modelCode" :rules="rule.mustSelect">
-          <el-select v-model="formOption.modelCode" @change="getModelOption()">
-            <el-option
-              v-for="model in modelList "
-              :key="model.id"
-              :label="model.name"
-              :value="model.code"
-            />
-          </el-select>
-        </el-form-item>
-        <div class="must">
-          <h4 class="subtitle">
-            <span class="icon-circle">●</span>模型规则
-          </h4>
+        <div v-show="fromVisible">
           <el-form-item
-            v-for="(option,i) in formOption.modelOption"
-            :key="option.key"
-            :label="option.label"
-            :prop="'modelOption.' + i + '.value'"
-            :rules="rule.must"
+            label="数据源"
+            prop="dataSourceId"
+            :rules="rule.mustSelect"
+            class="dataAdd"
           >
-            <el-input v-model="option.value"/>
+            <el-input v-model="dataSource.name" :disabled="true">
+              <el-button
+                slot="append"
+                @click="dataDialogVisible=true"
+              >
+                <i class="el-icon-search"/>
+              </el-button>
+            </el-input>
+            <el-input v-show="false" v-model="formOption.dataSourceId" :disabled="true"/>
           </el-form-item>
-          <div v-if="!formOption.modelOption.length" class="none">请选择分析模型类型</div>
+          <el-form-item label="分析模型" prop="modelCode" :rules="rule.mustSelect">
+            <el-select v-model="formOption.modelCode" @change="getModelOption()">
+              <el-option
+                v-for="model in modelList "
+                :key="model.id"
+                :label="model.name"
+                :value="model.code"
+              />
+            </el-select>
+          </el-form-item>
+          <div class="must">
+            <h4 class="subtitle">
+              <span class="icon-circle">●</span>模型规则
+            </h4>
+            <el-form-item
+              v-for="(option,i) in formOption.modelOption"
+              :key="option.key"
+              :label="option.label"
+              :prop="'modelOption.' + i + '.value'"
+              :rules="rule.must"
+            >
+              <el-input v-model="option.value"/>
+            </el-form-item>
+            <div v-if="!formOption.modelOption.length" class="none">请选择分析模型类型</div>
+          </div>
+          <el-form-item label="清洗条件" prop="cleanData">
+            <el-input v-model="formOption.cleanData"/>
+          </el-form-item>
+          <el-form-item label="自定义" prop="customOption">
+            <el-input v-model="formOption.customOption"/>
+          </el-form-item>
         </div>
-        <el-form-item label="清洗条件" prop="cleanData">
-          <el-input v-model="formOption.cleanData"/>
-        </el-form-item>
-        <el-form-item label="自定义" prop="customOption">
-          <el-input v-model="formOption.customOption"/>
-        </el-form-item>
+        <div class="display"><i class="iconfont icon-arrow-down" @click="fromVisibleFn"/></div>
         <el-form-item label="图表配置" prop="option" class="textarea">
-          <el-input v-model="formOption.option" type="textarea" rows="12"/>
+          <el-input v-model="formOption.option" type="textarea" :rows="textareaRow"/>
         </el-form-item>
         <!-- 第一步 -->
       </el-form>
@@ -152,6 +155,9 @@ export default {
   },
   data () {
     return {
+      fromVisible: true,
+      textareaRow: 12,
+      // 展开显示
       currentIndex: '',
       dialogTitle: '添加配置',
       dialogVisible: false,
@@ -337,6 +343,11 @@ export default {
       this.dataSource.name = name
       this.dataDialogVisible = false
     },
+    // 展开显示
+    fromVisibleFn () {
+      this.fromVisible = !this.fromVisible
+      this.textareaRow = this.fromVisible ? 10 : 35
+    },
   },
 }
 
@@ -436,6 +447,13 @@ export default {
 }
 .el-icon-search{
   color:$blue-color;
+}
+.display{
+  margin-bottom:15px;
+  text-align: center;
+  .iconfont{
+    cursor: pointer;
+  }
 }
 
 </style>

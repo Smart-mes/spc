@@ -6,7 +6,6 @@ import { Message } from 'element-ui'
 Vue.use(Vuex)
 
 const state = {
-  // token: window.localStorage.getItem('user_token') || '',
   userInfo: window.JSON.parse(window.localStorage.getItem('user_info')) || {},
   isCollapse: window.JSON.parse(window.localStorage.getItem('user-collapse')),
   isRouter: false,
