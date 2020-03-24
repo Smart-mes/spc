@@ -149,7 +149,7 @@
                   label="值"
                   label-width="70px"
                   :prop="'customList.' +i+'.'+j+'.value'"
-                  :rules="rule.must"
+                  :rules="rule.customVal"
                 >
                   <el-input v-model="item.value" size="mini"/>
                 </el-form-item>
@@ -199,6 +199,35 @@ export default {
     btnTool,
   },
   data () {
+    // validate自定义验证
+    const checkName = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('不能为空'))
+      }
+      const isChineseName = value => /^(?:[\u4e00-\u9fa5·]{1,10})$/g.test(value)
+      setTimeout(() => {
+        if (!isChineseName(value)) {
+          callback(new Error('请输入1-10中文'))
+        } else {
+          callback()
+        }
+      }, 100)
+    }
+
+    const checkVal = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('不能为空'))
+      }
+      const isreg = value => /^[a-zA-Z]([-_a-zA-Z0-9]{2,20})$/g.test(value)
+      setTimeout(() => {
+        if (!isreg(value)) {
+          callback(new Error('请输入2-20字母开头的字符'))
+        } else {
+          callback()
+        }
+      }, 100)
+    }
+
     return {
       rule: {
         must: {
@@ -212,16 +241,10 @@ export default {
           trigger: 'change',
         },
         customName: [
-          {
-            required: true,
-            message: '不能为空',
-            trigger: 'blur',
-          },
-          {
-            max: 10,
-            message: '不能超过10个字符',
-            trigger: 'blur',
-          },
+          { validator: checkName, trigger: 'blur' },
+        ],
+        customVal: [
+          { validator: checkVal, trigger: 'blur' },
         ],
       },
       // tool
@@ -374,10 +397,7 @@ export default {
     },
     beforeUpload (file) {
       const isXls =
-        file.type === 'application/vnd.ms-excel'
-          ? true
-          : file.type ===
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        file.type === 'application/vnd.ms-excel' ? true : file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       if (!isXls) {
         this.$message.error('上传的文件只能是xls以及xlsx格式!')
       }
@@ -393,7 +413,6 @@ export default {
     httpRequest (params) {
       const formdata = new FormData()
       formdata.append('file', params.file)
-      // formdata.append('name', params.file.name)
       const config = {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -446,15 +465,11 @@ export default {
     dialogSubmit () {
       this.$refs.modelForm.validate(valid => {
         if (valid) {
-          if (this.activeStep === 2 && this.submitType === 'add') {
-            this.submitAdd()
-            return false
-          } else if (this.activeStep === 2 && this.submitType === 'modify') {
-            this.submitModify()
-            return false
-          }
-          this.activeStep += 1
+          this.activeStep === 2 && this.submitType === 'add' && this.submitAdd()
+          this.activeStep === 2 && this.submitType === 'modify' && this.submitModify()
+          if (this.activeStep === 1) { this.activeStep += 1 }
         } else {
+          if (this.activeStep === 1) { this.activeStep += 1 }
           return false
         }
       })

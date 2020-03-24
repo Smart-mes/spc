@@ -25,7 +25,7 @@ const mutations = {
      * @param payload
      */
   set_user: (state, { token, userInfo }) => {
-    state.user_info = userInfo
+    state.userInfo = userInfo
     state.isCollapse = false
 
     window.localStorage.setItem('user_token', token)
@@ -78,49 +78,44 @@ const actions = {
   /**
      * 获取菜单
      */
-  queryMenus ({ commit }) {
-    return $http
-      .get('/api/resource/list')
-      .then(({ data }) => {
-        return data
-      })
-      .then(res => {
-        const menusData = res
-        $http
-          .get('/api/analysis/myAnalysis', {
-            params: {
-              pageSize: 300,
-            },
-          })
-          .then(({ data: { list }}) => {
-            if (list.length) {
-              const childArr = list.map(item => {
-                const { id, name } = item
-                return {
-                  id,
-                  title: name,
-                  path: `/analyse/myAnalyse?id=${id}`,
-                  componentPath: '/analyse/myAnalyse',
-                }
-              })
-              const menusMap = menusData.map(menus => {
-                if (menus.path === '/analyse/myAnalyse') {
-                  menus.children = childArr
-                  return menus
-                }
-                return menus
-              })
-              commit('set_state', {
-                menus: menusMap,
-                isRouter: true,
-              })
-            }
-          })
-      }).catch(() => {
+  async queryMenus ({ commit }) {
+    try {
+      const menusList = await $http.get('/api/resource/list')
+      const submenuList = await $http.get('/api/analysis/myAnalysis', { params: { pageSize: 300 }})
+      const menus = menusList.data
+      const { data: { list }} = submenuList
+
+      if (menus.length && list.length) {
+        const childArr = list.map(item => {
+          const { id, name } = item
+          return {
+            id,
+            title: name,
+            path: `/analyse/myAnalyse?id=${id}`,
+            componentPath: '/analyse/myAnalyse',
+          }
+        })
+        const menusMap = menus.map(menusItem => {
+          if (menusItem.path === '/analyse/myAnalyse') {
+            menusItem.children = childArr
+            return menusItem
+          }
+          return menusItem
+        })
         commit('set_state', {
+          menus: menusMap,
           isRouter: true,
         })
-      })
+      }
+      if (menus.length && !list.length) {
+        commit('set_state', {
+          menus: menus,
+          isRouter: true,
+        })
+      }
+    } catch (e) {
+      commit('set_state', { isRouter: true })
+    }
   },
 }
 

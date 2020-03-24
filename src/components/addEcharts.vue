@@ -216,7 +216,6 @@ export default {
     },
     analysisList (val) {
       this.optionList = JSON.parse(JSON.stringify(val))
-      // console.log('this.optionList', this.optionList)
       this.$emit('optionData', this.optionList)
     },
     dataDialogVisible (val) {
