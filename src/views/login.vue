@@ -48,6 +48,7 @@
 </template>
 <script>
 import { mapMutations } from 'vuex'
+import CryptoJS from 'crypto-js'
 export default {
   name: 'Login',
   data () {
@@ -68,12 +69,14 @@ export default {
   methods: {
     ...mapMutations(['set_user']),
     submitForm (formName) {
+      const password = this.encrypt(this.ruleForm.password)
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.btnLoading = true
           this.$http.post('/api/sso/login', {
             username: this.ruleForm.username,
-            password: this.ruleForm.password,
+            // password: this.ruleForm.password,
+            password,
           })
             .then(({ data }) => {
               const { token: { tokenType, accessToken }, user: { username }} = data
@@ -91,6 +94,14 @@ export default {
         }
       })
     },
+    // 加密
+    encrypt (word) {
+      var key = CryptoJS.enc.Utf8.parse('guangzhouyangpkj')
+      var srcs = CryptoJS.enc.Utf8.parse(word)
+      var encrypted = CryptoJS.AES.encrypt(srcs, key, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 })
+      return encrypted.toString()
+    },
+
   },
 }
 </script>
@@ -138,8 +149,6 @@ export default {
     width: 100%;
     font-size: 16px;
     border-radius: 10px;
-    // height: 40px;
-    // line-height: 40px;
   }
   .iconfont {
     font-size: 28px;

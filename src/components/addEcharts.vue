@@ -449,10 +449,11 @@ export default {
   color:$blue-color;
 }
 .display{
-  margin-bottom:15px;
+  margin-bottom:10px;
   text-align: center;
   .iconfont{
     cursor: pointer;
+    color:$font-light-gray;
   }
 }
 
