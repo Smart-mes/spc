@@ -50,6 +50,7 @@ instance.interceptors.response.use(response => {
 , error => {
   const res = error.response
   const status = res.status
+
   switch (status) {
     case 401 || 402:
       MessageBox('请登录', {
@@ -64,7 +65,7 @@ instance.interceptors.response.use(response => {
       })
       break
   }
-  return Promise.reject(error)
+  return Promise.reject(res.statusText)
 })
 
 export default instance

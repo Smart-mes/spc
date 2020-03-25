@@ -124,15 +124,15 @@ const getters = {
     const menus = state.menus
     // 处理数据
     const menusData = menus.map((item, i) => {
-      if (item.path !== '/analyse/myAnalyse') {
+      if (item.children && item.path === '/analyse/myAnalyse') {
+        item.component = 'layout'
+        return item
+      } else {
         return {
           component: 'layout',
           path: '',
           children: [{ ...item }],
         }
-      } else {
-        item.component = 'layout'
-        return item
       }
     })
 
@@ -162,7 +162,7 @@ const getters = {
         }
       })
     }
-
+    console.log('menusData', menusData)
     return formatRoutes(menusData)
   },
 }

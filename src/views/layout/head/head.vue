@@ -34,7 +34,7 @@ export default {
     ...mapMutations(['logout', 'set_collapse']),
     loginClear () {
       this.logout()
-      this.$router.push({ path: '/login' })
+      window.location.href = '/login'
     },
   },
 
