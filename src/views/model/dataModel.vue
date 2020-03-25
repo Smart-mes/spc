@@ -141,7 +141,7 @@
                   label="属性名"
                   label-width="70px"
                   :prop="'customList.' +i+'.'+j+'.key'"
-                  :rules="rule.customName"
+                  :rules="rule.must"
                 >
                   <el-input v-model="item.key" size="mini"/>
                 </el-form-item>
@@ -200,20 +200,6 @@ export default {
   },
   data () {
     // validate自定义验证
-    const checkName = (rule, value, callback) => {
-      if (!value) {
-        return callback(new Error('不能为空'))
-      }
-      const isChineseName = value => /^(?:[\u4e00-\u9fa5·]{1,10})$/g.test(value)
-      setTimeout(() => {
-        if (!isChineseName(value)) {
-          callback(new Error('请输入1-10中文'))
-        } else {
-          callback()
-        }
-      }, 100)
-    }
-
     const checkVal = (rule, value, callback) => {
       if (!value) {
         return callback(new Error('不能为空'))
@@ -240,9 +226,6 @@ export default {
           message: '不能为空',
           trigger: 'change',
         },
-        customName: [
-          { validator: checkName, trigger: 'blur' },
-        ],
         customVal: [
           { validator: checkVal, trigger: 'blur' },
         ],

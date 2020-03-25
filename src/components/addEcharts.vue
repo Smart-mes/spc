@@ -22,6 +22,7 @@
       :visible.sync="dialogVisible"
       width="700px"
       @open="dialogOpen"
+      @opened="resetFrom"
     >
       <el-form
         ref="formOption"
@@ -205,7 +206,7 @@ export default {
   watch: {
     dialogVisible (val) {
       if (!val) {
-        this.$refs.formOption.resetFields()
+        this.resetFrom()
         this.formOption.modelOption = []
         this.dataSource = { name: '' }
       }
@@ -217,6 +218,7 @@ export default {
     analysisList (val) {
       this.optionList = JSON.parse(JSON.stringify(val))
       this.$emit('optionData', this.optionList)
+      // console.log('this.optionList', this.optionList)
     },
     dataDialogVisible (val) {
       if (!val) {
@@ -229,6 +231,9 @@ export default {
     },
   },
   methods: {
+    resetFrom () {
+      this.$refs.formOption.resetFields()
+    },
     // 获取不同的class
     getClass () {
       switch (this.boxNum) {
@@ -260,13 +265,15 @@ export default {
     },
     // 表单提交
     dialogSubmit () {
-      // console.log(this.formOption)
       this.$refs.formOption.validate((valid) => {
         if (valid) {
           this.optionList[this.currentIndex] = JSON.parse(JSON.stringify(this.formOption))
-          const filterList = this.optionList.filter(option => {
-            return option
+          this.optionList[this.currentIndex].dataSource = this.dataSource
+
+          const filterList = this.optionList.filter(optionItem => {
+            return Object.keys(optionItem).length
           })
+
           this.$emit('optionData', filterList)
           this.dialogVisible = false
         } else {

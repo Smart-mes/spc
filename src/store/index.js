@@ -162,7 +162,6 @@ const getters = {
         }
       })
     }
-    console.log('menusData', menusData)
     return formatRoutes(menusData)
   },
 }

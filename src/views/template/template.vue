@@ -108,10 +108,14 @@ export default {
           disabled: () => {
             const layoutLen = !this.tempType ? 0 : Number(this.tempType)
             const chartLen = this.chartList.length
-            if (!layoutLen && !chartLen) {
-              return true
-            }
-            return layoutLen !== chartLen
+            // console.log('layoutLen', layoutLen)
+            // console.log('chartLen', chartLen)
+            // if (!layoutLen && !chartLen) {
+            //   return true
+            // }
+            // return
+
+            return !layoutLen && !chartLen ? true : layoutLen !== chartLen
           },
           click: () => {
             if (this.saveType === 'add') {
@@ -207,6 +211,7 @@ export default {
       })
     },
     getChart (val) {
+      console.log('this.chartList', this.chartList)
       this.chartList = val
     },
     addSave () {
