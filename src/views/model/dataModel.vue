@@ -64,7 +64,7 @@
         >
           <div v-show="activeStep===1" class="must">
             <el-form-item label="模型名称" prop="name" :rules="rule.must">
-              <el-input v-model="modelForm.name" size="mini"/>
+              <el-input v-model="modelForm.name" size="mini" clearable/>
             </el-form-item>
             <el-form-item label="入参类型" prop="inputCode" :rules="rule.mustSelect">
               <el-select v-model="modelForm.inputCode" size="mini">
@@ -86,13 +86,13 @@
                   :prop="'mustList.' + i + '.value'"
                   :rules="rule.must"
                 >
-                  <el-input v-model="item.value" size="mini"/>
+                  <el-input v-model="item.value" size="mini" clearable/>
                 </el-form-item>
               </div>
               <!-- /数据库 -->
               <div v-else-if="modelForm.inputCode==='API'">
                 <el-form-item label="数据url" prop="url" :rules="rule.must">
-                  <el-input v-model="modelForm.url" size="mini"/>
+                  <el-input v-model="modelForm.url" size="mini" clearable/>
                 </el-form-item>
               </div>
               <!-- /数据url -->
@@ -143,7 +143,7 @@
                   :prop="'customList.' +i+'.'+j+'.key'"
                   :rules="rule.must"
                 >
-                  <el-input v-model="item.key" size="mini"/>
+                  <el-input v-model="item.key" size="mini" clearable/>
                 </el-form-item>
                 <el-form-item
                   label="值"
@@ -151,7 +151,7 @@
                   :prop="'customList.' +i+'.'+j+'.value'"
                   :rules="rule.customVal"
                 >
-                  <el-input v-model="item.value" size="mini"/>
+                  <el-input v-model="item.value" size="mini" clearable/>
                 </el-form-item>
                 <el-form-item
                   label="运算符"
@@ -159,7 +159,6 @@
                   :prop="'customList.' +i+'.'+j+'.option'"
                   :rules="rule.mustSelect"
                 >
-                  <!-- <el-input v-model="item.option" size="mini"/> -->
                   <el-select v-model="item.option" size="mini">
                     <el-option label="等于" value="="/>
                     <el-option label="大于" value=">"/>

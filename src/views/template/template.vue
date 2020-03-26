@@ -31,7 +31,7 @@
         class="gridFrom"
       >
         <el-form-item label="模板名称" prop="name">
-          <el-input v-model="gridForm.name"/>
+          <el-input v-model="gridForm.name" clearable/>
         </el-form-item>
         <div class="grid">
           <el-form-item label="布局类型" prop="type">
@@ -108,12 +108,6 @@ export default {
           disabled: () => {
             const layoutLen = !this.tempType ? 0 : Number(this.tempType)
             const chartLen = this.chartList.length
-            // console.log('layoutLen', layoutLen)
-            // console.log('chartLen', chartLen)
-            // if (!layoutLen && !chartLen) {
-            //   return true
-            // }
-            // return
 
             return !layoutLen && !chartLen ? true : layoutLen !== chartLen
           },
@@ -211,7 +205,6 @@ export default {
       })
     },
     getChart (val) {
-      console.log('this.chartList', this.chartList)
       this.chartList = val
     },
     addSave () {
@@ -240,7 +233,10 @@ export default {
     // 处理参数
     handleParame () {
       const modelList = this.chartList.map(chart => {
-        chart.modelOption = JSON.stringify(chart.modelOption)
+        if (typeof (chart.modelOption) !== 'string') {
+          chart.modelOption = JSON.stringify(chart.modelOption)
+        }
+
         return chart
       })
 
@@ -345,7 +341,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .gridFrom {
-  /deep/.el-input__inner {
+  /deep/.el-input{
     width: 465px;
   }
   .grid {

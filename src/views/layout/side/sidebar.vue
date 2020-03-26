@@ -4,8 +4,8 @@
       :collapse="isCollapse"
       class="el-menu-vertical-demo"
       background-color="#444c63"
-      text-color="#fff"
-      active-text-color="#409eff"
+      text-color="#ffffff"
+      active-text-color="#ffffff"
       unique-opened
       :default-active="active"
     >
@@ -90,5 +90,12 @@ export default {
     padding-right: 5px;
     color: $white-color;
   }
+  /deep/.el-menu-item{
+    @extend %ellipsis;
+    padding: 0 10px;
+  }
+  /deep/.el-menu-item.is-active {
+   background-color: #2376c4 !important;
+}
 }
 </style>

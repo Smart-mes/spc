@@ -22,7 +22,6 @@
       :visible.sync="dialogVisible"
       width="700px"
       @open="dialogOpen"
-      @opened="resetFrom"
     >
       <el-form
         ref="formOption"
@@ -69,15 +68,15 @@
               :prop="'modelOption.' + i + '.value'"
               :rules="rule.must"
             >
-              <el-input v-model="option.value"/>
+              <el-input v-model="option.value" clearable/>
             </el-form-item>
             <div v-if="!formOption.modelOption.length" class="none">请选择分析模型类型</div>
           </div>
           <el-form-item label="清洗条件" prop="cleanData">
-            <el-input v-model="formOption.cleanData"/>
+            <el-input v-model="formOption.cleanData" clearable/>
           </el-form-item>
           <el-form-item label="自定义" prop="customOption">
-            <el-input v-model="formOption.customOption"/>
+            <el-input v-model="formOption.customOption" clearable/>
           </el-form-item>
         </div>
         <div class="display"><i class="iconfont icon-arrow-down" @click="fromVisibleFn"/></div>
@@ -213,12 +212,12 @@ export default {
     },
     boxNum (val) {
       // 数据改变清空数据
+      this.resetFrom()
       this.optionList = []
     },
     analysisList (val) {
       this.optionList = JSON.parse(JSON.stringify(val))
       this.$emit('optionData', this.optionList)
-      // console.log('this.optionList', this.optionList)
     },
     dataDialogVisible (val) {
       if (!val) {
@@ -232,7 +231,9 @@ export default {
   },
   methods: {
     resetFrom () {
-      this.$refs.formOption.resetFields()
+      if (this.$refs.formOption) {
+        this.$refs.formOption.resetFields()
+      }
     },
     // 获取不同的class
     getClass () {
@@ -258,8 +259,9 @@ export default {
       this.currentIndex = i
       this.dialogTitle = `修改配置${i + 1}`
 
-      this.formOption = { ...this.optionList[i] }
+      this.formOption = JSON.parse(JSON.stringify(this.optionList[i]))
       this.dataSource = { ...this.optionList[i].dataSource }
+      delete this.formOption.dataSource
 
       this.dialogVisible = true
     },

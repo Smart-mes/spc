@@ -41,6 +41,7 @@
                   v-else
                   v-model="customItem2.value"
                   size="mini"
+                  clearable
                 />
               </el-form-item>
             </div>
@@ -1395,9 +1396,6 @@ export default {
       this.cpkList = this.cpkList.map(cpkItem => {
         const { modelCode, data } = cpkItem
         if (modelCode === 'CPK') {
-          // for (const i in data) {
-          //   data[i] = ''
-          // }
           Object.keys(data).map(key => {
             data[key] = ''
           })
