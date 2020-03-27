@@ -76,6 +76,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .sidebar {
+  margin-top: 5px;
   /deep/.el-menu {
     border: 0;
   }

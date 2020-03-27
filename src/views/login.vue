@@ -1,54 +1,66 @@
 <template>
-  <div class="login-warp">
-    <h2 class="login-title">Smart数据分析平台</h2>
-    <div class="login">
-      <h4>登陆</h4>
-      <el-form
-        ref="ruleForm"
-        :model="ruleForm"
-        :rules="rules"
-        label-width="0px"
-        class="demo-ruleForm"
-      >
-        <el-row>
-          <el-col :span="3">
+  <div class="box">
+    <vue-particles
+      color="#dedede"
+      :particle-opacity="0.7"
+      :particles-number="80"
+      shape-type="circle"
+      :particle-size="4"
+      lines-color="#dedede"
+      :lines-width="1"
+      :line-linked="true"
+      :line-opacity="0.4"
+      :lines-distance="150"
+      :move-speed="0.7"
+      :hover-effect="true"
+      hover-mode="grab"
+      :click-effect="true"
+      click-mode="push"
+      class="particles"
+    />
+
+    <div class="login-warp">
+      <!-- <h2 class="login-title">Smart数据分析平台</h2> -->
+      <div class="login">
+        <h4>Smart数据分析平台</h4>
+        <el-form
+          ref="ruleForm"
+          :model="ruleForm"
+          :rules="rules"
+          label-width="0px"
+          class="demo-ruleForm"
+        >
+          <el-form-item prop="username">
             <i class="iconfont icon-user"/>
-          </el-col>
-          <el-col :span="21">
-            <el-form-item prop="username">
-              <el-input v-model="ruleForm.username" placeholder="请输入用户名" clearable/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="3">
+            <el-input v-model="ruleForm.username" placeholder="请输入用户名" clearable/>
+          </el-form-item>
+          <el-form-item prop="password">
             <i class="iconfont icon-password"/>
-          </el-col>
-          <el-col :span="21">
-            <el-form-item prop="password">
-              <el-input v-model="ruleForm.password" type="password" placeholder="请输入密码" clearable/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row class="btn-row">
-          <el-col :span="24">
-            <el-button
-              type="primary"
-              :loading="btnLoading"
-              @click="submitForm('ruleForm')"
-              @keyup.enter.native="submitForm('ruleForm')"
-            >
-              登陆
-            </el-button>
-          </el-col>
-        </el-row>
-      </el-form>
+            <el-input
+              v-model="ruleForm.password"
+              type="password"
+              placeholder="请输入密码"
+              clearable
+            />
+          </el-form-item>
+        </el-form>
+        <el-button
+          type="primary"
+          :loading="btnLoading"
+          @click="submitForm('ruleForm')"
+          @keyup.enter.native="submitForm('ruleForm')"
+        >
+          登陆
+        </el-button>
+      </div>
     </div>
+    <div class="copyright">©2020 版权所有：广州阳普智能系统科技有限公司 Powered by sunprocn</div>
   </div>
 </template>
 <script>
 import { mapMutations } from 'vuex'
 import CryptoJS from 'crypto-js'
+
 export default {
   name: 'Login',
   data () {
@@ -73,14 +85,21 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.btnLoading = true
-          this.$http.post('/api/sso/login', {
-            username: this.ruleForm.username,
-            // password: this.ruleForm.password,
-            password,
-          })
+          this.$http
+            .post('/api/sso/login', {
+              username: this.ruleForm.username,
+              // password: this.ruleForm.password,
+              password,
+            })
             .then(({ data }) => {
-              const { token: { tokenType, accessToken }, user: { username }} = data
-              this.set_user({ token: `${tokenType} ${accessToken}`, userInfo: { username }})
+              const {
+                token: { tokenType, accessToken },
+                user: { username },
+              } = data
+              this.set_user({
+                token: `${tokenType} ${accessToken}`,
+                userInfo: { username },
+              })
 
               this.$router.push({ path: '/dataModel' })
               this.btnLoading = false
@@ -98,19 +117,33 @@ export default {
     encrypt (word) {
       var key = CryptoJS.enc.Utf8.parse('guangzhouyangpkj')
       var srcs = CryptoJS.enc.Utf8.parse(word)
-      var encrypted = CryptoJS.AES.encrypt(srcs, key, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 })
+      var encrypted = CryptoJS.AES.encrypt(srcs, key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7,
+      })
       return encrypted.toString()
     },
-
   },
 }
 </script>
 <style lang="scss" scoped>
-.login-warp {
-  position: absolute;
+.box {
+  position: relative;
+  overflow: hidden;
   width: 100%;
   height: 100%;
-  background: url("~@/assets/images/login-bj.png") no-repeat;
+  background: #0f2032;
+  .particles {
+    width: 100%;
+    height: 100%;
+  }
+}
+.login-warp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -190px;
+  margin-left: -250px;
   background-size: cover;
   display: flex;
   flex-direction: column;
@@ -123,25 +156,41 @@ export default {
   font-size: 45px;
 }
 .login {
-  padding: 70px 40px;
+  padding:50px;
   width: 400px;
   border-radius: 5px;
-  background: rgba(255, 255, 255, 1);
+  background: rgba(35, 118, 195, 0.4);
+  border: 1px solid #1d82c7;
   h4 {
     margin: 0;
-    padding-bottom: 30px;
-    font-size: 25px;
+    margin-bottom: 40px;
+    font-size: 30px;
     font-weight: normal;
-    color: $title-color;
+    color: $white-color;
+  }
+  /deep/.el-form-item--mini.el-form-item, .el-form-item--small.el-form-item{
+    margin-bottom: 30px;
+  }
+  /deep/.el-form-item__content{
+    position: relative;
+  }
+    .iconfont {
+    position: absolute;
+    left:10px;
+    font-size: 25px;
+    line-height: 40px;
+     color: $white-color;
   }
 
   /deep/.el-input__inner {
-    color: $title-color;
-    // border: 1px solid #999;
+    padding-left: 45px;
+    color: $white-color;
     height: 40px;
     line-height: 40px;
     font-size: 16px;
     border-radius: 10px;
+     background: rgba(35, 118, 195, 0.4);
+     border: 1px solid #1d82c7;
   }
 
   /deep/.el-button {
@@ -149,17 +198,16 @@ export default {
     width: 100%;
     font-size: 16px;
     border-radius: 10px;
+    background-color: #35a0de;
   }
-  .iconfont {
-    font-size: 28px;
-    line-height: 40px;
-    color: $font-light-gray;
-  }
-  .el-row {
-    margin-top: 10px;
-  }
-  .btn-row {
-    margin-top: 15px;
-  }
+
+}
+.copyright{
+   position: absolute;
+   left: 50%;
+   margin-left: -230px;
+   bottom: 20px;
+   text-align: center;
+   color:$font-light-gray;
 }
 </style>
