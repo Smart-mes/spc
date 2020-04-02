@@ -6,8 +6,8 @@ import { Message } from 'element-ui'
 Vue.use(Vuex)
 
 const state = {
-  userInfo: window.JSON.parse(window.localStorage.getItem('user_info')) || {},
-  isCollapse: window.JSON.parse(window.localStorage.getItem('user-collapse')),
+  userInfo: JSON.parse(localStorage.getItem('user_info')) || {},
+  isCollapse: JSON.parse(localStorage.getItem('user-collapse')),
   isRouter: false,
   menus: [],
   tags: [],
@@ -28,13 +28,13 @@ const mutations = {
     state.userInfo = userInfo
     state.isCollapse = false
 
-    window.localStorage.setItem('user_token', token)
-    window.localStorage.setItem('user_info', window.JSON.stringify(userInfo))
-    window.localStorage.setItem('user_collapse', state.isCollapse)
+    localStorage.setItem('user_token', token)
+    localStorage.setItem('user_info', JSON.stringify(userInfo))
+    localStorage.setItem('user_collapse', state.isCollapse)
   },
   set_collapse (state) {
     state.isCollapse = !state.isCollapse
-    window.localStorage.setItem('user-collapse', window.JSON.stringify(state.isCollapse))
+    localStorage.setItem('user-collapse', JSON.stringify(state.isCollapse))
   },
   add_tags (state, payload) {
     const tagsArr = [...state.tags]
@@ -47,8 +47,10 @@ const mutations = {
       return false
     }
     state.tagsNo = ++state.tagsNo
-    const timeObj = { key: Date.parse(new Date()) + (Math.random() * 5), no: state.tagsNo }
+    const key = Date.parse(new Date()) + (Math.random() * 5)
+    const timeObj = { key, no: state.tagsNo }
     const tagsObj = { ...payload, ...timeObj }
+
     tagsArr.unshift(tagsObj)
     state.tags = tagsArr
   },
@@ -68,9 +70,9 @@ const mutations = {
   logout: (state) => {
     state.menus = []
     state.isRouter = false
-    window.localStorage.removeItem('user_token')
-    window.localStorage.removeItem('user_info')
-    window.localStorage.removeItem('user_collapse')
+    localStorage.removeItem('user_token')
+    localStorage.removeItem('user_info')
+    localStorage.removeItem('user_collapse')
   },
 }
 
@@ -82,6 +84,7 @@ const actions = {
     try {
       const menusList = await $http.get('/api/resource/list')
       const submenuList = await $http.get('/api/analysis/myAnalysis', { params: { pageSize: 300 }})
+      // 二级菜单
       const menus = menusList.data
       const { data: { list }} = submenuList
 
@@ -107,6 +110,7 @@ const actions = {
           isRouter: true,
         })
       }
+      // 一级菜单
       if (menus.length && !list.length) {
         commit('set_state', {
           menus: menus,

@@ -275,33 +275,24 @@ export default {
     },
     customParamList () {
       const { analysisDetails } = this.dataList
-      let customArr = []
-      // 遍历筛选数据
-      const customMap = analysisDetails.map(custom => {
-        const {
-          dataSource: { id, name, customParam },
-        } = custom
+      const obj = {}
+      // 筛选数据，去重，清空value
+      const resultArr = analysisDetails.map(customItem1 => {
+        const { dataSource: { id, name, customParam }} = customItem1
         return {
           id,
           name,
           customParam: JSON.parse(customParam),
         }
       })
-      // 去重处理
-      const obj = {}
-      customArr = customMap.reduce((cur, next) => {
-        obj[next.id] ? '' : (obj[next.id] = true && cur.push(next))
-        return cur
-      }, [])
-
-      // 清空data里面的value的值
-      if (customArr.length) {
-        customArr.map(custom => {
-          const { id, name } = custom
-          let { customParam } = custom
-
-          const clearValue = customParam => {
-            return customParam.map(item => {
+        .reduce((cur, next) => {
+          obj[next.id] ? '' : (obj[next.id] = true && cur.push(next))
+          return cur
+        }, [])
+        .map(customItem2 => {
+          const { id, name, customParam } = customItem2
+          const clearValue = customParame => {
+            return customParame.map(item => {
               if (item.value) {
                 item.label = item.key
                 item.key = item.value
@@ -311,12 +302,11 @@ export default {
               return item
             })
           }
-          customParam = clearValue(customParam)
-          return { id, name, customParam }
+          const newCustomParam = clearValue(customParam)
+          return { id, name, customParam: newCustomParam }
         })
-      }
 
-      return customArr
+      return resultArr || []
     },
     searchVisible () {
       const arr = this.cpkList.map(mapItem => {
@@ -371,9 +361,7 @@ export default {
       })
       .then(() => {
         // 搜索表单赋值
-        this.formCustom.customList = JSON.parse(
-          JSON.stringify(this.customParamList)
-        )
+        this.formCustom.customList = JSON.parse(JSON.stringify(this.customParamList))
         // 搜索列表展开收起
         const custom = this.formCustom.customList
         this.customDisplay = custom.map(item => {
