@@ -269,8 +269,8 @@ export default {
     dialogSubmit () {
       this.$refs.formOption.validate((valid) => {
         if (valid) {
-          this.optionList[this.currentIndex] = JSON.parse(JSON.stringify(this.formOption))
-          this.optionList[this.currentIndex].dataSource = this.dataSource
+          const cloneObj = JSON.parse(JSON.stringify(this.formOption))
+          this.optionList[this.currentIndex] = { ...cloneObj, dataSource: this.dataSource }
 
           const filterList = this.optionList.filter(optionItem => {
             return Object.keys(optionItem).length

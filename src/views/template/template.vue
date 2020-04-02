@@ -197,8 +197,11 @@ export default {
       this.$refs.gridForm.validate(valid => {
         if (valid) {
           this.dialogGridVisible = false
-          this.tempType = this.gridForm.type
-          this.tempName = this.gridForm.name
+          const { name, type } = this.gridForm
+          if (this.tempName !== '') { this.analysisList = [] }
+
+          this.tempName = name
+          this.tempType = type
         } else {
           return false
         }
@@ -236,17 +239,14 @@ export default {
         if (typeof (chart.modelOption) !== 'string') {
           chart.modelOption = JSON.stringify(chart.modelOption)
         }
-
         return chart
       })
 
-      const parame = {
+      return {
         name: this.tempName,
         template: this.tempType,
         analysisDetails: modelList,
       }
-
-      return parame
     },
     // 清空
     clearData () {
@@ -256,7 +256,6 @@ export default {
       this.tempName = ''
       this.tempType = ''
       this.analysisList = []
-      this.$refs.addEcharts.optionList = []
     },
     // 修改赋值
     modifyValue () {
@@ -268,12 +267,11 @@ export default {
         })
         .then(({ data }) => {
           sessionStorage.setItem('analyseRow', JSON.stringify(data))
-          // let analyseData = sessionStorage.getItem('analyseRow')
+
           // 处理参数
           if (this.$route.query.id && data) {
-            // analyseData = JSON.parse(analyseData)
             const { name, template, analysisDetails } = data
-            const analysisArr = analysisDetails.map(analys => {
+            const analysisArr = analysisDetails.map(analysItem => {
               const {
                 dataSourceId,
                 dataSource: { name },
@@ -282,7 +280,7 @@ export default {
                 cleanData,
                 customOption,
                 option,
-              } = analys
+              } = analysItem
 
               return {
                 dataSourceId,
