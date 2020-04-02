@@ -35,7 +35,7 @@
         </el-form-item>
         <div class="grid">
           <el-form-item label="布局类型" prop="type">
-            <el-radio-group v-model="gridForm.type">
+            <el-radio-group v-model="gridForm.type" :disabled="saveType === 'modify'">
               <el-radio label="1">
                 <choice-grid grid-num="1"/>
               </el-radio>
@@ -196,10 +196,8 @@ export default {
     dialogGridSubmit () {
       this.$refs.gridForm.validate(valid => {
         if (valid) {
-          this.dialogGridVisible = false
           const { name, type } = this.gridForm
-          if (this.tempName !== '') { this.analysisList = [] }
-
+          this.dialogGridVisible = false
           this.tempName = name
           this.tempType = type
         } else {

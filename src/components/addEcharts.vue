@@ -204,8 +204,8 @@ export default {
   },
   watch: {
     dialogVisible (val) {
+      this.resetFrom()
       if (!val) {
-        this.resetFrom()
         this.formOption.modelOption = []
         this.dataSource = { name: '' }
       }
