@@ -1294,7 +1294,6 @@ export default {
         title: [titleItem1, titleItem2],
         xAxis: [xAxisItem1, xAxisItem2],
         yAxis: [yAxisItem1, yAxisItem2],
-        // visualMap: [visualMapItem1, visualMapItem2],
         series: [seriesItem1, seriesItem2],
       } = option
 
@@ -1430,46 +1429,46 @@ export default {
         switch (sigmaItem) {
           case 'r0':
             newArr = unusual.getSpc1({ data, greater: ucl, less: lcl })
-            console.log('r0', newArr)
+            // console.log('r0', newArr)
             break
           case 'r1':
             newArr = unusual.getSpc1({ data, greater: up3Sigma, less: down3Sigma })
-            console.log('r1', newArr)
+            // console.log('r1', newArr)
             break
 
           case 'r2':
             newArr = unusual.getSpc2({ data, greater: cl, less: cl, segment: 9, total: 9 })
-            console.log('r2', newArr)
+            // console.log('r2', newArr)
             break
 
           case 'r3':
             newArr = unusual.getSpc3({ data, segment: 6, total: 5 })
-            console.log('r3', newArr)
+            // console.log('r3', newArr)
             break
 
           case 'r4':
             newArr = unusual.getSpc4({ data, segment: 14 })
-            console.log('r4', newArr)
+            // console.log('r4', newArr)
             break
 
           case 'r5':
             newArr = unusual.getSpc2({ data, greater: up2Sigma, less: down2Sigma, segment: 3, total: 2 })
-            console.log('r5', newArr)
+            // console.log('r5', newArr)
             break
 
           case 'r6':
             newArr = unusual.getSpc2({ data, greater: upSigma, less: downSigma, segment: 5, total: 4 })
-            console.log('r6', newArr)
+            // console.log('r6', newArr)
             break
 
           case 'r7':
             newArr = unusual.getSpc7({ data, segment: 15, total: 15, greater: downSigma, less: upSigma, cl, type: 'seven' })
-            console.log('r7', newArr)
+            // console.log('r7', newArr)
             break
 
           case 'r8':
-            console.log('r8', newArr)
             newArr = unusual.getSpc7({ data, segment: 8, total: 8, greater: upSigma, less: downSigma, cl, type: 'eight' })
+            // console.log('r8', newArr)
             break
         }
         resultArr.push(...newArr)
