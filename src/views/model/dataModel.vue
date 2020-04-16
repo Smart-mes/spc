@@ -123,16 +123,16 @@
               <span class="icon-circle">●</span>自定义内容
             </h4>
             <div class="custom-add">
-              <el-button type="primary" size="mini" @click="customAdd">
+              <el-button type="primary" @click="customAdd">
                 <i class="icontianjia iconfont"/>添加
               </el-button>
             </div>
             <div v-for="(custom,i) in modelForm.customList" :key="i" class="custom-list">
               <div class="custom-list-add">
-                <el-button type="primary" title="添加" size="mini" @click="customItemAdd(i)">
+                <el-button type="primary" title="添加" @click="customItemAdd(i)">
                   <i class="iconfont icon-add"/>
                 </el-button>
-                <el-button type="danger" title="删除" size="mini" @click="customDelete(i)">
+                <el-button type="danger" title="删除" @click="customDelete(i)">
                   <i class="iconfont icon-delete"/>
                 </el-button>
               </div>
@@ -169,7 +169,7 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="danger" title="删除" size="mini" @click="customItemDelete(i,j)">
+                  <el-button type="danger" title="删除" @click="customItemDelete(i,j)">
                     <i class="iconfont icon-delete"/>
                   </el-button>
                 </el-form-item>
@@ -188,15 +188,8 @@
   </div>
 </template>
 <script>
-import headTitle from '@/components/headTitle'
-import btnTool from '@/components/btnTool'
-import moment from 'moment'
 export default {
   name: 'DataModel',
-  components: {
-    headTitle,
-    btnTool,
-  },
   data () {
     // validate自定义验证
     const checkVal = (rule, value, callback) => {
@@ -436,7 +429,6 @@ export default {
       this.modelForm.customList[i].push(customObj)
     },
     customItemDelete (i, j) {
-      // console.log(this.modelForm.customList[i][j])
       this.modelForm.customList[i].splice(j, 1)
 
       if (!this.modelForm.customList[i].length) {
@@ -449,9 +441,11 @@ export default {
         if (valid) {
           this.activeStep === 2 && this.submitType === 'add' && this.submitAdd()
           this.activeStep === 2 && this.submitType === 'modify' && this.submitModify()
-          if (this.activeStep === 1) { this.activeStep += 1 }
+          if (this.activeStep === 1) this.activeStep += 1
         } else {
-          if (this.activeStep === 1) { this.activeStep += 1 }
+          if (this.activeStep === 2) this.$message.error('不能为空，或者格式错误')
+          if (this.activeStep === 1) this.activeStep += 1
+
           return false
         }
       })
@@ -586,7 +580,7 @@ export default {
       return paramObj
     },
     momentTime (item) {
-      return moment(item).format('YYYY-MM-DD HH:mm:ss')
+      return this.$moment(item).format('YYYY-MM-DD HH:mm:ss')
     },
   },
 }

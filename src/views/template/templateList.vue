@@ -57,14 +57,12 @@
   </div>
 </template>
 <script>
-import headTitle from '@/components/headTitle'
-import moment from 'moment'
-import choiceGrid from '@/components/choiceGrid'
+
 import { mapMutations } from 'vuex'
+import choiceGrid from '@/components/choiceGrid'
 export default {
   name: 'TemplateList',
   components: {
-    headTitle,
     choiceGrid,
   },
   data () {
@@ -191,7 +189,7 @@ export default {
     },
     // --公共的函数--
     momentTime (item) {
-      return moment(item).format('YYYY-MM-DD HH:mm:ss')
+      return this.$moment(item).format('YYYY-MM-DD HH:mm:ss')
     },
   },
 }

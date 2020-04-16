@@ -206,7 +206,7 @@ export default {
    position: absolute;
    left: 50%;
    margin-left: -230px;
-   bottom: 20px;
+   bottom: 30px;
    text-align: center;
    color:$font-light-gray;
 }

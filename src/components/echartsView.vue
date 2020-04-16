@@ -1258,8 +1258,7 @@ export default {
       return echartsOption
     },
     customXbaxValue (xbaxObj) {
-      const option = (new Function('return ' + xbaxObj.option))()
-
+      const option = JSON.parse(xbaxObj.option)
       const { title, xAxis, yAxis, series: [seriesItem] } = option
       const { modelCode, dataindex, yName, max, min, cl, ucl, lcl, data, problemData } = xbaxObj
 
@@ -1281,6 +1280,9 @@ export default {
         }
         return spotColor
       }
+      seriesItem.markLine.formatter = function (value) {
+        return value.value.toFixed(3)
+      }
       seriesItem.markLine.data[0].yAxis = cl
       seriesItem.markLine.data[1].yAxis = ucl
       seriesItem.markLine.data[2].yAxis = lcl
@@ -1288,8 +1290,7 @@ export default {
       return option
     },
     customXbaxRValue (XbaxRObj, echartOption) {
-      const option = (new Function('return ' + echartOption))()
-
+      const option = JSON.parse(echartOption)
       const {
         title: [titleItem1, titleItem2],
         xAxis: [xAxisItem1, xAxisItem2],
@@ -1324,6 +1325,9 @@ export default {
         return spotColor1
       }
 
+      seriesItem1.markLine.formatter = function (value) {
+        return value.value.toFixed(3)
+      }
       seriesItem1.markLine.data[0].yAxis = XbaxRObjItem1.cl
       seriesItem1.markLine.data[1].yAxis = XbaxRObjItem1.ucl
       seriesItem1.markLine.data[2].yAxis = XbaxRObjItem1.lcl
@@ -1340,6 +1344,9 @@ export default {
         return spotColor2
       }
 
+      seriesItem2.markLine.formatter = function (value) {
+        return value.value.toFixed(3)
+      }
       seriesItem2.markLine.data[0].yAxis = XbaxRObjItem2.cl
       seriesItem2.markLine.data[1].yAxis = XbaxRObjItem2.ucl
       seriesItem2.markLine.data[2].yAxis = XbaxRObjItem2.lcl
@@ -1347,8 +1354,12 @@ export default {
       return option
     },
     customCpkValue (cpkObj) {
-      const option = (new Function('return ' + cpkObj.option))()
-      const { title, xAxis: [xAxisItem1], series: [seriesItem1, seriesItem2, seriesItem3, seriesItem4] } = option
+      const option = JSON.parse(cpkObj.option)
+      const {
+        title,
+        xAxis: [xAxisItem1],
+        series: [seriesItem1, seriesItem2, seriesItem3, seriesItem4],
+      } = option
       const {
         modelCode,
         rchartdata,
@@ -1489,12 +1500,12 @@ export default {
       })
     },
     // xbax判断刻度
-    isScaleFn (parameArr) {
-      const arr = parameArr.filter(item => {
-        return ['r1', 'r5', 'r6', 'r7', 'r8'].includes(item)
-      })
-      return arr.length
-    },
+    // isScaleFn (parameArr) {
+    //   const arr = parameArr.filter(item => {
+    //     return ['r1', 'r5', 'r6', 'r7', 'r8'].includes(item)
+    //   })
+    //   return arr.length
+    // },
     // 得到最新的判异
     getProList () {
       this.ProList = this.problemList.map(item => {

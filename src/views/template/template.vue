@@ -60,8 +60,7 @@
   </div>
 </template>
 <script>
-import headTitle from '@/components/headTitle'
-import btnTool from '@/components/btnTool'
+
 import choiceGrid from '@/components/choiceGrid'
 import addEcharts from '@/components/addEcharts'
 import { mapMutations } from 'vuex'
@@ -69,8 +68,6 @@ import { mapMutations } from 'vuex'
 export default {
   name: 'Template',
   components: {
-    headTitle,
-    btnTool,
     choiceGrid,
     addEcharts,
   },
@@ -95,7 +92,7 @@ export default {
           icon: 'icon-modify',
           text: '修改布局',
           disabled: () => {
-            return !this.tempType
+            return !this.tempType || this.id
           },
           click: () => {
             this.gridmodify()
@@ -166,6 +163,9 @@ export default {
     }
   },
   computed: {
+    id () {
+      return this.$route.query.id
+    },
   },
   watch: {
     dialogGridVisible (val) {
@@ -175,7 +175,7 @@ export default {
     },
   },
   mounted () {
-    if (!this.$route.query.id) {
+    if (!this.id) {
       sessionStorage.clear()
     }
     this.modifyValue()
@@ -234,9 +234,9 @@ export default {
     // 处理参数
     handleParame () {
       const modelList = this.chartList.map(chart => {
-        if (typeof (chart.modelOption) !== 'string') {
-          chart.modelOption = JSON.stringify(chart.modelOption)
-        }
+        const { modelOption, option } = chart
+        if (typeof (modelOption) !== 'string') chart.modelOption = JSON.stringify(modelOption)
+        if (option) chart.option = JSON.stringify(JSON.parse(option))
         return chart
       })
 
@@ -260,14 +260,14 @@ export default {
       this.$http
         .get('/api/analysis/viewMyAnalysis', {
           params: {
-            id: this.$route.query.id,
+            id: this.id,
           },
         })
         .then(({ data }) => {
           sessionStorage.setItem('analyseRow', JSON.stringify(data))
 
           // 处理参数
-          if (this.$route.query.id && data) {
+          if (this.id && data) {
             const { name, template, analysisDetails } = data
             const analysisArr = analysisDetails.map(analysItem => {
               const {
@@ -287,7 +287,7 @@ export default {
                 modelOption: JSON.parse(modelOption),
                 cleanData,
                 customOption,
-                option,
+                option: option ? JSON.stringify(JSON.parse(option), null, 4) : option,
               }
             })
             // 赋值

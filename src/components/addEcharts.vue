@@ -138,7 +138,6 @@
   </div>
 </template>
 <script>
-import moment from 'moment'
 export default {
   name: 'AddEcharts',
   props: {
@@ -330,7 +329,7 @@ export default {
       this.getDataSource()
     },
     momentTime (item) {
-      return moment(item).format('YYYY-MM-DD HH:mm:ss')
+      return this.$moment(item).format('YYYY-MM-DD HH:mm:ss')
     },
     dataHandleTableRow (row) {
       if (row) {
