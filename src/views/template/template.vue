@@ -92,7 +92,7 @@ export default {
           icon: 'icon-modify',
           text: '修改布局',
           disabled: () => {
-            return !this.tempType || this.id
+            return !this.tempType
           },
           click: () => {
             this.gridmodify()
@@ -175,10 +175,8 @@ export default {
     },
   },
   mounted () {
-    if (!this.id) {
-      sessionStorage.clear()
-    }
-    this.modifyValue()
+    !this.id && sessionStorage.clear()
+    this.id && this.modifyValue()
   },
   methods: {
     ...mapMutations(['set_state']),

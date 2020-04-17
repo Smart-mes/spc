@@ -277,7 +277,7 @@ export default {
       const { analysisDetails } = this.dataList
       const obj = {}
       // 筛选数据，去重，清空value
-      const resultArr = analysisDetails.map(customItem1 => {
+      return analysisDetails.map(customItem1 => {
         const { dataSource: { id, name, customParam }} = customItem1
         return {
           id,
@@ -305,15 +305,14 @@ export default {
           const newCustomParam = clearValue(customParam)
           return { id, name, customParam: newCustomParam }
         })
-
-      return resultArr || []
     },
     searchVisible () {
       const arr = this.cpkList.map(mapItem => {
         return mapItem.modelCode
-      }).filter(filterItem => {
-        return filterItem !== 'CPK'
       })
+        .filter(filterItem => {
+          return filterItem !== 'CPK'
+        })
       return !!arr.length
     },
   },
@@ -362,9 +361,9 @@ export default {
       .then(() => {
         // 搜索表单赋值
         this.formCustom.customList = JSON.parse(JSON.stringify(this.customParamList))
+
         // 搜索列表展开收起
-        const custom = this.formCustom.customList
-        this.customDisplay = custom.map(item => {
+        this.customDisplay = this.formCustom.customList.map(item => {
           return { isDisplay: true }
         })
       })
@@ -385,8 +384,10 @@ export default {
       this.clearCPK()
       // 处理表单的数据
       const { customList } = this.formCustom
-      const customArr = customList.map(custom => {
-        const { id, name, customParam } = custom
+      const { id, analysisDetails } = this.dataList
+
+      const customArr = customList.map(customItem => {
+        const { id, name, customParam } = customItem
         return {
           id,
           name,
@@ -395,14 +396,12 @@ export default {
       })
 
       // 参数合并, 遍历数据
-      const { id, analysisDetails } = this.dataList
+      const analyseArr = analysisDetails.map((analysisItem) => {
+        const { id, analysisId, modelCode, modelOption, dataSource } = analysisItem
 
-      const analyseArr = analysisDetails.map((analysis) => {
-        const { id, analysisId, modelCode, modelOption, dataSource } = analysis
-
-        const [customObj] = customArr.filter(custom => {
-          if (dataSource.id === custom.id) {
-            return custom
+        const [customObj] = customArr.filter(customItem => {
+          if (dataSource.id === customItem.id) {
+            return customItem
           }
         })
 
@@ -462,9 +461,7 @@ export default {
     // 执行echarts
     echartInit (echartData) {
       echartData.map((item, i) => {
-        const div = document
-          .getElementById(`echarts${this.tagsItem.no}`)
-          .getElementsByClassName('echarts-box')[i]
+        const div = document.getElementById(`echarts${this.tagsItem.no}`).getElementsByClassName('echarts-box')[i]
         const chart = this.$echarts.init(div)
         const { data } = item
         // 清空为空的数据
@@ -484,19 +481,18 @@ export default {
     },
     // 清空搜索
     clearSearch () {
-      const { customList } = this.formCustom
       this.formCustom.type = ['r0']
-      customList.forEach(custom => {
-        const { customParam } = custom
+      const { customList } = this.formCustom
 
+      customList.forEach(customItem => {
+        const { customParam } = customItem
         const clearValue = customParam => {
-          return customParam.forEach(item => {
-            if (item.value) {
-              item.value = ''
-            }
-            if (item.length) item = clearValue(item)
+          return customParam.forEach(paramItem => {
+            if (paramItem.value) { paramItem.value = '' }
+            paramItem.length && clearValue(paramItem)
           })
         }
+        // 执行
         clearValue(customParam)
       })
     },
@@ -1499,6 +1495,12 @@ export default {
         return !['r1', 'r5', 'r6', 'r7', 'r8'].includes(item)
       })
     },
+    // 得到最新的判异
+    getProList () {
+      this.ProList = this.problemList.map(item => {
+        return item.length > 1 ? item : this.formCustom.type
+      })
+    },
     // xbax判断刻度
     // isScaleFn (parameArr) {
     //   const arr = parameArr.filter(item => {
@@ -1506,12 +1508,6 @@ export default {
     //   })
     //   return arr.length
     // },
-    // 得到最新的判异
-    getProList () {
-      this.ProList = this.problemList.map(item => {
-        return item.length > 1 ? item : this.formCustom.type
-      })
-    },
   },
 }
 </script>

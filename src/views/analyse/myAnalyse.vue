@@ -8,9 +8,10 @@
   </div>
 </template>
 <script>
+import { mapState } from 'vuex'
 import echartsView from '@/components/echartsView'
 import tags from '@/components/tags'
-import { mapState } from 'vuex'
+
 export default {
   components: {
     echartsView,
@@ -52,7 +53,6 @@ export default {
   }
   .btn {
     padding-top: 5px;
-    //  border-top:1px dashed $line-color;
     text-align: right;
   }
 }
