@@ -3,7 +3,7 @@
     <head-top/>
     <div class="wrapper">
       <div class="side" :style="{width:isCollapse?'65px':'200px'}">
-        <sidebar/>
+        <side/>
       </div>
       <div class="main" :style="{left:isCollapse?'65px':'200px'}">
         <div class="container">
@@ -27,11 +27,11 @@
 <script>
 import { mapState } from 'vuex'
 import headTop from '@/views/layout/head/head'
-import sidebar from '@/views/layout/side/sidebar'
+import side from '@/views/layout/side/side'
 
 export default {
   name: 'Layout',
-  components: { headTop, sidebar },
+  components: { headTop, side },
   data () {
     return {}
   },
