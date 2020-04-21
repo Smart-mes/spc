@@ -1,80 +1,9 @@
 
+@import "reset.scss";
 @import 'color.scss';
+
 // 重置代码
 %ellipsis{overflow: hidden;white-space: nowrap;text-overflow: ellipsis;}
-body,
-ol,
-ul,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-th,
-td,
-dl,
-dd,
-form,
-fieldset,
-legend,
-input,
-textarea,
-select {
-    margin: 0;
-    padding: 0
-}
-
-a {
-    color: #666;
-    text-decoration: none
-}
-
-a:hover {
-    color: #2475c4;
-    text-decoration: none
-}
-
-em {
-    font-style: normal
-}
-
-li {
-    list-style: none
-}
-
-img {
-    border: 0;
-    vertical-align: middle
-}
-
-table {
-    border-collapse: collapse;
-    border-spacing: 0
-}
-
-p {
-    word-wrap: break-word
-}
-
-.fr {
-    float: right;
-}
-
-.fl {
-    float: left;
-}
-
-.clear {
-    &::after {
-        clear: both;
-        content: "";
-        display: block;
-        width: 0;
-        height: 0;
-    }
-}
 
 // 公共
   .wrap{padding:0 20px 20px 20px;}
