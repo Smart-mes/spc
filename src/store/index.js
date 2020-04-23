@@ -7,7 +7,7 @@ Vue.use(Vuex)
 
 const state = {
   userInfo: JSON.parse(localStorage.getItem('user_info')) || {},
-  isCollapse: JSON.parse(localStorage.getItem('user-collapse')),
+  isCollapse: localStorage.getItem('user_collapse') === 'true',
   isRouter: false,
   menus: [],
   tags: [],
@@ -26,7 +26,6 @@ const mutations = {
      */
   set_user: (state, { token, userInfo }) => {
     state.userInfo = userInfo
-    state.isCollapse = false
 
     localStorage.setItem('user_token', token)
     localStorage.setItem('user_info', JSON.stringify(userInfo))
@@ -34,7 +33,7 @@ const mutations = {
   },
   set_collapse (state) {
     state.isCollapse = !state.isCollapse
-    localStorage.setItem('user-collapse', JSON.stringify(state.isCollapse))
+    localStorage.setItem('user_collapse', state.isCollapse)
   },
   add_tags (state, payload) {
     const tagsArr = [...state.tags]
