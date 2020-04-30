@@ -59,7 +59,7 @@
 </template>
 <script>
 import { mapMutations } from 'vuex'
-import CryptoJS from 'crypto-js'
+import { encrypt } from '@/utils/secret'
 
 export default {
   name: 'Login',
@@ -81,7 +81,7 @@ export default {
   methods: {
     ...mapMutations(['set_user']),
     submitForm (formName) {
-      const password = this.encrypt(this.ruleForm.password)
+      const password = encrypt(this.ruleForm.password)
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.btnLoading = true
@@ -98,7 +98,7 @@ export default {
               } = data
               this.set_user({
                 token: `${tokenType} ${accessToken}`,
-                userInfo: { username },
+                userInfo: { userName: encrypt(username) },
               })
 
               this.$router.push({ path: '/dataModel' })
@@ -112,16 +112,6 @@ export default {
           return false
         }
       })
-    },
-    // 加密
-    encrypt (word) {
-      var key = CryptoJS.enc.Utf8.parse('guangzhouyangpkj')
-      var srcs = CryptoJS.enc.Utf8.parse(word)
-      var encrypted = CryptoJS.AES.encrypt(srcs, key, {
-        mode: CryptoJS.mode.ECB,
-        padding: CryptoJS.pad.Pkcs7,
-      })
-      return encrypted.toString()
     },
   },
 }

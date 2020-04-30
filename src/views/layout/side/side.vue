@@ -5,7 +5,7 @@
       class="el-menu-vertical-demo"
       background-color="#444c63"
       text-color="#ffffff"
-      active-text-color="#ffffff"
+      active-text-color="#00ccff"
       unique-opened
       :default-active="active"
     >
@@ -96,7 +96,7 @@ export default {
     padding: 0 10px;
   }
   /deep/.el-menu-item.is-active {
-   background-color: #2376c4 !important;
+   .iconfont{ color: #00ccff;}
 }
 }
 </style>

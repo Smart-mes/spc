@@ -77,8 +77,8 @@ export default {
   height: 100%;
   .container {
      flex: 1;
-    margin: 15px;
     overflow-y: auto;
+    margin: 10px;
     background: #fff;
     border: 1px solid $line-color;
   }

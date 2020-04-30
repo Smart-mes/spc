@@ -1,6 +1,6 @@
 // const path = require('path');
-const url = 'http://192.168.1.128:8088'
-// const url = 'http://127.0.0.1:8082'
+// const url = 'http://192.168.1.128:8088'
+const url = 'http://127.0.0.1:8888'
 
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
 module.exports = {

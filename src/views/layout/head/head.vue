@@ -8,7 +8,7 @@
       <i :class="[isCollapse ? 'icon-shouqi' : 'icon-zhankai', 'iconfont']" :title="[isCollapse ? '收起' : '展开']" @click="set_collapse"/>
     </div>
     <div class="user fr">
-      <span>欢迎您，{{ userInfo.username }}</span>
+      <span>欢迎您，{{ decryptUserName }}</span>
       <span>|</span>
       <span>
         <a @click="loginClear">退出</a>
@@ -17,6 +17,7 @@
   </header>
 </template>
 <script>
+import { decrypt } from '@/utils/secret'
 import { mapState, mapMutations } from 'vuex'
 export default {
   name: 'Head',
@@ -29,6 +30,9 @@ export default {
       userInfo: state => state.userInfo,
       isCollapse: state => state.isCollapse,
     }),
+    decryptUserName () {
+      return decrypt(this.userInfo.userName)
+    },
   },
   methods: {
     ...mapMutations(['logout', 'set_collapse']),

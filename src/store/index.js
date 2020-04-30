@@ -66,9 +66,11 @@ const mutations = {
     }
   },
   // 退出登录
-  logout: (state) => {
-    state.menus = []
-    state.isRouter = false
+  logout (state) {
+    // state.menus = []
+    // state.isRouter = false
+    // state.isCollapse = false
+    // state.userInfo = {}
     localStorage.removeItem('user_token')
     localStorage.removeItem('user_info')
     localStorage.removeItem('user_collapse')
