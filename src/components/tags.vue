@@ -85,7 +85,7 @@ export default {
 .tags {
   display: -webkit-flex;
   display: flex;
-  padding: 10px 20px;
+  padding: 10px 35px 10px 20px;
   align-items: center;
   height: 30px;
   background: #fff;
