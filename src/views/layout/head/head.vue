@@ -5,7 +5,11 @@
       <h1 class="logo-text">数据分析平台</h1>
     </div>
     <div class="icon fl">
-      <i :class="[isCollapse ? 'icon-shouqi' : 'icon-zhankai', 'iconfont']" :title="[isCollapse ? '收起' : '展开']" @click="set_collapse"/>
+      <i
+        :class="[isCollapse ? 'icon-shouqi' : 'icon-zhankai', 'iconfont']"
+        :title="[isCollapse ? '收起' : '展开']"
+        @click="set_collapse"
+      />
     </div>
     <div class="user fr">
       <span>欢迎您，{{ decryptUserName }}</span>
@@ -22,8 +26,7 @@ import { mapState, mapMutations } from 'vuex'
 export default {
   name: 'Head',
   data () {
-    return {
-    }
+    return {}
   },
   computed: {
     ...mapState({
@@ -41,7 +44,6 @@ export default {
       window.location.href = '/login'
     },
   },
-
 }
 </script>
 <style lang="scss" scoped>
@@ -49,9 +51,9 @@ header {
   overflow: hidden;
   padding: 0 20px;
   height: 50px;
+  line-height: 50px;
   color: $white-color;
   background: $blue-color;
-  line-height: 50px;
 }
 .logo {
   width: 180px;
@@ -65,7 +67,7 @@ header {
   }
 }
 .icon {
-  >i{
+  > i {
     font-size: 18px;
     cursor: pointer;
   }

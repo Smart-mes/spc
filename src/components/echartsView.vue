@@ -1501,13 +1501,6 @@ export default {
         return item.length > 1 ? item : this.formCustom.type
       })
     },
-    // xbax判断刻度
-    // isScaleFn (parameArr) {
-    //   const arr = parameArr.filter(item => {
-    //     return ['r1', 'r5', 'r6', 'r7', 'r8'].includes(item)
-    //   })
-    //   return arr.length
-    // },
   },
 }
 </script>

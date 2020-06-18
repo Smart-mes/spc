@@ -77,10 +77,8 @@ export default {
       pageTotal: 0,
     }
   },
-  mounted () {
-    this.$nextTick(() => {
-      this.getTable()
-    })
+  activated () {
+    this.getTable()
   },
   methods: {
     ...mapMutations(['add_tags', 'set_state']),

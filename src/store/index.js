@@ -150,6 +150,7 @@ const getters = {
         const pathNo = path.indexOf('?')
         const compPath = component === 'layout' ? '/layout/layout' : componentPath
         const name = componentPath ? componentPath.split('/').pop() : ''
+        console.log('componentPath', componentPath)
         const meta = { title: title || '', keepAlive: componentPath !== '/template/template' && id !== 2 }
 
         path = pathNo === -1 ? path : path.substring(0, pathNo)
