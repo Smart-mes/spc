@@ -65,7 +65,7 @@ instance.interceptors.response.use(response => {
       })
       break
   }
-  return Promise.reject(res.statusText)
+  return Promise.reject(error)
 })
 
 export default instance
