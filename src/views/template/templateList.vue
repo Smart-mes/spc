@@ -77,7 +77,7 @@ export default {
       pageTotal: 0,
     }
   },
-  activated () {
+  mounted () {
     this.getTable()
   },
   methods: {
