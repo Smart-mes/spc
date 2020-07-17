@@ -86,7 +86,7 @@ export default {
         if (valid) {
           this.btnLoading = true
           this.$http
-            .post('/api/sso/login', {
+            .post('/sso/login', {
               username: this.ruleForm.username,
               // password: this.ruleForm.password,
               password,

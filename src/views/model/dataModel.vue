@@ -330,7 +330,7 @@ export default {
     tableDelete () {
       const { id } = this.tableRow
       this.$http
-        .delete('/api/dataSource/deleteDataSource', {
+        .delete('/dataSource/deleteDataSource', {
           params: {
             id,
           },
@@ -395,7 +395,7 @@ export default {
       }
 
       this.$http
-        .post('/api/analysis/upload', formdata, config)
+        .post('/analysis/upload', formdata, config)
         .then(({ data }) => {
           this.$message.success('上传成功')
           const { filename, path } = data
@@ -458,7 +458,7 @@ export default {
       const param = this.handleParam(this.modelForm)
       // 提交
       this.$http
-        .post('/api/dataSource/addDataSource', param)
+        .post('/dataSource/addDataSource', param)
         .then(res => {
           this.$message({
             message: '添加成功',
@@ -479,7 +479,7 @@ export default {
       const param = this.handleParam(this.modelForm)
       param.id = id
       this.$http
-        .put('/api/dataSource/updateDataSource', param)
+        .put('/dataSource/updateDataSource', param)
         .then(res => {
           this.$message({
             message: '修改成功',
@@ -529,7 +529,7 @@ export default {
     getTable () {
       this.tableLoading = true
       this.$http
-        .get('/api/dataSource/myDataSource', {
+        .get('/dataSource/myDataSource', {
           params: {
             from: '',
             pageNum: this.pageNum,

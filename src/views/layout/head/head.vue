@@ -41,7 +41,7 @@ export default {
     ...mapMutations(['logout', 'set_collapse']),
     loginClear () {
       this.logout()
-      window.location.href = '/login'
+      window.location.href = '/'
     },
   },
 }

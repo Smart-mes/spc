@@ -117,7 +117,7 @@ export default {
     tableDelete () {
       const { id } = this.tableRow
       this.$http
-        .delete('/api/analysis/deleteAnalysis', {
+        .delete('/analysis/deleteAnalysis', {
           params: {
             id,
           },
@@ -170,7 +170,7 @@ export default {
     getTable () {
       this.tableLoading = true
       this.$http
-        .get('/api/analysis/myAnalysis', {
+        .get('/analysis/myAnalysis', {
           params: {
             pageNum: this.pageNum,
             pageSize: this.pageSize,

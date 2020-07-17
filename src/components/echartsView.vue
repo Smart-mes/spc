@@ -326,7 +326,7 @@ export default {
   mounted () {
     const { id } = this.tagsItem
     this.$http
-      .get('/api/analysis/viewMyAnalysis', { params: { id: id }})
+      .get('/analysis/viewMyAnalysis', { params: { id: id }})
       .then(({ data }) => {
         const { template, analysisDetails } = data
         this.dataList = data
@@ -418,7 +418,7 @@ export default {
       })
 
       this.$http
-        .post('/api/analysis/doMyAnalysis', { id, analysisDetails: analyseArr })
+        .post('/analysis/doMyAnalysis', { id, analysisDetails: analyseArr })
         .then(res => {
           this.isBtnSearch = false
           this.echartsLoading = false

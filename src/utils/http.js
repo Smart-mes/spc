@@ -1,9 +1,14 @@
 import axios from 'axios'
 import qs from 'qs'
 import { MessageBox } from 'element-ui'
+
+import config from '@/utils/config'
 // import router from '@/router/index'
+// const url = 'http://120.78.70.56:8099'
+// console.log('config', config)
 
 const instance = axios.create({
+  baseURL: config.baseURL,
   headers: { 'Content-Type': 'application/json;charset=UTF-8' },
   timeout: 30000,
   withCredentials: true,

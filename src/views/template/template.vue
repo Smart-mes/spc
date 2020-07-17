@@ -210,7 +210,7 @@ export default {
       const addParame = this.handleParame()
 
       this.$http
-        .post('/api/analysis/addDesign', addParame)
+        .post('/analysis/addDesign', addParame)
         .then(res => {
           this.clearData()
           this.$confirm('添加成功！', '提示', {
@@ -256,7 +256,7 @@ export default {
     // 修改赋值
     modifyValue () {
       this.$http
-        .get('/api/analysis/viewMyAnalysis', {
+        .get('/analysis/viewMyAnalysis', {
           params: {
             id: this.id,
           },
@@ -311,7 +311,7 @@ export default {
 
       modifyParame.id = analyseData.id
 
-      this.$http.put('/api/analysis/updateDesign', modifyParame)
+      this.$http.put('/analysis/updateDesign', modifyParame)
         .then(res => {
           this.clearData()
           this.$confirm('修改成功！', '提示', {

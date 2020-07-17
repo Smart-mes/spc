@@ -286,7 +286,7 @@ export default {
     getDataSource () {
       this.dataTableLoading = true
       this.$http
-        .get('/api/dataSource/myDataSource', {
+        .get('/dataSource/myDataSource', {
           params: {
             from: '',
             pageNum: this.dataPageNum,
@@ -306,12 +306,12 @@ export default {
         })
     },
     async getModelList () {
-      const { data } = await this.$http.get('/api/model/list')
+      const { data } = await this.$http.get('/model/list')
       this.modelList = data
     },
     getModelOption () {
       this.$http
-        .get('/api/model/getmodel', {
+        .get('/model/getmodel', {
           params: {
             code: this.formOption.modelCode,
           },

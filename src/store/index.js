@@ -83,8 +83,8 @@ const actions = {
      */
   async queryMenus ({ commit }) {
     try {
-      const menusList = await $http.get('/api/resource/list')
-      const submenuList = await $http.get('/api/analysis/myAnalysis', { params: { pageSize: 300 }})
+      const menusList = await $http.get('/resource/list')
+      const submenuList = await $http.get('/analysis/myAnalysis', { params: { pageSize: 300 }})
       // 二级菜单
       const menus = menusList.data
       const { data: { list }} = submenuList
