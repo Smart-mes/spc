@@ -1,26 +1,26 @@
 // const path = require('path');
 // const url = 'http://192.168.1.128:8088'
 // const url = 'http://127.0.0.1:8888'
-
 // const url = 'http://120.78.70.56:8099'
+const url = 'http://120.78.70.56:8099'
 
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
 module.exports = {
   // 不加密
   productionSourceMap: false,
   // 代理
-  // devServer: {
-  //   proxy: {
-  //     '/': {
-  //       target: url,
-  //       changeOrigin: true,
-  //       ws: true,
-  //       pathRewrite: {
-  //         '^/api': '',
-  //       },
-  //     },
-  //   },
-  // },
+  devServer: {
+    proxy: {
+      '/': {
+        target: url,
+        changeOrigin: true,
+        ws: true,
+        pathRewrite: {
+          '^/api': '',
+        },
+      },
+    },
+  },
   // 全局配置sass
   css: {
     loaderOptions: {
