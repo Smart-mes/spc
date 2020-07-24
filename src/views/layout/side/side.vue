@@ -12,7 +12,7 @@
       <template v-for="(item) in menus">
         <el-submenu v-if="item.children" :key="item.id" :index="item.path">
           <template slot="title" style="background:#00ff00">
-            <div @click="toAnalyse(item)">
+            <div @click="toAnalyse()">
               <i :class="[item.icon,'iconfont']"/>
               <span>{{ item.title }}</span>
             </div>
@@ -25,6 +25,7 @@
               @click="toPath(list)"
             >
               {{ list.title }}
+              <i class="iconfont icon-add fr" @click.stop="clickFilter(list)"/>
             </el-menu-item>
           </el-menu-item-group>
         </el-submenu>
@@ -41,35 +42,51 @@
 
 <script>
 import { mapState, mapMutations } from 'vuex'
+// import { mapState } from 'vuex'
 export default {
   name: 'Sidebar',
   data () {
-    return {}
+    return {
+      id: '',
+    }
   },
   computed: {
     ...mapState({
       menus: state => state.menus,
       isCollapse: state => state.isCollapse,
+      tagsTitle: state => state.tagsTitle,
     }),
     active () {
-      // return this.$route.fullPath
-      return this.$route.path
+      return this.id ? `${this.$route.path}?id=${this.id}` : this.$route.path
     },
   },
   methods: {
-    ...mapMutations(['add_tags']),
+    ...mapMutations(['add_tags', 'set_state', 'fiter_tags']),
     toPath (item) {
+      const { title } = item
       const [path, dataParams] = item.path.split('?')
-      if (dataParams && path === '/analyse/myAnalyse') {
-        this.$router.push({ path: path })
 
-        this.add_tags(item)
+      if (dataParams && path === '/analyse/myAnalyse') {
+        this.id = dataParams.substring(3)
+        this.fiter_tags(title)
+
+        this.$router.push({ path })
       } else {
-        this.$router.push({ path: path })
+        this.id = ''
+        this.$router.push({ path })
       }
     },
     toAnalyse (item) {
-      item.path === '/analyse/myAnalyse' && this.$router.push({ path: '/analyse/myAnalyse' })
+      this.id = ''
+      this.fiter_tags('')
+      this.$router.push({ path: '/analyse/myAnalyse' })
+    },
+    clickFilter (item) {
+      const tagsTitle = this.tagsTitle ? this.tagsTitle : ''
+      this.add_tags(item)
+      this.fiter_tags(tagsTitle)
+
+      this.$router.push({ path: '/analyse/myAnalyse' })
     },
   },
 }

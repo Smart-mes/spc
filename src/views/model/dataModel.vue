@@ -19,8 +19,11 @@
         <el-table-column prop="id" label="ID" width="60"/>
         <el-table-column prop="name" label="名称"/>
         <el-table-column prop="inputCode" label="入参类型"/>
+        <el-table-column prop="username" label="创建用户"/>
         <el-table-column label="创建时间">
-          <template slot-scope="scope">{{ momentTime(scope.row.createTime) }}</template>
+          <template slot-scope="scope">
+            {{ $moment(scope.row.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+          </template>
         </el-table-column>
         <el-table-column label="操作" width="230">
           <template slot-scope="scope">
@@ -319,9 +322,9 @@ export default {
       })
     },
     tableHandleRowChange (row) {
-      if (row) {
-        this.tableRow = row
-      }
+      // if (row) {
+      this.tableRow = row
+      // }
     },
     tableDblclick () {
       this.tableModify(this.tableRow)
@@ -579,14 +582,13 @@ export default {
       const paramObj = { name, inputCode, param, customParam }
       return paramObj
     },
-    momentTime (item) {
-      return this.$moment(item).format('YYYY-MM-DD HH:mm:ss')
-    },
+    // momentTime (item) {
+    //   return this.$moment(item).format('YYYY-MM-DD HH:mm:ss')
+    // },
   },
 }
 </script>
 <style lang="scss" scoped>
-
 .dialog-step {
   margin: 0 auto 40px auto;
   width: 600px;

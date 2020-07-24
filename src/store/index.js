@@ -12,6 +12,7 @@ const state = {
   menus: [],
   tags: [],
   tagsNo: 0,
+  tagsTitle: '',
 }
 
 const mutations = {
@@ -36,7 +37,7 @@ const mutations = {
     localStorage.setItem('user_collapse', state.isCollapse)
   },
   add_tags (state, payload) {
-    const tagsArr = [...state.tags]
+    const tagsArr = state.tags
 
     if (tagsArr.length >= 8) {
       Message({
@@ -46,17 +47,28 @@ const mutations = {
       return false
     }
     state.tagsNo = ++state.tagsNo
-    const key = Date.parse(new Date()) + (Math.random() * 5)
-    const timeObj = { key, no: state.tagsNo }
-    const tagsObj = { ...payload, ...timeObj }
+    // const key = Date.parse(new Date()) + (Math.random() * 5)
+    // const timeObj = { key, no: state.tagsNo }
+    // const tagsObj = { ...payload, ...timeObj }
+
+    const tagsObj = { key: `${Date.parse(new Date())}${(Math.random() * 3)}`, visible: true, no: state.tagsNo, ...payload }
 
     tagsArr.unshift(tagsObj)
-    state.tags = tagsArr
+    // state.tags = tagsArr
   },
   del_tags (state, i) {
-    const tagsArr = [...state.tags]
+    const tagsArr = state.tags
     tagsArr.splice(i, 1)
     state.tags = tagsArr
+  },
+  fiter_tags (state, title) {
+    state.tagsTitle = title
+    const tagsTitle = state.tagsTitle
+
+    state.tags.forEach(tagsItem => {
+      const { title } = tagsItem
+      tagsItem.visible = !tagsTitle ? true : tagsTitle === title
+    })
   },
   set_state (state, payload) {
     if (payload && typeof (payload) === 'object') {
@@ -85,6 +97,8 @@ const actions = {
     try {
       const menusList = await $http.get('/resource/list')
       const submenuList = await $http.get('/analysis/myAnalysis', { params: { pageSize: 300 }})
+      // console.log('menusList', menusList)
+      // console.log('submenuList', submenuList)
       // 二级菜单
       const menus = menusList.data
       const { data: { list }} = submenuList
@@ -150,7 +164,7 @@ const getters = {
         const pathNo = path.indexOf('?')
         const compPath = component === 'layout' ? '/layout/layout' : componentPath
         const name = componentPath ? componentPath.split('/').pop() : ''
-        console.log('componentPath', componentPath)
+        // console.log('componentPath', componentPath)
         const meta = { title: title || '', keepAlive: componentPath !== '/template/template' && id !== 2 }
 
         path = pathNo === -1 ? path : path.substring(0, pathNo)

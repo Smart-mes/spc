@@ -4,6 +4,7 @@
       <ul>
         <li
           v-for="(item,i) in tags"
+          v-show="item.visible"
           :key="item.key"
           :class="{'active':i === activeValue}"
           @click="tagsChange(i)"
@@ -22,7 +23,7 @@
           <i class="el-icon-arrow-down el-icon--right"/>
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="a">关闭其它</el-dropdown-item>
+          <el-dropdown-item v-show="!tagsTitle" command="a">关闭其它</el-dropdown-item>
           <el-dropdown-item command="b">关闭所有</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -41,7 +42,23 @@ export default {
   computed: {
     ...mapState({
       tags: state => state.tags,
+      tagsTitle: state => state.tagsTitle,
     }),
+
+  },
+  watch: {
+    tagsTitle (val) {
+      if (val) {
+        for (var i = 0; i < this.tags.length; i++) {
+          const { visible } = this.tags[i]
+          if (visible) {
+            this.activeValue = i
+            this.$emit('getActive', this.activeValue)
+            break
+          }
+        }
+      }
+    },
   },
   methods: {
     ...mapMutations(['del_tags', 'set_state']),
@@ -51,18 +68,15 @@ export default {
     del (i) {
       this.del_tags(i)
 
-      const active = this.activeValue
+      let active = this.activeValue
       const tagsLen = this.tags.length
-
       if (tagsLen && active === tagsLen) {
-        this.activeValue = active - 1
+        active--
       } else if (!tagsLen) {
-        this.activeValue = active
         this.set_state({ tagsNo: 0 })
-      } else {
-        this.activeValue = active
       }
 
+      this.activeValue = active
       this.$emit('getActive', this.activeValue)
     },
     handleCommand (command) {
@@ -83,7 +97,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .tags {
-  display: -webkit-flex;
   display: flex;
   padding: 10px 35px 10px 20px;
   align-items: center;

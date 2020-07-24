@@ -29,7 +29,7 @@ instance.interceptors.request.use(config => {
 
 // 添加响应拦截器
 instance.interceptors.response.use(response => {
-  const data = response.data
+  const { data } = response
   const { code, message } = data
 
   if (code !== 0) {
@@ -38,7 +38,7 @@ instance.interceptors.response.use(response => {
         MessageBox('请登录', {
           type: 'error',
         }).then(() => {
-          window.location.href = '/login'
+          window.location.href = '/'
         })
         break
       case 500:
@@ -61,7 +61,7 @@ instance.interceptors.response.use(response => {
       MessageBox('请登录', {
         type: 'error',
       }).then(() => {
-        window.location.href = '/login'
+        window.location.href = '/'
       })
       break
     case 500:

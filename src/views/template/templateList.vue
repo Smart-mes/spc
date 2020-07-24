@@ -21,17 +21,20 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column prop="username" label="创建用户"/>
+        <!-- username -->
         <el-table-column label="创建时间">
           <template slot-scope="scope">
-            {{ momentTime(scope.row.createTime) }}
+            <!-- {{ momentTime(scope.row.createTime) }} -->
+            {{ $moment(scope.row.createTime).format('YYYY-MM-DD HH:mm:ss') }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="320">
+        <el-table-column label="操作" width="220">
           <template slot-scope="scope">
             <div class="operate-btn">
-              <el-button type="success" @click="tableStartUp(scope.row)">
+              <!-- <el-button type="success" @click="tableStartUp(scope.row)">
                 <i class="iconfont icon-startUp"/>启动
-              </el-button>
+              </el-button> -->
               <el-button type="primary" @click="tableModify(scope.row)">
                 <i class="iconfont icon-modify"/>修改
               </el-button>
@@ -81,7 +84,8 @@ export default {
     this.getTable()
   },
   methods: {
-    ...mapMutations(['add_tags', 'set_state']),
+    // ...mapMutations(['add_tags', 'set_state']),
+    ...mapMutations(['set_state']),
     // 分页
     handlePageSize (val) {
       this.pageSize = val
@@ -148,24 +152,24 @@ export default {
           this.$message.error(error)
         })
     },
-    tableStartUp (row) {
-      const { name, id } = row
-      const item = {
-        componentPath: '/analyse/myAnalyse',
-        id: id,
-        path: `/analyse/myAnalyse?id=${id}`,
-        title: name,
-      }
-      this.$router.push({ path: '/analyse/myAnalyse' })
-      this.add_tags(item)
-    },
+    // tableStartUp (row) {
+    //   const { name, id } = row
+    //   const item = {
+    //     componentPath: '/analyse/myAnalyse',
+    //     id: id,
+    //     path: `/analyse/myAnalyse?id=${id}`,
+    //     title: name,
+    //   }
+    //   this.$router.push({ path: '/analyse/myAnalyse' })
+    //   this.add_tags(item)
+    // },
     tableDblclick () {
       this.tableModify(this.tableRow)
     },
     tableHandleRowChange (row) {
-      if (row) {
-        this.tableRow = row
-      }
+      // if (row) {
+      this.tableRow = row
+      // }
     },
     getTable () {
       this.tableLoading = true
@@ -186,9 +190,9 @@ export default {
         })
     },
     // --公共的函数--
-    momentTime (item) {
-      return this.$moment(item).format('YYYY-MM-DD HH:mm:ss')
-    },
+    // momentTime (item) {
+    //   return this.$moment(item).format('YYYY-MM-DD HH:mm:ss')
+    // },
   },
 }
 </script>
