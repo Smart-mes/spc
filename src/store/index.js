@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import $http from '@/utils/http'
-import { Message } from 'element-ui'
+// import { Message } from 'element-ui'
 
 Vue.use(Vuex)
 
@@ -37,15 +37,15 @@ const mutations = {
     localStorage.setItem('user_collapse', state.isCollapse)
   },
   add_tags (state, payload) {
-    const tagsArr = state.tags
+    // const tagsArr = state.tags
 
-    if (tagsArr.length >= 8) {
-      Message({
-        message: '最多能查看8个我的分析！',
-        type: 'warning',
-      })
-      return false
-    }
+    // if (tagsArr.length >= 8) {
+    //   Message({
+    //     message: '最多能查看8个我的分析！',
+    //     type: 'warning',
+    //   })
+    //   return false
+    // }
     state.tagsNo = ++state.tagsNo
     // const key = Date.parse(new Date()) + (Math.random() * 5)
     // const timeObj = { key, no: state.tagsNo }
@@ -53,7 +53,7 @@ const mutations = {
 
     const tagsObj = { key: `${Date.parse(new Date())}${(Math.random() * 3)}`, visible: true, no: state.tagsNo, ...payload }
 
-    tagsArr.unshift(tagsObj)
+    state.tags.unshift(tagsObj)
     // state.tags = tagsArr
   },
   del_tags (state, i) {
@@ -69,6 +69,21 @@ const mutations = {
       const { title } = tagsItem
       tagsItem.visible = !tagsTitle ? true : tagsTitle === title
     })
+  },
+  swap_tags (state, { x, y }) {
+    // console.log(state)
+
+    // const tags = state.tags
+    // console.log('x:', x, 'y:', y)
+    // const temp = state.tags[x]
+
+    // console.log('tagsX', state.tags[x], 'tagsY', state.tags[y])
+
+    // state.tags[x] = state.tags[y]
+    // state.tags[y] = temp
+    console.log('x:', x, 'y:', y)
+
+    state.tags.splice(x, 1, ...state.tags.splice(y, 1, state.tags[x]))
   },
   set_state (state, payload) {
     if (payload && typeof (payload) === 'object') {

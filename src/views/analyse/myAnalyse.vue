@@ -4,11 +4,10 @@
     <div class="wrap">
       <echarts-view
         v-for="(item,i) in tags"
-        v-show="echartsVisible&&activeValue===i&&tags[i].title===tagsTitle||!tagsTitle"
+        v-show="activeValue===i&&tags[i].title===tagsTitle||!tagsTitle&&activeValue===i"
         :key="item.key"
         :tags-item="item"
       />
-
       <div v-if="!tags.length" class="none">还没有选择我的分析！</div>
     </div>
   </div>
@@ -33,11 +32,11 @@ export default {
       tags: state => state.tags,
       tagsTitle: state => state.tagsTitle,
     }),
-    echartsVisible () {
-      return this.tags.some(tagsItem => {
-        return tagsItem.visible
-      })
-    },
+    // echartsVisible () {
+    //   return this.tags.some(tagsItem => {
+    //     return tagsItem.visible
+    //   })
+    // },
   },
   methods: {
     getActive (val) {

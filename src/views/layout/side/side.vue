@@ -12,7 +12,7 @@
       <template v-for="(item) in menus">
         <el-submenu v-if="item.children" :key="item.id" :index="item.path">
           <template slot="title" style="background:#00ff00">
-            <div @click="toAnalyse()">
+            <div @click="toPath(item)">
               <i :class="[item.icon,'iconfont']"/>
               <span>{{ item.title }}</span>
             </div>
@@ -21,6 +21,7 @@
             <el-menu-item
               v-for="(list) in item.children"
               :key="list.id"
+              class="analyse-item"
               :index="list.path"
               @click="toPath(list)"
             >
@@ -69,23 +70,27 @@ export default {
       if (dataParams && path === '/analyse/myAnalyse') {
         this.id = dataParams.substring(3)
         this.fiter_tags(title)
-
-        this.$router.push({ path })
+      } else if (!dataParams && path === '/analyse/myAnalyse') {
+        this.id = ''
+        this.fiter_tags('')
       } else {
         this.id = ''
-        this.$router.push({ path })
       }
-    },
-    toAnalyse (item) {
-      this.id = ''
-      this.fiter_tags('')
-      this.$router.push({ path: '/analyse/myAnalyse' })
-    },
-    clickFilter (item) {
-      const tagsTitle = this.tagsTitle ? this.tagsTitle : ''
-      this.add_tags(item)
-      this.fiter_tags(tagsTitle)
 
+      this.$router.push({ path })
+    },
+    // toAnalyse (item) {
+    //   console.log('item', item)
+    //   this.id = ''
+    //   this.fiter_tags('')
+    //   this.$router.push({ path: '/analyse/myAnalyse' })
+    // },
+    clickFilter (item) {
+      const { id, title } = item
+
+      this.id = id
+      this.add_tags(item)
+      this.fiter_tags(title)
       this.$router.push({ path: '/analyse/myAnalyse' })
     },
   },
@@ -115,5 +120,14 @@ export default {
   /deep/.el-menu-item.is-active {
    .iconfont{ color: #00ccff;}
 }
+}
+.analyse-item {
+  .iconfont{
+    font-size: 14px;
+    display: none;
+  }
+  &:hover .iconfont{
+    display: block !important;
+  }
 }
 </style>

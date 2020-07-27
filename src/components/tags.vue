@@ -3,13 +3,13 @@
     <div class="tag-box">
       <ul>
         <li
-          v-for="(item,i) in tags"
+          v-for="(item,i) in tags.slice(0,10)"
           v-show="item.visible"
           :key="item.key"
           :class="{'active':i === activeValue}"
           @click="tagsChange(i)"
         >
-          <span>{{ item.title }}-{{ item.no }}</span>
+          <span>{{ item.no }}-{{ item.title }}</span>
           <span class="tag_delete" @click.stop="del(i)">
             <i class="el-icon-close"/>
           </span>
@@ -25,6 +25,14 @@
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item v-show="!tagsTitle" command="a">关闭其它</el-dropdown-item>
           <el-dropdown-item command="b">关闭所有</el-dropdown-item>
+          <el-dropdown-item v-show="tags.slice(10,tags.length).length" divided/>
+          <el-dropdown-item
+            v-for="tagsItem in tags.slice(10,tags.length)"
+            :key="tagsItem.key"
+            :command="tagsItem"
+          >
+            {{ tagsItem.no }}-{{ tagsItem.title }}
+          </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -43,6 +51,18 @@ export default {
     ...mapState({
       tags: state => state.tags,
       tagsTitle: state => state.tagsTitle,
+      tagsFrist () {
+        const len = this.tags.length
+        if (len && !this.tagsTitle) {
+          return 0
+        }
+        for (var i = 0; i < this.tags.length; i++) {
+          const { visible } = this.tags[i]
+          if (visible) {
+            return i
+          }
+        }
+      },
     }),
 
   },
@@ -53,40 +73,60 @@ export default {
           const { visible } = this.tags[i]
           if (visible) {
             this.activeValue = i
-            this.$emit('getActive', this.activeValue)
+            this.$emit('getActive', i, this.tagsIndex)
             break
           }
         }
       }
     },
+
   },
   methods: {
-    ...mapMutations(['del_tags', 'set_state']),
+    ...mapMutations(['del_tags', 'swap_tags', 'set_state']),
     tagsChange (i) {
       this.setActive(i)
     },
     del (i) {
       this.del_tags(i)
 
-      let active = this.activeValue
-      const tagsLen = this.tags.length
-      if (tagsLen && active === tagsLen) {
-        active--
-      } else if (!tagsLen) {
-        this.set_state({ tagsNo: 0 })
-      }
+      console.log(i, this.tagsFrist)
 
-      this.activeValue = active
-      this.$emit('getActive', this.activeValue)
+      // let active = this.activeValue
+      // const tagsLen = this.tags.length
+
+      // if (tagsLen && active <= tagsLen) {
+      //   active--
+      // } else if (!tagsLen) {
+      //   this.set_state({ tagsNo: 0 })
+      // }
+      // this.setActive(active)
     },
     handleCommand (command) {
       if (command === 'a') {
         this.set_state({ tags: [{ ...this.tags[this.activeValue] }] })
         this.setActive(0)
-      } else if (command === 'b') {
+      } else if (command === 'b' && !this.tagsTitle) {
         this.set_state({ tags: [], tagsNo: 0 })
         this.setActive(0)
+      } else if (command === 'b' && this.tagsTitle) {
+        const tagsFilter = this.tags.filter(tagsItem => {
+          const { title } = tagsItem
+          return !new RegExp(`^${title}`).test(this.tagsTitle)
+        })
+
+        this.set_state({ tags: tagsFilter })
+        this.activeValue > this.tags.length && this.setActive(0)
       }
+
+      command === 'b' && !this.tags.length && this.set_state({ tagsNo: 0 })
+      typeof (command) === 'object' && this.tabSwap(command)
+    },
+    tabSwap (item) {
+      const x = 0
+      const y = this.tags.indexOf(item)
+
+      this.swap_tags({ x, y })
+      this.setActive(0)
     },
     setActive (num) {
       this.activeValue = num
@@ -140,7 +180,6 @@ export default {
     text-decoration: none;
   }
 }
-
 /*关闭标签按钮*/
 .tag-close-box .el-dropdown span {
   color: #409eff;
