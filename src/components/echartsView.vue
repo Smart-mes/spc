@@ -1609,7 +1609,7 @@ padding: 0 20px;
     .echarts-box{ flex: auto;}
     .cpk-box-item{
       margin:5px 0 0 10px;
-      font-size: 12px;
+      font-size:$f-12;
       text-align: left;
       border: 1px solid #aaa;
       ul{ padding: 3px;}

@@ -9,7 +9,7 @@
           :class="{'active':i+firstIndex === activeValue}"
           @click="tagsChange(i+firstIndex)"
         >
-          <span>{{ item.no }}-{{ item.title }}</span>
+          <span class="tag-text">{{ item.no }}-{{ item.title }}</span>
           <span class="tag_delete" @click.stop="del(i+firstIndex )">
             <i class="el-icon-close"/>
           </span>
@@ -163,24 +163,27 @@ export default {
     padding-top: 2px;
   }
   li {
+    display: -webkit-flex;
+    display: flex;
     align-items: center;
     border-radius: 4px;
     box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    border: 1px solid rgba(64, 158, 255, 0.2);
-    cursor: pointer;
-    display: -webkit-flex;
-    display: flex;
-    font-size: 12px;
-    height: 26px;
-    list-style: none;
-    line-height: 26px;
     margin-right: 10px;
     padding: 0 6px;
+    cursor: pointer;
+    height: 26px;
+    font-size: 12px;
+    list-style: none;
+    line-height: 26px;
+    border: 1px solid rgba(64, 158, 255, 0.2);
     white-space: nowrap;
     -webkit-transition: all 0.5s ease-in;
     -moz-transition: all 0.5s ease-in;
     transition: all 0.5s ease-in;
+    .tag-text{
+     max-width: 120px;
+     @extend %ellipsis;
+    }
   }
   li a {
     display: block;

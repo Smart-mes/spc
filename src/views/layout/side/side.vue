@@ -82,12 +82,6 @@ export default {
 
       this.$router.push({ path })
     },
-    // toAnalyse (item) {
-    //   console.log('item', item)
-    //   this.id = ''
-    //   this.fiter_tags('')
-    //   this.$router.push({ path: '/analyse/myAnalyse' })
-    // },
     clickFilter (item) {
       const { id, title } = item
 
@@ -127,7 +121,7 @@ export default {
 }
 .analyse-item {
   .iconfont{
-    font-size: 14px;
+    font-size: $f-14;
     display: none;
   }
   &:hover .iconfont{
