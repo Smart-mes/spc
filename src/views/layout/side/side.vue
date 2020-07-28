@@ -68,10 +68,13 @@ export default {
       const [path, dataParams] = item.path.split('?')
 
       if (dataParams && path === '/analyse/myAnalyse') {
+        // console.log('1')
         this.id = dataParams.substring(3)
+        this.set_state({ tagsType: 'filter' })
         this.fiter_tags(title)
       } else if (!dataParams && path === '/analyse/myAnalyse') {
         this.id = ''
+        this.set_state({ tagsType: 'filter' })
         this.fiter_tags('')
       } else {
         this.id = ''
@@ -90,6 +93,7 @@ export default {
 
       this.id = id
       this.add_tags(item)
+      this.set_state({ tagsType: 'add' })
       this.fiter_tags(title)
       this.$router.push({ path: '/analyse/myAnalyse' })
     },

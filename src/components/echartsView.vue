@@ -1,5 +1,5 @@
 <template>
-  <div class="custom-wrap">
+  <div v-loading="loading" class="custom-wrap">
     <div class="customSearch">
       <el-form :inline="true" label-width="105px" class="formInline">
         <div
@@ -222,6 +222,7 @@ export default {
   },
   data () {
     return {
+      loading: false,
       isBtnSearch: false,
       echartsLoading: false,
       dataList: [],
@@ -325,10 +326,14 @@ export default {
   },
   mounted () {
     const { id } = this.tagsItem
+    this.loading = true
+
     this.$http
       .get('/analysis/viewMyAnalysis', { params: { id: id }})
       .then(({ data }) => {
         const { template, analysisDetails } = data
+
+        this.loading = false
         this.dataList = data
         this.tempType = template
 
@@ -366,6 +371,9 @@ export default {
         this.customDisplay = this.formCustom.customList.map(item => {
           return { isDisplay: true }
         })
+      })
+      .catch(() => {
+        this.loading = false
       })
   },
   methods: {

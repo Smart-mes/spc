@@ -3,14 +3,14 @@
     <div class="tag-box">
       <ul>
         <li
-          v-for="(item,i) in tags.slice(0,10)"
+          v-for="(item,i) in tags.slice(firstIndex,fristSection)"
           v-show="item.visible"
           :key="item.key"
-          :class="{'active':i === activeValue}"
-          @click="tagsChange(i)"
+          :class="{'active':i+firstIndex === activeValue}"
+          @click="tagsChange(i+firstIndex)"
         >
           <span>{{ item.no }}-{{ item.title }}</span>
-          <span class="tag_delete" @click.stop="del(i)">
+          <span class="tag_delete" @click.stop="del(i+firstIndex )">
             <i class="el-icon-close"/>
           </span>
         </li>
@@ -25,9 +25,10 @@
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item v-show="!tagsTitle" command="a">关闭其它</el-dropdown-item>
           <el-dropdown-item command="b">关闭所有</el-dropdown-item>
-          <el-dropdown-item v-show="tags.slice(10,tags.length).length" divided/>
+          <el-dropdown-item divided/>
           <el-dropdown-item
-            v-for="tagsItem in tags.slice(10,tags.length)"
+            v-for="tagsItem in tags.slice(fristSection,tags.length)"
+            v-show="tagsItem.visible"
             :key="tagsItem.key"
             :command="tagsItem"
           >
@@ -40,6 +41,7 @@
 </template>
 <script>
 import { mapState, mapMutations } from 'vuex'
+import * as _ from 'lodash'
 export default {
   data () {
     return {
@@ -49,34 +51,50 @@ export default {
   },
   computed: {
     ...mapState({
+      tagsType: state => state.tagsType,
       tags: state => state.tags,
       tagsTitle: state => state.tagsTitle,
-      tagsFrist () {
-        const len = this.tags.length
-        if (len && !this.tagsTitle) {
-          return 0
-        }
-        for (var i = 0; i < this.tags.length; i++) {
-          const { visible } = this.tags[i]
-          if (visible) {
-            return i
-          }
-        }
+      firstIndex () {
+        return this.tags.findIndex(item => {
+          const { visible } = item
+          return visible
+        })
       },
     }),
-
+    fristSection () {
+      return this.firstIndex + 10
+    },
+    lastIndex () {
+      const tags = this.tags.slice(this.firstIndex, this.fristSection)
+      const lastIndex = _.findLastIndex(tags, (tagItem) => {
+        if (!this.tagsTitle) {
+          return tagItem.title
+        } else {
+          return tagItem.title === this.tagsTitle
+        }
+      })
+      return lastIndex + this.firstIndex
+    },
+    addLastIndex () {
+      const tags = this.tags.slice(this.fristSection, this.tags.length)
+      const lastIndex = _.findLastIndex(tags, (tagItem) => {
+        return tagItem.title === this.tagsTitle
+      })
+      return lastIndex !== -1 ? lastIndex + this.fristSection : lastIndex
+    },
   },
   watch: {
-    tagsTitle (val) {
-      if (val) {
-        for (var i = 0; i < this.tags.length; i++) {
-          const { visible } = this.tags[i]
-          if (visible) {
-            this.activeValue = i
-            this.$emit('getActive', i, this.tagsIndex)
-            break
-          }
-        }
+    firstIndex () {
+      this.tagsType === 'filter' && this.setActive(this.firstIndex)
+    },
+    lastIndex () {
+      this.tagsType === 'add' && this.setActive(this.lastIndex)
+    },
+    addLastIndex () {
+      if (this.addLastIndex !== -1) {
+        const x = this.fristSection - 1
+        const y = this.addLastIndex
+        this.swap_tags({ x, y })
       }
     },
 
@@ -87,19 +105,8 @@ export default {
       this.setActive(i)
     },
     del (i) {
+      this.lastIndex === this.activeValue && this.setActive(i - 1)
       this.del_tags(i)
-
-      console.log(i, this.tagsFrist)
-
-      // let active = this.activeValue
-      // const tagsLen = this.tags.length
-
-      // if (tagsLen && active <= tagsLen) {
-      //   active--
-      // } else if (!tagsLen) {
-      //   this.set_state({ tagsNo: 0 })
-      // }
-      // this.setActive(active)
     },
     handleCommand (command) {
       if (command === 'a') {
@@ -121,12 +128,13 @@ export default {
       command === 'b' && !this.tags.length && this.set_state({ tagsNo: 0 })
       typeof (command) === 'object' && this.tabSwap(command)
     },
+
     tabSwap (item) {
-      const x = 0
+      const x = this.activeValue
       const y = this.tags.indexOf(item)
 
       this.swap_tags({ x, y })
-      this.setActive(0)
+      // this.setActive(0)
     },
     setActive (num) {
       this.activeValue = num

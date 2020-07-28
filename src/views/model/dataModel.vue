@@ -144,7 +144,7 @@
                   label="属性名"
                   label-width="70px"
                   :prop="'customList.' +i+'.'+j+'.key'"
-                  :rules="rule.must"
+                  :rules="rule.customName"
                 >
                   <el-input v-model="item.key" size="mini" clearable/>
                 </el-form-item>
@@ -183,8 +183,8 @@
           <!-- /自定义 -->
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogStep">{{ dialogBtnTxt }}</el-button>
-          <el-button type="primary" @click="dialogSubmit">确 定</el-button>
+          <el-button @click="dialogStep">{{ dialogBtnCancel }}</el-button>
+          <el-button type="primary" @click="dialogSubmit">{{ dialogBtnSubmit }}</el-button>
         </span>
       </el-dialog>
     </div>
@@ -195,18 +195,26 @@ export default {
   name: 'DataModel',
   data () {
     // validate自定义验证
-    const checkVal = (rule, value, callback) => {
+
+    const checkCustomName = (rule, value, callback) => {
+      console.log(/^[\u4e00-\u9fa5]+$/.test(value))
       if (!value) {
         return callback(new Error('不能为空'))
+      } else if (value && !/^[\u4e00-\u9fa5]+$/.test(value)) {
+        callback(new Error('输入中文字符'))
+      } else {
+        callback()
       }
-      const isreg = value => /^[a-zA-Z]([-_a-zA-Z0-9]{2,20})$/g.test(value)
-      setTimeout(() => {
-        if (!isreg(value)) {
-          callback(new Error('请输入2-20字母开头的字符'))
-        } else {
-          callback()
-        }
-      }, 100)
+    }
+
+    const checkCustomVal = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('不能为空'))
+      } else if (value && !/^[a-zA-Z]([-_a-zA-Z0-9]?)$/.test(value)) {
+        callback(new Error('字母开头，含英文数字下划线'))
+      } else {
+        callback()
+      }
     }
 
     return {
@@ -221,8 +229,11 @@ export default {
           message: '不能为空',
           trigger: 'change',
         },
+        customName: [
+          { validator: checkCustomName, trigger: 'blur' },
+        ],
         customVal: [
-          { validator: checkVal, trigger: 'blur' },
+          { validator: checkCustomVal, trigger: 'blur' },
         ],
       },
       // tool
@@ -267,14 +278,16 @@ export default {
       fileList: [],
       // step
       activeStep: 1,
-      dialogBtnTxt: '取消',
+      dialogBtnCancel: '取消',
+      dialogBtnSubmit: '下一步',
       // 提交类型
       submitType: '',
     }
   },
   watch: {
     activeStep (val) {
-      this.dialogBtnTxt = val === 1 ? '取消' : '上一步'
+      this.dialogBtnCancel = val === 1 ? '取消' : '上一步'
+      this.dialogBtnSubmit = val === 1 ? '下一步' : '确定'
     },
     dialogVisible (val) {
       if (!val) {
