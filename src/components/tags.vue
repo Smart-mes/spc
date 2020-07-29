@@ -118,8 +118,9 @@ export default {
       this.setActive(i)
     },
     del (i) {
-      this.lastIndex === this.activeValue && this.setActive(i - 1)
+      this.addLastIndex === -1 && this.lastIndex === this.activeValue && this.setActive(i - 1)
       this.del_tags(i)
+      !this.tags.length && this.set_state({ tagsNo: 0 })
     },
     handleCommand (command) {
       if (command === 'a' && !this.tagsTitle) {
@@ -133,7 +134,7 @@ export default {
         this.set_state({ tags: tagsFilter })
         this.tags.splice(firstIndex, 0, tagsActive)
       } else if (command === 'b' && !this.tagsTitle) {
-        this.set_state({ tags: [], tagsNo: 0 })
+        this.set_state({ tags: [] })
         this.setActive(0)
       } else if (command === 'b' && this.tagsTitle) {
         const tagsFilter = this.getTagsFilter()

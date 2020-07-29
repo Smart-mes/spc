@@ -197,20 +197,21 @@ export default {
     // validate自定义验证
 
     const checkCustomName = (rule, value, callback) => {
-      console.log(/^[\u4e00-\u9fa5]+$/.test(value))
       if (!value) {
         return callback(new Error('不能为空'))
-      } else if (value && !/^[\u4e00-\u9fa5]+$/.test(value)) {
-        callback(new Error('输入中文字符'))
+      } else if (value && !/(^[\u4e00-\u9fa5]+)([A-Za-z0-9\_\-]*)$/.test(value)) {
+        callback(new Error('中文开头，含英文数字下划线'))
       } else {
         callback()
       }
     }
 
     const checkCustomVal = (rule, value, callback) => {
+      console.log(typeof (value), value)
+      console.log('val', /(^[a-zA-Z])([A-Za-z0-9\_\-]*)$/.test(value))
       if (!value) {
         return callback(new Error('不能为空'))
-      } else if (value && !/^[a-zA-Z]([-_a-zA-Z0-9]?)$/.test(value)) {
+      } else if (value && !/(^[a-zA-Z])([A-Za-z0-9\_\-]*)$/.test(value)) {
         callback(new Error('字母开头，含英文数字下划线'))
       } else {
         callback()

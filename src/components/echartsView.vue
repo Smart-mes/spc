@@ -1444,46 +1444,37 @@ export default {
         switch (sigmaItem) {
           case 'r0':
             newArr = unusual.getSpc1({ data, greater: ucl, less: lcl })
-            // console.log('r0', newArr)
             break
           case 'r1':
             newArr = unusual.getSpc1({ data, greater: up3Sigma, less: down3Sigma })
-            // console.log('r1', newArr)
             break
 
           case 'r2':
             newArr = unusual.getSpc2({ data, greater: cl, less: cl, segment: 9, total: 9 })
-            // console.log('r2', newArr)
             break
 
           case 'r3':
             newArr = unusual.getSpc3({ data, segment: 6, total: 5 })
-            // console.log('r3', newArr)
             break
 
           case 'r4':
             newArr = unusual.getSpc4({ data, segment: 14 })
-            // console.log('r4', newArr)
             break
 
           case 'r5':
             newArr = unusual.getSpc2({ data, greater: up2Sigma, less: down2Sigma, segment: 3, total: 2 })
-            // console.log('r5', newArr)
             break
 
           case 'r6':
             newArr = unusual.getSpc2({ data, greater: upSigma, less: downSigma, segment: 5, total: 4 })
-            // console.log('r6', newArr)
             break
 
           case 'r7':
             newArr = unusual.getSpc7({ data, segment: 15, total: 15, greater: downSigma, less: upSigma, cl, type: 'seven' })
-            // console.log('r7', newArr)
             break
 
           case 'r8':
             newArr = unusual.getSpc7({ data, segment: 8, total: 8, greater: upSigma, less: downSigma, cl, type: 'eight' })
-            // console.log('r8', newArr)
             break
         }
         resultArr.push(...newArr)
@@ -1515,13 +1506,12 @@ export default {
 <style lang="scss" scoped>
 .custom-wrap{
 padding: 0 20px;
- height: calc(100vh - 160px);
+ height: calc(100vh - 140px);
  overflow-y: auto;
 }
 .customSearch {
   overflow: hidden;
   width: 100%;
-  // border-top: 1px solid $line-color;
   .custom-box {
     overflow: hidden;
   }
@@ -1625,7 +1615,6 @@ padding: 0 20px;
         }
        }
       h5{
-        //  margin-bottom:5px;
         padding-left: 10px;
         color: $blue-color;
         border-bottom: 1px solid #aaa;
