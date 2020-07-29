@@ -9,10 +9,18 @@
       unique-opened
       :default-active="active"
     >
-      <template v-for="(item) in menus">
-        <el-submenu v-if="item.children" :key="item.id" :index="item.path">
+      <template
+        v-for="(item) in menus"
+      >
+        <el-submenu
+          v-if="item.children"
+          :key="item.id"
+          :index="item.path"
+        >
           <template slot="title" style="background:#00ff00">
-            <div @click="toPath(item)">
+            <div
+              @click="toPath(item)"
+            >
               <i :class="[item.icon,'iconfont']"/>
               <span>{{ item.title }}</span>
             </div>
@@ -25,12 +33,22 @@
               :index="list.path"
               @click="toPath(list)"
             >
-              {{ list.title }}
-              <i class="iconfont icon-add fr" @click.stop="clickFilter(list)"/>
+              <span
+                class="menu-text fl"
+              > {{ list.title }}</span>
+              <i
+                class="iconfont icon-add fr"
+                @click.stop="clickFilter(list)"
+              />
             </el-menu-item>
           </el-menu-item-group>
         </el-submenu>
-        <el-menu-item v-else :key="item.id" :index="item.path" @click="toPath(item)">
+        <el-menu-item
+          v-else
+          :key="item.id"
+          :index="item.path"
+          @click="toPath(item)"
+        >
           <template>
             <i :class="[item.icon,'iconfont']"/>
             <span slot="title">{{ item.title }}</span>
@@ -112,7 +130,7 @@ export default {
     color: $white-color;
   }
   /deep/.el-menu-item{
-    @extend %ellipsis;
+    // @extend %ellipsis;
     padding: 0 10px;
   }
   /deep/.el-menu-item.is-active {
@@ -127,5 +145,9 @@ export default {
   &:hover .iconfont{
     display: block !important;
   }
+}
+.menu-text{
+    width: 125px;
+     @extend %ellipsis;
 }
 </style>

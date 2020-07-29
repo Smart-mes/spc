@@ -56,6 +56,9 @@ const mutations = {
     // state.tags.unshift(tagsObj)
     state.tags.push(tagsObj)
   },
+  splice_tags (state, { firstIndex, tagsActive }) {
+    state.tags.splice(firstIndex, 0, tagsActive)
+  },
   del_tags (state, i) {
     const tagsArr = state.tags
     tagsArr.splice(i, 1)

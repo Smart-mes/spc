@@ -10,21 +10,34 @@
           @click="tagsChange(i+firstIndex)"
         >
           <span class="tag-text">{{ item.no }}-{{ item.title }}</span>
-          <span class="tag_delete" @click.stop="del(i+firstIndex )">
+          <span
+            class="tag_delete"
+            @click.stop="del(i+firstIndex )"
+          >
             <i class="el-icon-close"/>
           </span>
         </li>
       </ul>
     </div>
     <div class="tag-close-box">
-      <el-dropdown @command="handleCommand">
+      <el-dropdown
+        @command="handleCommand"
+      >
         <span class="el-dropdown-link">
           标签设置
           <i class="el-icon-arrow-down el-icon--right"/>
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item v-show="!tagsTitle" command="a">关闭其它</el-dropdown-item>
-          <el-dropdown-item command="b">关闭所有</el-dropdown-item>
+          <el-dropdown-item
+            command="a"
+          >
+            关闭其它
+          </el-dropdown-item>
+          <el-dropdown-item
+            command="b"
+          >
+            关闭所有
+          </el-dropdown-item>
           <el-dropdown-item divided/>
           <el-dropdown-item
             v-for="tagsItem in tags.slice(fristSection,tags.length)"
@@ -109,17 +122,21 @@ export default {
       this.del_tags(i)
     },
     handleCommand (command) {
-      if (command === 'a') {
+      if (command === 'a' && !this.tagsTitle) {
         this.set_state({ tags: [{ ...this.tags[this.activeValue] }] })
         this.setActive(0)
+      } else if (command === 'a' && this.tagsTitle) {
+        const tagsActive = { ...this.tags[this.activeValue] }
+        const firstIndex = this.firstIndex
+        const tagsFilter = this.getTagsFilter()
+
+        this.set_state({ tags: tagsFilter })
+        this.tags.splice(firstIndex, 0, tagsActive)
       } else if (command === 'b' && !this.tagsTitle) {
         this.set_state({ tags: [], tagsNo: 0 })
         this.setActive(0)
       } else if (command === 'b' && this.tagsTitle) {
-        const tagsFilter = this.tags.filter(tagsItem => {
-          const { title } = tagsItem
-          return !new RegExp(`^${title}`).test(this.tagsTitle)
-        })
+        const tagsFilter = this.getTagsFilter()
 
         this.set_state({ tags: tagsFilter })
         this.activeValue > this.tags.length && this.setActive(0)
@@ -128,7 +145,12 @@ export default {
       command === 'b' && !this.tags.length && this.set_state({ tagsNo: 0 })
       typeof (command) === 'object' && this.tabSwap(command)
     },
-
+    getTagsFilter () {
+      return this.tags.filter(tagsItem => {
+        const { title } = tagsItem
+        return !new RegExp(`^${title}`).test(this.tagsTitle)
+      })
+    },
     tabSwap (item) {
       const x = this.activeValue
       const y = this.tags.indexOf(item)
