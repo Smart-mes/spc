@@ -61,7 +61,6 @@
 
 <script>
 import { mapState, mapMutations } from 'vuex'
-// import { mapState } from 'vuex'
 export default {
   name: 'Sidebar',
   data () {
@@ -130,7 +129,6 @@ export default {
     color: $white-color;
   }
   /deep/.el-menu-item{
-    // @extend %ellipsis;
     padding: 0 10px;
   }
   /deep/.el-menu-item.is-active {
