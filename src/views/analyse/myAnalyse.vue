@@ -8,6 +8,7 @@
         :key="item.key"
         :tags-item="item"
       />
+      <div v-if="tags.length&&!echartsVisible" class="none add-none">请添加我的分析！</div>
       <div v-if="!tags.length" class="none">还没有选择我的分析！</div>
     </div>
   </div>
@@ -31,17 +32,18 @@ export default {
     ...mapState({
       tags: state => state.tags,
       tagsTitle: state => state.tagsTitle,
+      echartsVisible () {
+        return this.tags.some(tagsItem => {
+          return tagsItem.visible
+        })
+      },
     }),
-    // echartsVisible () {
-    //   return this.tags.some(tagsItem => {
-    //     return tagsItem.visible
-    //   })
-    // },
   },
   methods: {
     getActive (val) {
       this.activeValue = val
     },
+
   },
 }
 </script>
@@ -76,6 +78,9 @@ export default {
 .none{
   margin-top: 40px;
   padding: 0 20px;
+}
+.add-none{
+  margin: 0;
 }
 .wrap{
   padding: 0;
