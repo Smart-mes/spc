@@ -1,5 +1,5 @@
 export default {
   baseURL:
-    process.env.NODE_ENV === 'development' ? '' : 'http://120.78.70.56:8099',
+    process.env.NODE_ENV === 'development' ? '' : 'http://8.129.76.46:8089',
 }
 

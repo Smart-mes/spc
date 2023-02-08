@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main-page">
     <tags v-if="tags.length" ref="tags" @getActive="getActive"/>
     <div class="wrap">
       <echarts-view
@@ -7,6 +7,7 @@
         v-show="activeValue===i&&tags[i].title===tagsTitle||!tagsTitle&&activeValue===i"
         :key="item.key"
         :tags-item="item"
+        style="{height:100px}"
       />
       <div v-if="tags.length&&!echartsVisible" class="none add-none">请添加我的分析！</div>
       <div v-if="!tags.length" class="none">还没有选择我的分析！</div>
@@ -15,10 +16,11 @@
 </template>
 <script>
 import { mapState } from 'vuex'
-import echartsView from '@/components/echartsView'
+import echartsView from '@/components/echartsView/echartsView'
 import tags from '@/components/tags'
 
 export default {
+  name: 'MyAnalyse',
   components: {
     echartsView,
     tags,

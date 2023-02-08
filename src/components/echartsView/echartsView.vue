@@ -1,21 +1,21 @@
 <template>
   <div v-loading="loading" class="custom-wrap">
     <div class="customSearch">
-      <el-form :inline="true" label-width="105px" class="formInline">
+      <el-form :inline="true" label-position="left" label-width="105px" class="formInline">
         <div
-          v-for="(custom,customIndex) in formCustom.customList"
+          v-for="(custom) in formCustom.customList"
           :key="custom.id"
           class="custom-box"
         >
           <div v-if="custom.customParam.length>0" class="subtitle2">
             <h4 class="fl">{{ custom.name }}</h4>
             <i
-              :title="customDisplay[customIndex].isDisplay?'展开':'收起'"
-              :class="['fr','iconfont',customDisplay[customIndex].isDisplay?'icon-drown':'icon-up']"
-              @click="customDisplayFn(customIndex)"
+              :title="custom.isVisible?'展开':'收起'"
+              :class="['fr','iconfont',custom.isVisible?'icon-drown':'icon-up']"
+              @click="custom.isVisible=!custom.isVisible"
             />
           </div>
-          <div v-show="customDisplay[customIndex].isDisplay">
+          <div v-show="custom.isVisible">
             <div
               v-for="(customItem1,i) in custom.customParam"
               :key="i"
@@ -52,12 +52,12 @@
           <div class="subtitle2">
             <h4 class="fl">spc判异</h4>
             <i
-              :title="spcDisplay?'展开':'收起'"
-              :class="['fr','iconfont',spcDisplay?'icon-drown':'icon-up']"
-              @click="spcDisplay=!spcDisplay"
+              :title="spcVisible?'展开':'收起'"
+              :class="['fr','iconfont',spcVisible?'icon-drown':'icon-up']"
+              @click="spcVisible=!spcVisible"
             />
           </div>
-          <div v-show="spcDisplay" class="problem">
+          <div v-show="spcVisible" class="problem">
             <el-form-item label="判异选择">
               <el-checkbox-group v-model="formCustom.type">
                 <el-checkbox label="r0" name="type" disabled>r0,超出规格</el-checkbox>
@@ -82,11 +82,7 @@
         >
           <i class="iconfont icon-search"/>搜索
         </el-button>
-        <el-button
-          @click="clearSearch"
-        >
-          清空搜索
-        </el-button>
+        <el-button @click="clearSearch">清空搜索</el-button>
       </div>
     </div>
     <!-- 搜索条件 -->
@@ -96,7 +92,7 @@
       class="echarts-warp"
     >
       <ul :class="['box',getClass()]">
-        <li v-for="(item,i) in boxNum" :key="i">
+        <li v-for="(item,i) in tempNum" :key="i" :data-id="customData.analysisDetails[i].id">
           <div v-if="cpkList[i].modelCode==='CPK'" class="box-item cpk-item">
             <div class="cpk-box">
               <div class="cpk-box-item">
@@ -111,7 +107,7 @@
               <!-- /统计样本 -->
               <div class="cpk-box-item">
                 <div
-                  v-show="isEchartsList[i].isDisplay"
+                  v-show="isEchartsList[i].isVisible"
                   class="none"
                 >
                   暂时没有数据
@@ -135,7 +131,7 @@
               </div>
               <!-- /计算值-->
             </div>
-            <div class="echarts-box"/>
+            <div v-contextmenu="CPKcontextmenuCfg" :data-index="i" class="echarts-box"/>
             <div class="cpk-right cpk-box">
               <h4>——短期</h4>
               <div class="cpk-box-item">
@@ -157,23 +153,9 @@
               <!-- /短期工序能力-->
             </div>
           </div>
-          <div
-            v-else
-            class="box-item"
-            @mouseover="problemBtnList[i].isBtn=true"
-            @mouseleave="problemBtnList[i].isBtn=false"
-          >
-            <div class="echarts-box"/>
-            <div v-show="problemBtnList[i].isBtn" class="btn-box">
-              <el-button
-                size="mini"
-                :type="problemList[i].length>1?'primary':''"
-                @click="problemOpen(i)"
-              >
-                配置
-              </el-button>
-            </div>
-            <div v-show="isEchartsList[i].isDisplay" class="none">没有数据</div>
+          <div v-else class="box-item">
+            <div v-contextmenu="contextmenuCfg" :data-index="i" class="echarts-box"/>
+            <div v-show="isEchartsList[i].isVisible" class="none">没有数据</div>
           </div>
         </li>
       </ul>
@@ -183,6 +165,7 @@
       :title="problemTitle"
       :visible.sync="problemVisible"
       width="850px"
+      center
     >
       <el-form :model="problemForm" label-width="50px">
         <el-form-item label="" prop="type" class="problemFrom">
@@ -209,15 +192,15 @@
 
 <script>
 import unusual from '@/assets/js/unusual'
+import echartsFn from './echartsFn'
+import setEchartsFn from './setEchartsFn'
 
 export default {
   name: 'EchartsView',
   props: {
     tagsItem: {
       type: Object,
-      default: () => {
-        return {}
-      },
+      default: () => {},
     },
   },
   data () {
@@ -225,15 +208,14 @@ export default {
       loading: false,
       isBtnSearch: false,
       echartsLoading: false,
-      dataList: [],
-      formCustom: {
-        customList: [],
-        type: ['r0'],
-      },
-      customDisplay: [],
-      spcDisplay: true,
+      customData: [],
+      formCustom: { customList: [], type: ['r0'] },
+      // customVisible: [],
+      spcVisible: true,
+      // 配置规则
+      modelOptList: [],
       // 模板类型
-      tempType: '',
+      tempNum: '',
       // cpk
       cpkKey: {
         totalnum: '',
@@ -258,10 +240,8 @@ export default {
       problemVisible: false,
       problemTitle: 'SPC个八判异',
       problemList: [],
-      problemBtnList: [],
-      problemForm: {
-        type: [],
-      },
+      // problemBtnList: [],
+      problemForm: { type: [] },
       problemIndex: 0,
       problemType: '',
       // 最后获得判异
@@ -271,11 +251,114 @@ export default {
     }
   },
   computed: {
-    boxNum () {
-      return !this.tempType ? 0 : Number(this.tempType)
+    searchVisible () {
+      const arr = this.cpkList.map(mapItem => {
+        return mapItem.modelCode
+      })
+        .filter(filterItem => { return filterItem !== 'CPK' })
+      return !!arr.length
     },
-    customParamList () {
-      const { analysisDetails } = this.dataList
+    CPKcontextmenuCfg () {
+      return {
+        'echarts-box': {
+          list: [
+            {
+              label: '编辑规则',
+              handler: (target) => {
+                const i = target.getAttribute('data-index')
+                this.getModelForm(this.modelOptList[i])
+                  .then(formCfg => this.$showDialogForm(formCfg))
+                  .then(formData => {
+                    console.log('formData:', formData)
+                  })
+              },
+            },
+          ],
+        },
+      }
+    },
+    contextmenuCfg () {
+      return {
+        'echarts-box': {
+          list: [
+            {
+              label: 'spc判异',
+              handler: (target) => {
+                const i = target.getAttribute('data-index')
+                this.problemOpen(i)
+              },
+            },
+            {
+              label: '编辑规则',
+              handler: (target) => {
+                const i = target.getAttribute('data-index')
+                this.getModelForm(this.modelOptList[i])
+                  .then(formCfg => this.$showDialogForm(formCfg))
+                  .then(formData => {
+                    console.log('formData:', formData)
+                  })
+              },
+            },
+          ],
+        },
+      }
+    },
+  },
+  watch: {
+    problemVisible (val) {
+      if (!val) { this.problemForm.type = [] }
+    },
+  },
+  mounted () {
+    this.init()
+  },
+  methods: {
+    init () {
+      const { id } = this.tagsItem
+      this.loading = true
+
+      this.$http
+        .get('/analysis/viewMyAnalysis', { params: { id: id }})
+        .then(({ data }) => {
+          this.customData = data
+          // console.log('data:', data)
+
+          this.tempNum = Number(data.template)
+          this.cpkList = data.analysisDetails.map((analysisItem, i) => {
+            const { modelCode } = analysisItem
+            // 存储problemList
+            this.problemList.push(['r0'])
+
+            // echarts是否有数据
+            this.isEchartsList.push({ isVisible: true })
+
+            // spc弹窗是否选中
+            // this.problemBtnList.push({ isBtn: false })
+
+            //  cpk存储数据
+            if (modelCode === 'CPK') {
+              const cpkObj = {}
+              Object.keys(this.cpkKey).map(key => { cpkObj[key] = '' })
+              return { modelCode, data: cpkObj }
+            } else {
+              return { modelCode, data: {}}
+            }
+          })
+        })
+        .then(() => {
+        // 搜索表单赋值
+          this.loading = false
+          const customList = this.getCustomList()
+          this.formCustom.customList = JSON.parse(JSON.stringify(customList))
+          this.modelOptList = this.customData.analysisDetails.map(({ modelOption }) => JSON.parse(modelOption))
+          console.log('this.modelOptList ', this.modelOptList)
+        })
+        .catch(() => {
+          this.loading = false
+        })
+    },
+    getCustomList () {
+      const { analysisDetails } = this.customData
       const obj = {}
       // 筛选数据，去重，清空value
       return analysisDetails.map(customItem1 => {
@@ -292,98 +375,24 @@ export default {
         }, [])
         .map(customItem2 => {
           const { id, name, customParam } = customItem2
-          const clearValue = customParame => {
+          const getCustom = customParame => {
             return customParame.map(item => {
               if (item.value) {
                 item.label = item.key
                 item.key = item.value
                 item.value = ''
               }
-              if (item.length) item = clearValue(item)
+              if (item.length) item = getCustom(item)
               return item
             })
           }
-          const newCustomParam = clearValue(customParam)
-          return { id, name, customParam: newCustomParam }
+          const newCustomParam = getCustom(customParam)
+          return { id, name, isVisible: true, customParam: newCustomParam }
         })
     },
-    searchVisible () {
-      const arr = this.cpkList.map(mapItem => {
-        return mapItem.modelCode
-      })
-        .filter(filterItem => {
-          return filterItem !== 'CPK'
-        })
-      return !!arr.length
-    },
-  },
-  watch: {
-    problemVisible (val) {
-      if (!val) {
-        this.problemForm.type = []
-      }
-    },
-  },
-  mounted () {
-    const { id } = this.tagsItem
-    this.loading = true
-
-    this.$http
-      .get('/analysis/viewMyAnalysis', { params: { id: id }})
-      .then(({ data }) => {
-        const { template, analysisDetails } = data
-
-        this.loading = false
-        this.dataList = data
-        this.tempType = template
-
-        this.cpkList = analysisDetails.map((analysisItem, i) => {
-          const { modelCode } = analysisItem
-          // 存储problemList
-          this.problemList.push(['r0'])
-
-          // echarts是否有数据
-          this.isEchartsList.push({ isDisplay: true })
-
-          // spc弹窗是否选中
-          this.problemBtnList.push({ isBtn: false })
-
-          //  cpk存储数据
-          if (modelCode === 'CPK') {
-            const cpkObj = {}
-            Object.keys(this.cpkKey).map(key => {
-              cpkObj[key] = ''
-            })
-            return {
-              modelCode,
-              data: cpkObj,
-            }
-          } else {
-            return { modelCode, data: {}}
-          }
-        })
-      })
-      .then(() => {
-        // 搜索表单赋值
-        this.formCustom.customList = JSON.parse(JSON.stringify(this.customParamList))
-
-        // 搜索列表展开收起
-        this.customDisplay = this.formCustom.customList.map(item => {
-          return { isDisplay: true }
-        })
-      })
-      .catch(() => {
-        this.loading = false
-      })
-  },
-  methods: {
     getClass () {
-      if (this.boxNum === 1) {
-        return 'boxDefault'
-      } else {
-        const className = (this.boxNum % 2 === 0) ? 'boxEven' : 'boxOdd'
-        return className
-      }
+      if (this.tempNum === 1) { return 'boxDefault' }
+      return (this.tempNum % 2 === 0) ? 'boxEven' : 'boxOdd'
     },
     search () {
       this.isBtnSearch = true
@@ -392,10 +401,9 @@ export default {
       this.clearCPK()
       // 处理表单的数据
       const { customList } = this.formCustom
-      const { id, analysisDetails } = this.dataList
+      const { id, analysisDetails } = this.customData
 
-      const customArr = customList.map(customItem => {
-        const { id, name, customParam } = customItem
+      const customArr = customList.map(({ id, name, customParam }) => {
         return {
           id,
           name,
@@ -408,9 +416,7 @@ export default {
         const { id, analysisId, modelCode, modelOption, dataSource } = analysisItem
 
         const [customObj] = customArr.filter(customItem => {
-          if (dataSource.id === customItem.id) {
-            return customItem
-          }
+          if (dataSource.id === customItem.id) { return customItem }
         })
 
         return {
@@ -433,18 +439,14 @@ export default {
           const { data: { data }} = res
 
           // 组装data
-          const { analysisDetails } = this.dataList
+          const { analysisDetails } = this.customData
           const echartArr = analysisDetails.map(analysisItem => {
             const { modelCode, option } = analysisItem
             const [filterItem] = data.filter(filterItem => {
               const { id, dataSourceId } = filterItem
               return analysisItem.id === id && analysisItem.dataSourceId === dataSourceId
             })
-            return {
-              modelCode,
-              option,
-              ...filterItem,
-            }
+            return { modelCode, option, ...filterItem }
           })
 
           echartArr.map((echartItem, i) => {
@@ -457,11 +459,11 @@ export default {
               })
               this.cpkList[i].data = cpkObj
             }
-            this.isEchartsList[i].isDisplay = data === null
+            this.isEchartsList[i].isVisible = data === null
           })
           this.echartInit(echartArr)
-        }).catch((error) => {
-          this.$message.error(error)
+        }).catch(() => {
+          // this.$message.error(error)
           this.isBtnSearch = false
           this.echartsLoading = false
         })
@@ -474,17 +476,13 @@ export default {
         const { data } = item
         // 清空为空的数据
         if (data === null) {
-          chart.clear()
-          return false
+          return void chart.clear()
         }
 
         const echartsOption = this.handleEchart({ ...item, i })
-
         chart.setOption(echartsOption, true)
         // 浏览器重置
-        window.addEventListener('resize', () => {
-          chart.resize()
-        })
+        window.addEventListener('resize', () => { chart.resize() })
       })
     },
     // 清空搜索
@@ -505,408 +503,13 @@ export default {
       })
     },
     // 图形配置
-    drowxbar (objParame) {
-      const { modelCode, dataindex, yName, max, min, cl, ucl, lcl, data, problemData } = objParame
-      return {
-        title: {
-          text: `[${modelCode} 控制图]`,
-          top: 'top',
-          left: 'center',
-          textStyle: {
-            fontSize: 12,
-            fontWeight: 'normal',
-          },
-        },
-        grid: {
-          left: '10%',
-          right: '10%',
-        },
-        tooltip: {
-          trigger: 'axis',
-        },
-        xAxis: {
-          type: 'category',
-          data: dataindex,
-        },
-        yAxis: {
-          name: yName,
-          nameLocation: 'middle',
-          nameGap: 50,
-          splitNumber: 5,
-          max: max,
-          min: min,
-          splitLine: {
-            show: false,
-          },
-        },
-        series: [{
-          name: `${modelCode}图`,
-          data: data,
-          type: 'line',
-          itemStyle: {
-            normal: {
-              color: function (parame) { // 折点颜色
-                const { dataIndex } = parame
-                if (problemData.includes(dataIndex)) {
-                  return '#ff0000'
-                }
-                return '#000000'
-              },
-              lineStyle: {
-                color: '#000000', // 折线颜色
-              },
-            },
-          },
-          markLine: {
-            symbol: ['none', 'none'],
-            precision: 3,
-            label: {
-              formatter: function (value) {
-                return value.value.toFixed(3)
-              },
-              normal: {
-                formatter: '{b}:{c}',
-              },
-            },
-            lineStyle: {
-              color: '#ff0000',
-            },
-            data: [
-              {
-                name: 'CL',
-                yAxis: cl,
-              },
-              {
-                name: 'UCL',
-                yAxis: ucl,
-              },
-              {
-                name: 'LCL',
-                yAxis: lcl,
-              },
-            ],
-          },
-        }],
-      }
-    },
-    drowXbarR (dataParame) {
-      const [xbarRItem1, xbarRItem2] = dataParame
-      // console.log('xbarRItem2', xbarRItem2)
-      return {
-        title: [
-          {
-            text: `[${xbarRItem1.modelCode}控制图]`,
-            top: 'top',
-            left: 'center',
-            textStyle: {
-              fontSize: 12,
-              fontWeight: 'normal',
-            },
-          },
-          {
-            text: `[${xbarRItem2.modelCode}控制图]`,
-            top: '50%',
-            left: 'center',
-            textStyle: {
-              fontSize: 12,
-              fontWeight: 'normal',
-            },
-          },
-        ],
-        grid: [
-          {
-            top: '15%',
-            bottom: '60%',
-          },
-          {
-            top: '60%',
-            bottom: '15%',
-          },
-        ],
-        // 鼠标移动上去同时触发
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: {
-            animation: false,
-          },
-        },
-        axisPointer: {
-          link: {
-            xAxisIndex: 'all',
-          },
-        },
-        xAxis: [{
-          type: 'category',
-          data: xbarRItem1.dataindex,
-        },
-        {
-          type: 'category',
-          data: xbarRItem2.dataindex,
-          gridIndex: 1,
-        },
-        ],
-        yAxis: [
-          {
-            name: xbarRItem1.yName,
-            nameLocation: 'middle',
-            nameGap: 50,
-            splitNumber: 5,
-            splitLine: {
-              show: false,
-            },
-            max: xbarRItem1.max,
-            min: xbarRItem1.min,
-          },
-          {
-            name: xbarRItem2.yName,
-            nameLocation: 'middle',
-            nameGap: 50,
-            splitNumber: 5,
-            splitLine: {
-              show: false,
-            },
-            max: xbarRItem2.max,
-            min: xbarRItem2.min,
-            gridIndex: 1,
-          },
-        ],
-        series: [
-          {
-            name: `${xbarRItem1.modelCode}图`,
-            data: xbarRItem1.data,
-            type: 'line',
-            itemStyle: {
-              normal: {
-                color: function (parame) {
-                  const { dataIndex } = parame
-                  if (xbarRItem1.problemData.includes(dataIndex)) {
-                    return '#ff0000'
-                  }
-                  return '#000000'
-                },
-                lineStyle: {
-                  color: '#000000',
-                },
-              },
-            },
-            markLine: {
-              symbol: ['none', 'none'],
-              precision: 3, // 精度
-              label: {
-                formatter: function (value) {
-                  return value.value.toFixed(3)
-                },
-                normal: {
-                  formatter: '{b}:{c}',
-                },
-              },
-              itemStyle: {
-                normal: {
-                  color: '#d53a35',
-                },
-              },
-              data: [
-                {
-                  name: 'CL',
-                  yAxis: xbarRItem1.cl,
-                },
-                {
-                  name: 'UCL',
-                  yAxis: xbarRItem1.ucl,
-                },
-                {
-                  name: 'LCL',
-                  yAxis: xbarRItem1.lcl,
-                },
-              ],
-            },
-          },
-          {
-            name: `${xbarRItem2.modelCode}图`,
-            data: xbarRItem2.data,
-            xAxisIndex: 1,
-            yAxisIndex: 1,
-            type: 'line',
-            itemStyle: {
-              normal: {
-                color: function (parame) { // 折点颜色
-                  const { dataIndex } = parame
-                  if (xbarRItem2.problemData.includes(dataIndex)) {
-                    return '#ff0000'
-                  }
-                  return '#000000'
-                },
-                lineStyle: {
-                  color: '#000000', // 折线颜色
-                },
-              },
-            },
-            markLine: {
-              symbol: ['none', 'none'],
-              precision: 3,
-              label: {
-                formatter: function (value) {
-                  return value.value.toFixed(3)
-                },
-                normal: {
-                  formatter: '{b}:{c}',
-                },
-              },
-              itemStyle: {
-                normal: {
-                  color: '#d53a35',
-                },
-              },
-              data: [
-                {
-                  name: 'CL',
-                  yAxis: xbarRItem2.cl,
-                },
-                {
-                  name: 'UCL',
-                  yAxis: xbarRItem2.ucl,
-                },
-                {
-                  name: 'LCL',
-                  yAxis: xbarRItem2.lcl,
-                },
-              ],
-            },
-          },
-        ],
-      }
-    },
-    drowCPK (objParame) {
-      const {
-        modelCode,
-        rchartdata,
-        yArr,
-        min,
-        max,
-        lsl,
-        target,
-        usl,
-        mean,
-        sigmaMax,
-        sigmaMin,
-      } = objParame
+    ...echartsFn,
 
-      return {
-        title: {
-          text: `[${modelCode}控制图]`,
-          top: 'top',
-          left: 'center',
-          textStyle: {
-            fontSize: 12,
-            fontWeight: 'normal',
-          },
-        },
-        color: ['#7CCD7C', '#d14a61', '#675bba'],
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: {
-            type: 'cross',
-          },
-        },
-        xAxis: [{
-          type: 'value',
-          min: min,
-          max: max,
-        }],
-        yAxis: [{
-          type: 'value',
-          name: '频率',
-          position: 'right',
-          axisLine: {
-            lineStyle: {
-              color: '#d14a61',
-            },
-          },
-          axisLabel: {
-            formatter: '{value}',
-          },
-        }, {
-          type: 'value',
-          position: 'left',
-          axisLine: {
-            lineStyle: {
-              color: '#7CCD7C',
-            },
-          },
-          axisLabel: {
-            formatter: '{value}',
-          },
-        }],
-        series: [{
-          name: '原数据频率',
-          type: 'bar',
-          yAxisIndex: 1,
-          data: rchartdata,
-        }, {
-          name: '正态分布',
-          type: 'line',
-          smooth: true,
-          yAxisIndex: 0,
-          data: yArr,
-        },
-        {
-          name: 'markLine1',
-          type: 'line',
-          markLine: {
-            precision: 3,
-            label: {
-              position: 'end',
-              normal: {
-                formatter: '{b}',
-              },
-            },
-            lineStyle: {
-              type: 'solid',
-              color: '#000000',
-            },
-            data: [{
-              name: 'lsl',
-              xAxis: lsl,
-            }, {
-              name: 'target',
-              xAxis: target,
-            }, {
-              name: 'usl',
-              xAxis: usl,
-            }],
-          },
-        },
-        {
-          name: 'markLine2',
-          type: 'line',
-          markLine: {
-            precision: 3,
-            label: {
-              position: 'end',
-              normal: {
-                formatter: '{b}',
-              },
-            },
-            lineStyle: {
-              type: 'solid',
-              color: '#6666cc',
-            },
-            data: [{
-              name: 'mean',
-              xAxis: mean,
-            }, {
-              name: '+3sigma',
-              xAxis: sigmaMax,
-            }, {
-              name: '-3sigma',
-              xAxis: sigmaMin,
-            }],
-          },
-        }],
-      }
-    },
     // 默认echartsjs赋值
     handleEchart (itemData) {
+      // 获取判异数组
+      this.getProList()
+
       const { i, modelCode, option, data } = itemData
       const {
         // +sigma
@@ -959,9 +562,6 @@ export default {
         down2Sigma: lsigma2,
         down3Sigma: lsigma3,
       }
-
-      // 获取判异数组
-      this.getProList()
 
       // echarts的参数,option
       let echartsParame
@@ -1261,138 +861,7 @@ export default {
 
       return echartsOption
     },
-    customXbaxValue (xbaxObj) {
-      const option = JSON.parse(xbaxObj.option)
-      const { title, xAxis, yAxis, series: [seriesItem] } = option
-      const { modelCode, dataindex, yName, max, min, cl, ucl, lcl, data, problemData } = xbaxObj
-
-      title.text = title.text || `[${modelCode} 控制图]`
-      xAxis.data = dataindex
-      yAxis.name = yAxis.name || yName
-      yAxis.max = max
-      yAxis.min = min
-
-      seriesItem.name = seriesItem.name || `${modelCode}图`
-      seriesItem.data = data
-
-      const spotColor = seriesItem.itemStyle.normal.color || '#000000'
-
-      seriesItem.itemStyle.normal.color = function (parame) {
-        const {	dataIndex } = parame
-        if (problemData.includes(dataIndex)) {
-          return '#ff0000'
-        }
-        return spotColor
-      }
-      seriesItem.markLine.formatter = function (value) {
-        return value.value.toFixed(3)
-      }
-      seriesItem.markLine.data[0].yAxis = cl
-      seriesItem.markLine.data[1].yAxis = ucl
-      seriesItem.markLine.data[2].yAxis = lcl
-
-      return option
-    },
-    customXbaxRValue (XbaxRObj, echartOption) {
-      const option = JSON.parse(echartOption)
-      const {
-        title: [titleItem1, titleItem2],
-        xAxis: [xAxisItem1, xAxisItem2],
-        yAxis: [yAxisItem1, yAxisItem2],
-        series: [seriesItem1, seriesItem2],
-      } = option
-
-      const [XbaxRObjItem1, XbaxRObjItem2] = XbaxRObj
-
-      titleItem1.text = titleItem1.text || `[${XbaxRObjItem1.modelCode}控制图]`
-      titleItem2.text = titleItem2.text || `[${XbaxRObjItem2.modelCode}控制图]`
-      xAxisItem1.data = XbaxRObjItem1.dataindex
-      xAxisItem2.data = XbaxRObjItem2.dataindex
-
-      yAxisItem1.name = yAxisItem1.name || XbaxRObjItem1.yName
-      yAxisItem1.max = XbaxRObjItem1.max
-      yAxisItem1.min = XbaxRObjItem1.min
-
-      yAxisItem2.name = yAxisItem2.name || XbaxRObjItem2.yName
-      yAxisItem2.max = XbaxRObjItem2.max
-      yAxisItem2.min = XbaxRObjItem2.min
-
-      seriesItem1.name = seriesItem1.name || `${XbaxRObjItem1.modelCode}图`
-      seriesItem1.data = XbaxRObjItem1.data
-
-      const spotColor1 = seriesItem1.itemStyle.normal.color || '#000000'
-      seriesItem1.itemStyle.normal.color = function (parame) {
-        const {	dataIndex } = parame
-        if (XbaxRObjItem1.problemData.includes(dataIndex)) {
-          return '#ff0000'
-        }
-        return spotColor1
-      }
-
-      seriesItem1.markLine.formatter = function (value) {
-        return value.value.toFixed(3)
-      }
-      seriesItem1.markLine.data[0].yAxis = XbaxRObjItem1.cl
-      seriesItem1.markLine.data[1].yAxis = XbaxRObjItem1.ucl
-      seriesItem1.markLine.data[2].yAxis = XbaxRObjItem1.lcl
-
-      seriesItem2.name = seriesItem2.name || `${XbaxRObjItem2.modelCode}图`
-      seriesItem2.data = XbaxRObjItem2.data
-
-      const spotColor2 = seriesItem2.itemStyle.normal.color || '#000000'
-      seriesItem2.itemStyle.normal.color = function (parame) {
-        const {	dataIndex } = parame
-        if (XbaxRObjItem2.problemData.includes(dataIndex)) {
-          return '#ff0000'
-        }
-        return spotColor2
-      }
-
-      seriesItem2.markLine.formatter = function (value) {
-        return value.value.toFixed(3)
-      }
-      seriesItem2.markLine.data[0].yAxis = XbaxRObjItem2.cl
-      seriesItem2.markLine.data[1].yAxis = XbaxRObjItem2.ucl
-      seriesItem2.markLine.data[2].yAxis = XbaxRObjItem2.lcl
-
-      return option
-    },
-    customCpkValue (cpkObj) {
-      const option = JSON.parse(cpkObj.option)
-      const {
-        title,
-        xAxis: [xAxisItem1],
-        series: [seriesItem1, seriesItem2, seriesItem3, seriesItem4],
-      } = option
-      const {
-        modelCode,
-        rchartdata,
-        yArr,
-        min,
-        max,
-        lsl,
-        target,
-        usl,
-        mean,
-        sigmaMax,
-        sigmaMin,
-      } = cpkObj
-
-      title.text = title.text || `[${modelCode} 控制图]`
-      xAxisItem1.min = min
-      xAxisItem1.max = max
-      seriesItem1.data = yArr
-      seriesItem2.data = rchartdata
-
-      seriesItem3.markLine.data[0].xAxis = lsl
-      seriesItem3.markLine.data[1].xAxis = target
-      seriesItem3.markLine.data[2].xAxis = usl
-
-      seriesItem4.markLine.data[0].xAxis = mean
-      seriesItem4.markLine.data[1].xAxis = sigmaMax
-      seriesItem4.markLine.data[2].xAxis = sigmaMin
-      return option
-    },
+    ...setEchartsFn,
     // 清空cpk赋值
     clearCPK () {
       this.cpkList = this.cpkList.map(cpkItem => {
@@ -1407,7 +876,7 @@ export default {
     },
     // sigma勾选
     problemOpen (i) {
-      const { analysisDetails } = this.dataList
+      const { analysisDetails } = this.customData
 
       this.problemVisible = true
       this.problemTitle = `SPC个八判异-${i + 1}`
@@ -1482,23 +951,43 @@ export default {
 
       return Array.from(new Set(resultArr))
     },
-    customDisplayFn (i) {
-      this.customDisplay[i].isDisplay = !this.customDisplay[i].isDisplay
-    },
     // 判异类型禁用
     proDisabled () {
       return !(this.problemType === 'R' || this.problemType === 'S')
     },
     proFilter (parameArr) {
-      return parameArr.filter(item => {
-        return !['r1', 'r5', 'r6', 'r7', 'r8'].includes(item)
-      })
+      return parameArr.filter(item => !['r1', 'r5', 'r6', 'r7', 'r8'].includes(item))
     },
     // 得到最新的判异
     getProList () {
-      this.ProList = this.problemList.map(item => {
-        return item.length > 1 ? item : this.formCustom.type
+      this.ProList = this.problemList.map(item => item.length > 1 ? item : this.formCustom.type)
+    },
+    // 规则
+    getModelForm (modelOptList) {
+      const dialog = {
+        dialogAttrs: {
+          title: '编辑规则',
+          width: '400px',
+        },
+        formConfig: {
+          formAttrs: { labelWidth: '110px' },
+          formItems: {},
+          formData: {},
+          rules: {},
+          beforeOpen (formData) {
+            return formData
+          },
+          beforeSubmit (formData) {
+            return formData
+          },
+        },
+      }
+      modelOptList.forEach(({ key, value, label }) => {
+        dialog.formConfig.formItems[key] = { label, component: 'el-input', clearable: true, span: 22 }
+        dialog.formConfig.formData[key] = value
+        dialog.formConfig.rules[key] = [{ required: true, message: `请输入${label}` }]
       })
+      return Promise.resolve(dialog)
     },
   },
 }

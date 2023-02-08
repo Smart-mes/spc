@@ -22,7 +22,7 @@
     <div class="login-warp">
       <!-- <h2 class="login-title">Smart数据分析平台</h2> -->
       <div class="login">
-        <h4>Smart数据分析平台</h4>
+        <h4>Smart.SPC数据分析平台</h4>
         <el-form
           ref="ruleForm"
           :model="ruleForm"
@@ -71,9 +71,7 @@ export default {
         password: '123456',
       },
       rules: {
-        username: [
-          { required: true, message: '账号不能为空', trigger: 'blur' },
-        ],
+        username: [{ required: true, message: '账号不能为空', trigger: 'blur' }],
         password: [{ required: true, message: '密码不能为空', trigger: 'blur' }],
       },
     }
@@ -82,6 +80,7 @@ export default {
     ...mapMutations(['set_user']),
     submitForm (formName) {
       const password = encrypt(this.ruleForm.password)
+
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.btnLoading = true
@@ -92,10 +91,7 @@ export default {
               password,
             })
             .then(({ data }) => {
-              const {
-                token: { tokenType, accessToken },
-                user: { username },
-              } = data
+              const { token: { tokenType, accessToken }, user: { username }} = data
               this.set_user({
                 token: `${tokenType} ${accessToken}`,
                 userInfo: { userName: encrypt(username) },
@@ -104,9 +100,9 @@ export default {
               this.$router.push({ path: '/dataModel' })
               this.btnLoading = false
             })
-            .catch(error => {
+            .catch(() => {
               this.btnLoading = false
-              this.$message.error(error)
+              // this.$message.error(error)
             })
         } else {
           return false
@@ -155,6 +151,7 @@ export default {
     margin: 0;
     margin-bottom: 40px;
     font-size: 30px;
+    text-align: center;
     font-weight: normal;
     color: $white-color;
   }

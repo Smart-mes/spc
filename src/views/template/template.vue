@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main-page">
     <head-title :head-title="title"/>
     <div class="wrap">
       <div class="btn-tool">
@@ -22,6 +22,7 @@
       :visible.sync="dialogGridVisible"
       label-width="90px"
       width="650px"
+      center
     >
       <el-form
         ref="gridForm"
@@ -225,9 +226,9 @@ export default {
               this.$router.push({ path: '/templateList' })
             })
         })
-        .catch((error) => {
-          this.$message.error(error)
-        })
+        // .catch((error) => {
+        //   this.$message.error(error)
+        // })
     },
     // 处理参数
     handleParame () {
@@ -326,9 +327,9 @@ export default {
               this.$router.push({ path: '/templateList' })
             })
         })
-        .catch((error) => {
-          this.$message.error(error)
-        })
+        // .catch((error) => {
+        //   this.$message.error(error)
+        // })
     },
   },
 }
@@ -363,6 +364,6 @@ export default {
   margin-top: 15px;
   padding: 10px;
   background: #eeecec;
-  height: calc(100vh - 235px);
+  height: calc(100vh - 215px);
 }
 </style>

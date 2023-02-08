@@ -10,12 +10,12 @@
           <!-- <keep-alive>
               <router-view :key="$route.fullPath"/>
             </keep-alive> -->
-          <transition name="move" mode="out-in">
+          <transition name="fade-transform" mode="out-in">
             <keep-alive>
               <router-view v-if="$route.meta.keepAlive"/>
             </keep-alive>
           </transition>
-          <transition name="move" mode="out-in">
+          <transition name="fade-transform" mode="out-in">
             <router-view v-if="!$route.meta.keepAlive"/>
           </transition>
         </div>
@@ -51,7 +51,6 @@ export default {
 .wrapper {
   overflow: hidden;
   position: relative;
-  // display: flex;
   height: calc(100vh - 50px);
   background: #f3f3f3;
 }
@@ -64,23 +63,35 @@ export default {
   background: #444c63;
 }
 .main {
+
   display: flex;
   flex-direction: column;
-  // flex: 1;
-  // .tag {
-  //   height: 40px;
-  // }
   position: absolute;
   top: 0;
   left:200px;
   right: 0;
   height: 100%;
   .container {
-     flex: 1;
-    overflow-y: auto;
-    margin: 10px;
+    overflow: hidden;
+    flex: 1;
+    padding: 10px;
     background: #fff;
     border: 1px solid $line-color;
   }
+}
+// 动画
+.fade-transform-enter-active,
+.fade-transform-leave-active {
+  transition: all .5s
+}
+
+.fade-transform-enter {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.fade-transform-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }
 </style>

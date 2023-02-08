@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main-page">
     <head-title/>
     <div class="wrap">
       <el-table
@@ -7,6 +7,7 @@
         :data="tableData"
         stripe
         border
+        height=" calc(100vh - 190px)"
         highlight-current-row
         @current-change="tableHandleRowChange"
         @row-dblclick="tableDblclick"
@@ -25,7 +26,6 @@
         <!-- username -->
         <el-table-column label="创建时间">
           <template slot-scope="scope">
-            <!-- {{ momentTime(scope.row.createTime) }} -->
             {{ $moment(scope.row.createTime).format('YYYY-MM-DD HH:mm:ss') }}
           </template>
         </el-table-column>
@@ -104,10 +104,7 @@ export default {
       }).then(() => {
         this.tableDelete()
       }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除',
-        })
+        this.$message({ type: 'info', message: '已取消删除' })
       })
     },
     tableModify (row) {
@@ -148,9 +145,9 @@ export default {
           }
           this.set_state({ tags: [], tagsNo: 0 })
         })
-        .catch((error) => {
-          this.$message.error(error)
-        })
+        // .catch((error) => {
+        //   this.$message.error(error)
+        // })
     },
     // tableStartUp (row) {
     //   const { name, id } = row
@@ -197,12 +194,12 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.wrap {
-  /deep/.el-table__body-wrapper {
-    height: calc(100vh - 250px);
-    overflow-y: auto;
-  }
-}
+// .wrap {
+//   /deep/.el-table__body-wrapper {
+//     height: calc(100vh - 250px);
+//     overflow-y: auto;
+//   }
+// }
 .page {
   margin-top: 10px;
 }

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import qs from 'qs'
-import { MessageBox } from 'element-ui'
+import { MessageBox, Message } from 'element-ui'
 
 import config from '@/utils/config'
 // import router from '@/router/index'
@@ -35,17 +35,18 @@ instance.interceptors.response.use(response => {
   if (code !== 0) {
     switch (code) {
       case 3001 || 302:
-        MessageBox('请登录', {
-          type: 'error',
-        }).then(() => {
-          window.location.href = '/'
-        })
+        MessageBox('请登录', { type: 'error' }).then(() => { window.location.href = '/' })
         break
       case 500:
-        MessageBox('网络错误', {
-          type: 'error',
-        })
+        Message({ message: '网络错误', type: 'error' })
         break
+      case 400:
+        Message({ message, type: 'error' })
+        break
+      case 9999:
+        Message({ message: message || '错误', type: 'error' })
+        break
+      default:
     }
 
     return Promise.reject(message)
@@ -58,17 +59,12 @@ instance.interceptors.response.use(response => {
 
   switch (status) {
     case 401 || 402:
-      MessageBox('请登录', {
-        type: 'error',
-      }).then(() => {
-        window.location.href = '/'
-      })
+      MessageBox('请登录', { type: 'error' }).then(() => { window.location.href = '/' })
       break
     case 500:
-      MessageBox('网络错误', {
-        type: 'error',
-      })
+      Message({ message: '网络错误', type: 'error' })
       break
+    default:
   }
   return Promise.reject(error)
 })

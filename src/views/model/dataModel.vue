@@ -1,5 +1,5 @@
 <template>
-  <div class="model">
+  <div class="main-page model">
     <head-title/>
     <div class="wrap">
       <div class="btn-tool">
@@ -13,6 +13,7 @@
         border
         stripe
         style="width: 100%"
+        height=" calc(100vh - 230px)"
         @current-change="tableHandleRowChange"
         @row-dblclick="tableDblclick"
       >
@@ -50,7 +51,7 @@
         />
       </div>
       <!-- 添加修改弹窗 -->
-      <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="820px">
+      <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="820px" center>
         <div class="dialog-step">
           <el-steps :active="activeStep" finish-status="success">
             <el-step title="模型参数"/>
@@ -243,12 +244,8 @@ export default {
           type: 'primary',
           icon: 'icon-add',
           text: '添加',
-          disabled: () => {
-            return false
-          },
-          click: () => {
-            this.tableAdd()
-          },
+          disabled: () => { return false },
+          click: () => { this.tableAdd() },
         },
       ],
       // table
@@ -329,10 +326,7 @@ export default {
       }).then(() => {
         this.tableDelete()
       }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除',
-        })
+        this.$message({ type: 'info', message: '已取消删除' })
       })
     },
     tableHandleRowChange (row) {
@@ -353,14 +347,12 @@ export default {
           },
         })
         .then(res => {
-          this.$message({
-            message: '删除成功',
-            type: 'success',
-          })
+          this.$message({ message: '删除成功', type: 'success' })
           this.getTable()
-        }).catch((error) => {
-          this.$message.error(error)
         })
+        // .catch((error) => {
+        //   this.$message.error(error)
+        // })
     },
     tableAdd () {
       this.dialogTitle = '添加模型'
@@ -418,9 +410,9 @@ export default {
           const { filename, path } = data
           this.fileList = [{ name: filename, url: path }]
         })
-        .catch((error) => {
-          this.$message.error(error)
-        })
+        // .catch((error) => {
+        //   this.$message.error(error)
+        // })
     },
     // Step
     dialogStep () {
@@ -483,9 +475,9 @@ export default {
           })
           this.dialogVisible = false
         })
-        .catch((error) => {
-          this.$message.error(error)
-        })
+        // .catch((error) => {
+        //   this.$message.error(error)
+        // })
     },
     submitModify () {
       if (this.modelForm.inputCode === 'Excel' && !this.fileList.length) {
@@ -504,9 +496,9 @@ export default {
           })
           this.dialogVisible = false
         })
-        .catch((error) => {
-          this.$message.error(error)
-        })
+        // .catch((error) => {
+        //   this.$message.error(error)
+        // })
     },
     // 修改获取数据
     getModifyData () {
@@ -635,12 +627,12 @@ export default {
     // background-color: #eee;
   }
 }
-.wrap {
-  /deep/.el-table__body-wrapper {
-    height: calc(100vh - 300px);
-    overflow-y: auto;
-  }
-}
+// .wrap {
+//   /deep/.el-table__body-wrapper {
+//     height: calc(100vh - 300px);
+//     overflow-y: auto;
+//   }
+// }
 .formInline {
   /deep/.el-input__inner {
     width: 160px;

@@ -21,6 +21,7 @@
       :title="dialogTitle"
       :visible.sync="dialogVisible"
       width="700px"
+      center
       @open="dialogOpen"
     >
       <el-form
@@ -95,6 +96,7 @@
       :title="dataDialogTitle"
       :visible.sync="dataDialogVisible"
       width="50%"
+      center
       @open="dataDialogOpen"
     >
       <el-table
@@ -247,6 +249,8 @@ export default {
           return 'box3'
         case 4:
           return 'box4'
+        default:
+          return ''
       }
     },
     add (i) {
@@ -300,9 +304,9 @@ export default {
           this.dataTable = list
           this.dataPageTotal = total
         })
-        .catch((error) => {
+        .catch(() => {
           this.dataTableLoading = false
-          this.$message.error(error)
+          // this.$message.error(error)
         })
     },
     async getModelList () {
@@ -311,11 +315,7 @@ export default {
     },
     getModelOption () {
       this.$http
-        .get('/model/getmodel', {
-          params: {
-            code: this.formOption.modelCode,
-          },
-        })
+        .get('/model/getmodel', { params: { code: this.formOption.modelCode }})
         .then(({ data }) => {
           const { param } = data
           this.formOption.modelOption = JSON.parse(param)

@@ -6,21 +6,18 @@
 
 <style lang="scss">
 @import '~@/assets/css/font/iconfont.css';
-//  @import '~@/assets/css/iconfont.css';
-html,
-body {
+html,body {
+  overflow: hidden;
   margin: 0;
   padding: 0;
-  list-style: none;
+  height: 100%;
+  width: 100%;
   font-size: 14px;
 }
 #app {
-  font-family: "Microsoft YaHei", 微软雅黑, "MicrosoftJhengHei", 华文细黑,
-    STHeiti, MingLiu;
-    height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
+    font-family: "Microsoft YaHei", 微软雅黑, "MicrosoftJhengHei", 华文细黑,STHeiti, MingLiu;
 }
-#nprogress .bar {
-      background: #00cc66 !important; //自定义颜色
-    }
+#nprogress .bar { background: #00cc66 !important; }
 </style>

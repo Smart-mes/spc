@@ -54,23 +54,16 @@ router.beforeEach(async (to, from, next) => {
   const { path } = to
   const isLogin = /\/login/.test(path)
   const isQrCode = /\/qrCode/.test(path)
-  // const token = $store.state.token
+
   if (isLogin || isQrCode) {
     next()
   } else {
-    const { isRouter } = $store.state
-
-    if (!isRouter) {
+    if (!$store.state.isRouter) {
       await $store.dispatch('queryMenus')
       const { routes } = $store.getters
-      // console.log('routes:::', routes)
+
       if (routes && routes.length) {
-        routes.push(
-          {
-            path: '*',
-            redirect: '/404',
-          }
-        )
+        routes.push({ path: '*', redirect: '/404' })
         router.addRoutes(routes)
       }
       next({ ...to, replace: true })

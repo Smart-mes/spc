@@ -68,49 +68,19 @@ export default {
       tags: state => state.tags,
       tagsTitle: state => state.tagsTitle,
       firstIndex () {
-        return this.tags.findIndex(item => {
-          const { visible } = item
-          return visible
-        })
+        return this.tags.findIndex(({ visible }) => visible)
       },
     }),
     fristSection () {
       return this.firstIndex + 10
     },
-    lastIndex () {
-      const tags = this.tags.slice(this.firstIndex, this.fristSection)
-      const lastIndex = _.findLastIndex(tags, (tagItem) => {
-        if (!this.tagsTitle) {
-          return tagItem.title
-        } else {
-          return tagItem.title === this.tagsTitle
-        }
-      })
-      return lastIndex + this.firstIndex
-    },
-    addLastIndex () {
-      const tags = this.tags.slice(this.fristSection, this.tags.length)
-      const lastIndex = _.findLastIndex(tags, (tagItem) => {
-        return tagItem.title === this.tagsTitle
-      })
-      return lastIndex !== -1 ? lastIndex + this.fristSection : lastIndex
-    },
   },
   watch: {
-    firstIndex () {
-      this.tagsType === 'filter' && this.setActive(this.firstIndex)
-    },
-    lastIndex () {
-      this.tagsType === 'add' && this.setActive(this.lastIndex)
-    },
-    addLastIndex () {
-      if (this.addLastIndex !== -1) {
-        const x = this.fristSection - 1
-        const y = this.addLastIndex
-        this.swap_tags({ x, y })
+    firstIndex (val) {
+      if (val !== -1) {
+        this.setActive(val)
       }
     },
-
   },
   methods: {
     ...mapMutations(['del_tags', 'swap_tags', 'set_state']),
@@ -118,33 +88,42 @@ export default {
       this.setActive(i)
     },
     del (i) {
-      this.addLastIndex === -1 && this.lastIndex === this.activeValue && this.setActive(i - 1)
       this.del_tags(i)
-      !this.tags.length && this.set_state({ tagsNo: 0 })
+      if (i === 0) {
+        this.setActive(0)
+      } else if (this.activeValue < i) {
+        this.setActive(this.activeValue)
+      } else if (this.activeValue >= i) {
+        this.setActive(i - 1)
+      }
+      if (!this.tags.length) { this.set_state({ tagsNo: 0 }) }
     },
     handleCommand (command) {
-      if (command === 'a' && !this.tagsTitle) {
-        this.set_state({ tags: [{ ...this.tags[this.activeValue] }] })
+      if (command === 'a') {
+        if (!this.tagsTitle) {
+          this.set_state({ tags: [{ ...this.tags[this.activeValue] }] })
+        } else {
+          const tagsActive = { ...this.tags[this.activeValue] }
+          this.set_state({ tags: this.getTagsFilter() })
+          this.tags.splice(this.firstIndex, 0, tagsActive)
+        }
         this.setActive(0)
-      } else if (command === 'a' && this.tagsTitle) {
-        const tagsActive = { ...this.tags[this.activeValue] }
-        const firstIndex = this.firstIndex
-        const tagsFilter = this.getTagsFilter()
-
-        this.set_state({ tags: tagsFilter })
-        this.tags.splice(firstIndex, 0, tagsActive)
-      } else if (command === 'b' && !this.tagsTitle) {
-        this.set_state({ tags: [] })
+      } else if (command === 'b') {
+        if (!this.tagsTitle) {
+          this.set_state({ tags: [] })
+        } else {
+          this.set_state({ tags: this.getTagsFilter() })
+        }
         this.setActive(0)
-      } else if (command === 'b' && this.tagsTitle) {
-        const tagsFilter = this.getTagsFilter()
-
-        this.set_state({ tags: tagsFilter })
-        this.activeValue > this.tags.length && this.setActive(0)
       }
 
-      command === 'b' && !this.tags.length && this.set_state({ tagsNo: 0 })
-      typeof (command) === 'object' && this.tabSwap(command)
+      // 设置赋值
+      if (command === 'b' && !this.tags.length) {
+        this.set_state({ tagsNo: 0 })
+      }
+      if (typeof (command) === 'object') {
+        this.tabSwap(command)
+      }
     },
     getTagsFilter () {
       return this.tags.filter(tagsItem => {
@@ -155,9 +134,11 @@ export default {
     tabSwap (item) {
       const x = this.activeValue
       const y = this.tags.indexOf(item)
-
       this.swap_tags({ x, y })
       // this.setActive(0)
+    },
+    getActive () {
+      this.tags
     },
     setActive (num) {
       this.activeValue = num
