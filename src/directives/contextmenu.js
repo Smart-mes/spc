@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 export default {
-  inserted(el, binding, vnode) {
+  inserted (el, binding, vnode) {
     el.addEventListener('contextmenu', (event) => {
       event.preventDefault()
       const menuDict = binding.value

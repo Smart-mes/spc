@@ -94,6 +94,8 @@
       <ul :class="['box',getClass()]">
         <li v-for="(item,i) in tempNum" :key="i" :data-id="customData.analysisDetails[i].id">
           <div v-if="cpkList[i].modelCode==='CPK'" class="box-item cpk-item">
+            <div v-contextmenu="CPKcontextmenuCfg" class="contextmenu" :data-index="i"/>
+            <!-- 正文 -->
             <div class="cpk-box">
               <div class="cpk-box-item">
                 <h5> 统计样本</h5>
@@ -110,7 +112,7 @@
                   v-show="isEchartsList[i].isVisible"
                   class="none"
                 >
-                  暂时没有数据
+                  没有数据
                 </div>
                 <h5>常量</h5>
                 <ul>
@@ -131,7 +133,7 @@
               </div>
               <!-- /计算值-->
             </div>
-            <div v-contextmenu="CPKcontextmenuCfg" :data-index="i" class="echarts-box"/>
+            <div class="echarts-box"/>
             <div class="cpk-right cpk-box">
               <h4>——短期</h4>
               <div class="cpk-box-item">
@@ -154,7 +156,9 @@
             </div>
           </div>
           <div v-else class="box-item">
-            <div v-contextmenu="contextmenuCfg" :data-index="i" class="echarts-box"/>
+            <div v-contextmenu="contextmenuCfg" class="contextmenu" :data-index="i"/>
+            <!-- 正文 -->
+            <div class="echarts-box"/>
             <div v-show="isEchartsList[i].isVisible" class="none">没有数据</div>
           </div>
         </li>
@@ -213,7 +217,7 @@ export default {
       // customVisible: [],
       spcVisible: true,
       // 配置规则
-      modelOptList: [],
+      // modelOptList: [],
       // 模板类型
       tempNum: '',
       // cpk
@@ -252,26 +256,16 @@ export default {
   },
   computed: {
     searchVisible () {
-      const arr = this.cpkList.map(mapItem => {
-        return mapItem.modelCode
-      })
-        .filter(filterItem => { return filterItem !== 'CPK' })
+      const arr = this.cpkList.map(mapItem => mapItem.modelCode).filter(filterItem => filterItem !== 'CPK')
       return !!arr.length
     },
     CPKcontextmenuCfg () {
       return {
-        'echarts-box': {
+        'contextmenu': {
           list: [
             {
               label: '编辑规则',
-              handler: (target) => {
-                const i = target.getAttribute('data-index')
-                this.getModelForm(this.modelOptList[i])
-                  .then(formCfg => this.$showDialogForm(formCfg))
-                  .then(formData => {
-                    console.log('formData:', formData)
-                  })
-              },
+              handler: (target) => { this.contextmenu(target) },
             },
           ],
         },
@@ -279,25 +273,17 @@ export default {
     },
     contextmenuCfg () {
       return {
-        'echarts-box': {
+        'contextmenu': {
           list: [
             {
               label: 'spc判异',
               handler: (target) => {
-                const i = target.getAttribute('data-index')
-                this.problemOpen(i)
+                this.problemOpen(target.getAttribute('data-index'))
               },
             },
             {
               label: '编辑规则',
-              handler: (target) => {
-                const i = target.getAttribute('data-index')
-                this.getModelForm(this.modelOptList[i])
-                  .then(formCfg => this.$showDialogForm(formCfg))
-                  .then(formData => {
-                    console.log('formData:', formData)
-                  })
-              },
+              handler: (target) => { this.contextmenu(target) },
             },
           ],
         },
@@ -321,8 +307,6 @@ export default {
         .get('/analysis/viewMyAnalysis', { params: { id: id }})
         .then(({ data }) => {
           this.customData = data
-          // console.log('data:', data)
-
           this.tempNum = Number(data.template)
           this.cpkList = data.analysisDetails.map((analysisItem, i) => {
             const { modelCode } = analysisItem
@@ -350,8 +334,7 @@ export default {
           this.loading = false
           const customList = this.getCustomList()
           this.formCustom.customList = JSON.parse(JSON.stringify(customList))
-          this.modelOptList = this.customData.analysisDetails.map(({ modelOption }) => JSON.parse(modelOption))
-          console.log('this.modelOptList ', this.modelOptList)
+          // this.modelOptList = this.customData.analysisDetails.map(({ modelOption }) => JSON.parse(modelOption))
         })
         .catch(() => {
           this.loading = false
@@ -945,6 +928,7 @@ export default {
           case 'r8':
             newArr = unusual.getSpc7({ data, segment: 8, total: 8, greater: upSigma, less: downSigma, cl, type: 'eight' })
             break
+          default:
         }
         resultArr.push(...newArr)
       })
@@ -963,7 +947,7 @@ export default {
       this.ProList = this.problemList.map(item => item.length > 1 ? item : this.formCustom.type)
     },
     // 规则
-    getModelForm (modelOptList) {
+    getModelForm (modelOpt) {
       const dialog = {
         dialogAttrs: {
           title: '编辑规则',
@@ -982,12 +966,51 @@ export default {
           },
         },
       }
-      modelOptList.forEach(({ key, value, label }) => {
+      modelOpt.forEach(({ key, value, label }) => {
         dialog.formConfig.formItems[key] = { label, component: 'el-input', clearable: true, span: 22 }
         dialog.formConfig.formData[key] = value
         dialog.formConfig.rules[key] = [{ required: true, message: `请输入${label}` }]
       })
       return Promise.resolve(dialog)
+    },
+    contextmenu (target) {
+      const i = target.getAttribute('data-index')
+      const modelOpt = JSON.parse(this.customData.analysisDetails[i].modelOption)
+
+      this.getModelForm(modelOpt)
+        .then(formCfg => this.$showDialogForm(formCfg))
+        .then(formData => {
+          const { analysisDetails, id, name, template } = this.customData
+          // modelOpt
+          const modelOption = modelOpt.map((modelItem) => {
+            modelItem.value = formData[modelItem.key]
+            return modelItem
+          })
+
+          return {
+            analysisDetails: [
+              {
+                id: analysisDetails[i].id,
+                cleanData: analysisDetails[i].cleanData,
+                customOption: analysisDetails[i].customOption,
+                dataSource: { name: analysisDetails[i].name },
+                name: analysisDetails[i].name,
+                dataSourceId: analysisDetails[i].dataSourceId,
+                modelCode: analysisDetails[i].modelCode,
+                option: analysisDetails[i].option,
+                modelOption: JSON.stringify(modelOption),
+              },
+            ],
+            id,
+            name,
+            template,
+          }
+        })
+        .then((data) => {
+          this.$http.put('/analysis/updateDesign', data).then(() => {
+            this.$message.success('修改成功')
+          })
+        })
     },
   },
 }
@@ -1062,11 +1085,7 @@ padding: 0 20px;
     height: 100%;
     border: 1px solid #aaa;
     background: #fff;
-    .btn-box{
-      position: absolute;
-      top: 10px;
-      right:10px;
-    }
+    .contextmenu{position: absolute; width: 100%;height: 100%;z-index: 9;}
     .none{
       position: absolute;
       top: 50%;
@@ -1092,15 +1111,14 @@ padding: 0 20px;
       text-align: left;
       border: 1px solid #aaa;
       ul{ padding: 3px;}
-
        li{
          overflow: hidden;
          text-overflow:ellipsis;
          white-space: nowrap;
-         >span{
-        display: inline-block;
-        text-align: right;
-        width: 65px;
+         span{
+          display: inline-block;
+          text-align: right;
+          width: 65px;
         }
        }
       h5{
@@ -1113,9 +1131,7 @@ padding: 0 20px;
       // width: 100px;
       .cpk-box-item{
         margin:10px 10px 0 0;
-       li>span{
-        width: 50px;
-        }
+       li span{ width: 50px; }
       }
     }
 
@@ -1123,24 +1139,17 @@ padding: 0 20px;
 
 }
 /* 不同的列表*/
-.boxDefault {
-  > li {
-    flex: 1;
-  }
-}
+.boxDefault { li { flex: 1;}}
 .boxOdd{
-  > li {
-    width: 50%;
+   li { width: 50%;
   }
-  > li:last-child {
+   li:last-child {
     width: 100%;
   }
 }
 
 .boxEven {
-  > li {
-    width: 50%;
-  }
+   li { width: 50%;}
 }
 .problemFrom{
   /deep/ .el-checkbox{
