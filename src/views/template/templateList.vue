@@ -84,7 +84,6 @@ export default {
     this.getTable()
   },
   methods: {
-    // ...mapMutations(['add_tags', 'set_state']),
     ...mapMutations(['set_state']),
     // 分页
     handlePageSize (val) {

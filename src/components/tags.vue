@@ -3,7 +3,7 @@
     <div class="tag-box">
       <ul>
         <li
-          v-for="(item,i) in tags.slice(firstIndex,fristSection)"
+          v-for="(item,i) in tags.slice(firstIndex,section)"
           v-show="item.visible"
           :key="item.key"
           :class="{'active':i+firstIndex === activeValue}"
@@ -40,7 +40,7 @@
           </el-dropdown-item>
           <el-dropdown-item divided/>
           <el-dropdown-item
-            v-for="tagsItem in tags.slice(fristSection,tags.length)"
+            v-for="tagsItem in tags.slice(section,tags.length)"
             v-show="tagsItem.visible"
             :key="tagsItem.key"
             :command="tagsItem"
@@ -71,16 +71,39 @@ export default {
         return this.tags.findIndex(({ visible }) => visible)
       },
     }),
-    fristSection () {
+    section () {
       return this.firstIndex + 10
+    },
+    lastIndex () {
+      const tags = this.tags.slice(this.firstIndex, this.section)
+      const lastIndex = _.findLastIndex(tags, (tagItem) => {
+        if (!this.tagsTitle) {
+          return tagItem.title
+        } else {
+          return tagItem.title === this.tagsTitle
+        }
+      })
+      return lastIndex + this.firstIndex
+    },
+    addLastIndex () {
+      const tags = this.tags.slice(this.section, this.tags.length)
+      const lastIndex = _.findLastIndex(tags, (tagItem) => (tagItem.title === this.tagsTitle))
+      return lastIndex !== -1 ? lastIndex + this.section : lastIndex
     },
   },
   watch: {
-    firstIndex (val) {
-      if (val !== -1) {
-        this.setActive(val)
+    lastIndex () {
+      if (this.tagsType === 'filter') this.setActive(this.firstIndex)
+      else if (this.tagsType === 'add') this.setActive(this.lastIndex)
+    },
+    addLastIndex () {
+      if (this.addLastIndex !== -1) {
+        const x = this.section - 1
+        const y = this.addLastIndex
+        this.swap_tags({ x, y })
       }
     },
+
   },
   methods: {
     ...mapMutations(['del_tags', 'swap_tags', 'set_state']),
@@ -88,42 +111,31 @@ export default {
       this.setActive(i)
     },
     del (i) {
+      this.set_state({ tagsType: 'del' })
       this.del_tags(i)
-      if (i === 0) {
-        this.setActive(0)
-      } else if (this.activeValue < i) {
-        this.setActive(this.activeValue)
-      } else if (this.activeValue >= i) {
+      if (this.addLastIndex === -1 && this.lastIndex === this.activeValue) {
         this.setActive(i - 1)
       }
-      if (!this.tags.length) { this.set_state({ tagsNo: 0 }) }
+      if (!this.tags.length) this.set_state({ tagsNo: 0 })
     },
     handleCommand (command) {
-      if (command === 'a') {
-        if (!this.tagsTitle) {
-          this.set_state({ tags: [{ ...this.tags[this.activeValue] }] })
-        } else {
-          const tagsActive = { ...this.tags[this.activeValue] }
-          this.set_state({ tags: this.getTagsFilter() })
-          this.tags.splice(this.firstIndex, 0, tagsActive)
-        }
+      if (command === 'a' && !this.tagsTitle) {
+        this.set_state({ tags: [{ ...this.tags[this.activeValue] }] })
         this.setActive(0)
-      } else if (command === 'b') {
-        if (!this.tagsTitle) {
-          this.set_state({ tags: [] })
-        } else {
-          this.set_state({ tags: this.getTagsFilter() })
-        }
+      } else if (command === 'a' && this.tagsTitle) {
+        this.set_state({ tags: this.getTagsFilter() })
+        this.tags.splice(this.firstIndex, 0, { ...this.tags[this.activeValue] })
+      } else if (command === 'b' && !this.tagsTitle) {
+        this.set_state({ tags: [] })
         this.setActive(0)
+      } else if (command === 'b' && this.tagsTitle) {
+        this.set_state({ tags: this.getTagsFilter() })
+        if (this.activeValue > this.tags.length) this.setActive(0)
       }
 
-      // 设置赋值
-      if (command === 'b' && !this.tags.length) {
-        this.set_state({ tagsNo: 0 })
-      }
-      if (typeof (command) === 'object') {
-        this.tabSwap(command)
-      }
+      // 赋值
+      if (command === 'b' && !this.tags.length) { this.set_state({ tagsNo: 0 }) }
+      if (typeof (command) === 'object') { this.tabSwap(command) }
     },
     getTagsFilter () {
       return this.tags.filter(tagsItem => {
@@ -135,10 +147,6 @@ export default {
       const x = this.activeValue
       const y = this.tags.indexOf(item)
       this.swap_tags({ x, y })
-      // this.setActive(0)
-    },
-    getActive () {
-      this.tags
     },
     setActive (num) {
       this.activeValue = num

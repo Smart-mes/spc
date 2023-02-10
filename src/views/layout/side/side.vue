@@ -38,13 +38,13 @@
               > {{ list.title }}</span>
               <i
                 class="iconfont icon-add fr"
-                @click.stop="clickFilter(list)"
+                @click.stop="clickAdd(list)"
               />
             </el-menu-item>
           </el-menu-item-group>
         </el-submenu>
         <el-menu-item
-          v-else
+          v-if="!item.children"
           :key="item.id"
           :index="item.path"
           @click="toPath(item)"
@@ -85,7 +85,6 @@ export default {
       const [path, dataParams] = item.path.split('?')
 
       if (dataParams && path === '/analyse/myAnalyse') {
-        // console.log('1')
         this.id = dataParams.substring(3)
         this.set_state({ tagsType: 'filter' })
         this.fiter_tags(title)
@@ -99,9 +98,8 @@ export default {
 
       this.$router.push({ path })
     },
-    clickFilter (item) {
+    clickAdd (item) {
       const { id, title } = item
-
       this.id = id
       this.add_tags(item)
       this.set_state({ tagsType: 'add' })
