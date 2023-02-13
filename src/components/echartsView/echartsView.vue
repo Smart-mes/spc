@@ -1,169 +1,171 @@
 <template>
   <div v-loading="loading" class="custom-wrap">
-    <div class="customSearch">
-      <el-form :inline="true" label-position="left" label-width="105px" class="formInline">
-        <div
-          v-for="(custom) in formCustom.customList"
-          :key="custom.id"
-          class="custom-box"
-        >
-          <div v-if="custom.customParam.length>0" class="subtitle2">
-            <h4 class="fl">{{ custom.name }}</h4>
-            <i
-              :title="custom.isVisible?'展开':'收起'"
-              :class="['fr','iconfont',custom.isVisible?'icon-drown':'icon-up']"
-              @click="custom.isVisible=!custom.isVisible"
-            />
-          </div>
-          <div v-show="custom.isVisible">
-            <div
-              v-for="(customItem1,i) in custom.customParam"
-              :key="i"
-              class="list-box"
-            >
-              <el-form-item
-                v-for="(customItem2,j) in customItem1"
-                :key="j"
-                :label="customItem2.label +' ('+customItem2.option+')'"
-                :title="customItem2.label +' ('+customItem2.option+')'"
+    <el-scrollbar style="height:100%">
+      <div class="customSearch">
+        <el-form :inline="true" label-position="left" label-width="105px" class="formInline">
+          <div
+            v-for="(custom) in formCustom.customList"
+            :key="custom.id"
+            class="custom-box"
+          >
+            <div v-if="custom.customParam.length>0" class="subtitle2">
+              <h4 class="fl">{{ custom.name }}</h4>
+              <i
+                :title="custom.isVisible?'展开':'收起'"
+                :class="['fr','iconfont',custom.isVisible?'icon-drown':'icon-up']"
+                @click="custom.isVisible=!custom.isVisible"
+              />
+            </div>
+            <div v-show="custom.isVisible">
+              <div
+                v-for="(customItem1,i) in custom.customParam"
+                :key="i"
+                class="list-box"
               >
-                <el-date-picker
-                  v-if="(/^.*(time).*$/gi).test(customItem2.key)"
-                  v-model="customItem2.value"
-                  size="mini"
-                  type="datetime"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  default-time="08:00:00"
-                  placeholder="选择日期时间"
-                />
+                <el-form-item
+                  v-for="(customItem2,j) in customItem1"
+                  :key="j"
+                  :label="customItem2.label +' ('+customItem2.option+')'"
+                  :title="customItem2.label +' ('+customItem2.option+')'"
+                >
+                  <el-date-picker
+                    v-if="(/^.*(time).*$/gi).test(customItem2.key)"
+                    v-model="customItem2.value"
+                    size="mini"
+                    type="datetime"
+                    value-format="yyyy-MM-dd HH:mm:ss"
+                    default-time="08:00:00"
+                    placeholder="选择日期时间"
+                  />
 
-                <el-input
-                  v-else
-                  v-model="customItem2.value"
-                  size="mini"
-                  clearable
-                />
+                  <el-input
+                    v-else
+                    v-model="customItem2.value"
+                    size="mini"
+                    clearable
+                  />
+                </el-form-item>
+              </div>
+            </div>
+          </div>
+          <!-- SPC判异 -->
+          <div v-if="searchVisible">
+            <div class="subtitle2">
+              <h4 class="fl">spc判异</h4>
+              <i
+                :title="spcVisible?'展开':'收起'"
+                :class="['fr','iconfont',spcVisible?'icon-drown':'icon-up']"
+                @click="spcVisible=!spcVisible"
+              />
+            </div>
+            <div v-show="spcVisible" class="problem">
+              <el-form-item label="判异选择">
+                <el-checkbox-group v-model="formCustom.type">
+                  <el-checkbox label="r0" name="type" disabled>r0,超出规格</el-checkbox>
+                  <el-checkbox label="r1" name="type">r1,落在3倍sigma区以外</el-checkbox>
+                  <el-checkbox label="r2" name="type">r2,连续9个点在中心线同侧</el-checkbox>
+                  <el-checkbox label="r3" name="type">r3,连续6点递增或递减</el-checkbox>
+                  <el-checkbox label="r4" name="type">r4,连续14点中相邻点交替上下</el-checkbox>
+                  <el-checkbox label="r5" name="type">r5,连续3个点中有2点在中心线同侧2倍sigma区以外</el-checkbox>
+                  <el-checkbox label="r6" name="type">r6,连续5个点中有4点在中心线同侧1倍sigma区以外</el-checkbox>
+                  <el-checkbox label="r7" name="type">r7,连续15个点落在中心线两侧的1倍的sigma区内</el-checkbox>
+                  <el-checkbox label="r8" name="type">r8,连续8个点落在中心线两侧且无在1倍sigma区内</el-checkbox>
+                </el-checkbox-group>
               </el-form-item>
             </div>
           </div>
+        </el-form>
+        <div class="btn">
+          <el-button
+            type="primary"
+            :disabled="isBtnSearch"
+            @click="search"
+          >
+            <i class="iconfont icon-search"/>搜索
+          </el-button>
+          <el-button @click="clearSearch">清空搜索</el-button>
         </div>
-        <!-- SPC判异 -->
-        <div v-if="searchVisible">
-          <div class="subtitle2">
-            <h4 class="fl">spc判异</h4>
-            <i
-              :title="spcVisible?'展开':'收起'"
-              :class="['fr','iconfont',spcVisible?'icon-drown':'icon-up']"
-              @click="spcVisible=!spcVisible"
-            />
-          </div>
-          <div v-show="spcVisible" class="problem">
-            <el-form-item label="判异选择">
-              <el-checkbox-group v-model="formCustom.type">
-                <el-checkbox label="r0" name="type" disabled>r0,超出规格</el-checkbox>
-                <el-checkbox label="r1" name="type">r1,落在3倍sigma区以外</el-checkbox>
-                <el-checkbox label="r2" name="type">r2,连续9个点在中心线同侧</el-checkbox>
-                <el-checkbox label="r3" name="type">r3,连续6点递增或递减</el-checkbox>
-                <el-checkbox label="r4" name="type">r4,连续14点中相邻点交替上下</el-checkbox>
-                <el-checkbox label="r5" name="type">r5,连续3个点中有2点在中心线同侧2倍sigma区以外</el-checkbox>
-                <el-checkbox label="r6" name="type">r6,连续5个点中有4点在中心线同侧1倍sigma区以外</el-checkbox>
-                <el-checkbox label="r7" name="type">r7,连续15个点落在中心线两侧的1倍的sigma区内</el-checkbox>
-                <el-checkbox label="r8" name="type">r8,连续8个点落在中心线两侧且无在1倍sigma区内</el-checkbox>
-              </el-checkbox-group>
-            </el-form-item>
-          </div>
-        </div>
-      </el-form>
-      <div class="btn">
-        <el-button
-          type="primary"
-          :disabled="isBtnSearch"
-          @click="search"
-        >
-          <i class="iconfont icon-search"/>搜索
-        </el-button>
-        <el-button @click="clearSearch">清空搜索</el-button>
       </div>
-    </div>
-    <!-- 搜索条件 -->
-    <div
-      :id="`echarts${tagsItem.no}`"
-      v-loading="echartsLoading"
-      class="echarts-warp"
-    >
-      <ul :class="['box',getClass()]">
-        <li v-for="(item,i) in tempNum" :key="i" :data-id="customData.analysisDetails[i].id">
-          <div v-if="cpkList[i].modelCode==='CPK'" class="box-item cpk-item">
-            <div v-contextmenu="CPKcontextmenuCfg" class="contextmenu" :data-index="i"/>
-            <!-- 正文 -->
-            <div class="cpk-box">
-              <div class="cpk-box-item">
-                <h5> 统计样本</h5>
-                <ul>
-                  <li><span>统计样本：</span>{{ cpkList[i].data.totalnum }}</li>
-                  <li><span>平 均 值：</span>{{ cpkList[i].data.mean }}</li>
-                  <li><span>最 大 值：</span>{{ cpkList[i].data.dataMax }}</li>
-                  <li><span>最 小 值：</span>{{ cpkList[i].data.dataMin }}</li>
-                </ul>
-              </div>
-              <!-- /统计样本 -->
-              <div class="cpk-box-item">
-                <div
-                  v-show="isEchartsList[i].isVisible"
-                  class="none"
-                >
-                  没有数据
+      <!-- 搜索条件 -->
+      <div
+        :id="`echarts${tagsItem.no}`"
+        v-loading="echartsLoading"
+        class="echarts-warp"
+      >
+        <ul :class="['box',getClass()]">
+          <li v-for="(item,i) in tempNum" :key="i" :data-id="customData.analysisDetails[i].id">
+            <div v-if="cpkList[i].modelCode==='CPK'" class="box-item cpk-item">
+              <div v-contextmenu="CPKcontextmenuCfg" class="contextmenu" :data-index="i"/>
+              <!-- 正文 -->
+              <div class="cpk-box">
+                <div class="cpk-box-item">
+                  <h5> 统计样本</h5>
+                  <ul>
+                    <li><span>统计样本：</span>{{ cpkList[i].data.totalnum }}</li>
+                    <li><span>平 均 值：</span>{{ cpkList[i].data.mean }}</li>
+                    <li><span>最 大 值：</span>{{ cpkList[i].data.dataMax }}</li>
+                    <li><span>最 小 值：</span>{{ cpkList[i].data.dataMin }}</li>
+                  </ul>
                 </div>
-                <h5>常量</h5>
-                <ul>
-                  <li><span>子组大小：</span>{{ cpkList[i].data.size }}</li>
-                  <li><span>规格下限：</span>{{ cpkList[i].data.lsl }}</li>
-                  <li><span>目 标 值：</span>{{ cpkList[i].data.target }}</li>
-                  <li><span>规格上限：</span>{{ cpkList[i].data.usl }}</li>
-                </ul>
-              </div>
-              <!-- /常量-->
-              <div class="cpk-box-item">
-                <h5>计算值</h5>
-                <ul>
-                  <li><span>标准差：</span>{{ cpkList[i].data.sigma }}</li>
-                  <li><span>+3标准差：</span>{{ cpkList[i].data.sigmaMin }}</li>
-                  <li><span>-3标准差：</span>{{ cpkList[i].data.sigmaMax }}</li>
-                </ul>
-              </div>
+                <!-- /统计样本 -->
+                <div class="cpk-box-item">
+                  <div
+                    v-show="isEchartsList[i].isVisible"
+                    class="none"
+                  >
+                    没有数据
+                  </div>
+                  <h5>常量</h5>
+                  <ul>
+                    <li><span>子组大小：</span>{{ cpkList[i].data.size }}</li>
+                    <li><span>规格下限：</span>{{ cpkList[i].data.lsl }}</li>
+                    <li><span>目 标 值：</span>{{ cpkList[i].data.target }}</li>
+                    <li><span>规格上限：</span>{{ cpkList[i].data.usl }}</li>
+                  </ul>
+                </div>
+                <!-- /常量-->
+                <div class="cpk-box-item">
+                  <h5>计算值</h5>
+                  <ul>
+                    <li><span>标准差：</span>{{ cpkList[i].data.sigma }}</li>
+                    <li><span>+3标准差：</span>{{ cpkList[i].data.sigmaMin }}</li>
+                    <li><span>-3标准差：</span>{{ cpkList[i].data.sigmaMax }}</li>
+                  </ul>
+                </div>
               <!-- /计算值-->
-            </div>
-            <div class="echarts-box"/>
-            <div class="cpk-right cpk-box">
-              <h4>——短期</h4>
-              <div class="cpk-box-item">
-                <h5>短期工序能力</h5>
-                <ul>
-                  <li><span>Cpk：</span>{{ cpkList[i].data.cpk }}</li>
-                  <li><span>Cp：</span>{{ cpkList[i].data.cp }}</li>
-                  <li><span>CPL：</span>{{ cpkList[i].data.cpl }}</li>
-                  <li><span>CPU：</span>{{ cpkList[i].data.cpu }}</li>
-                </ul>
               </div>
+              <div class="echarts-box"/>
+              <div class="cpk-right cpk-box">
+                <h4>——短期</h4>
+                <div class="cpk-box-item">
+                  <h5>短期工序能力</h5>
+                  <ul>
+                    <li><span>Cpk：</span>{{ cpkList[i].data.cpk }}</li>
+                    <li><span>Cp：</span>{{ cpkList[i].data.cp }}</li>
+                    <li><span>CPL：</span>{{ cpkList[i].data.cpl }}</li>
+                    <li><span>CPU：</span>{{ cpkList[i].data.cpu }}</li>
+                  </ul>
+                </div>
+                <!-- /短期工序能力-->
+                <div class="cpk-box-item">
+                  <h5>其他值</h5>
+                  <ul>
+                    <li><span>CA：</span>{{ cpkList[i].data.ca }}</li>
+                  </ul>
+                </div>
               <!-- /短期工序能力-->
-              <div class="cpk-box-item">
-                <h5>其他值</h5>
-                <ul>
-                  <li><span>CA：</span>{{ cpkList[i].data.ca }}</li>
-                </ul>
               </div>
-              <!-- /短期工序能力-->
             </div>
-          </div>
-          <div v-else class="box-item">
-            <div v-contextmenu="contextmenuCfg" class="contextmenu" :data-index="i"/>
-            <!-- 正文 -->
-            <div class="echarts-box"/>
-            <div v-show="isEchartsList[i].isVisible" class="none">没有数据</div>
-          </div>
-        </li>
-      </ul>
-    </div>
+            <div v-else class="box-item">
+              <div v-contextmenu="contextmenuCfg" class="contextmenu" :data-index="i"/>
+              <!-- 正文 -->
+              <div class="echarts-box"/>
+              <div v-show="isEchartsList[i].isVisible" class="none">没有数据</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </el-scrollbar>
     <!--sigma 弹窗-->
     <el-dialog
       :title="problemTitle"
@@ -395,7 +397,7 @@ export default {
       })
 
       // 参数合并, 遍历数据
-      const analyseArr = analysisDetails.map((analysisItem) => {
+      const analyseList = analysisDetails.map((analysisItem) => {
         const { id, analysisId, modelCode, modelOption, dataSource } = analysisItem
 
         const [customObj] = customArr.filter(customItem => {
@@ -415,7 +417,7 @@ export default {
       })
 
       this.$http
-        .post('/analysis/doMyAnalysis', { id, analysisDetails: analyseArr })
+        .post('/analysis/doMyAnalysis', { id, analysisDetails: analyseList })
         .then(res => {
           this.isBtnSearch = false
           this.echartsLoading = false
@@ -423,7 +425,7 @@ export default {
 
           // 组装data
           const { analysisDetails } = this.customData
-          const echartArr = analysisDetails.map(analysisItem => {
+          const echartList = analysisDetails.map(analysisItem => {
             const { modelCode, option } = analysisItem
             const [filterItem] = data.filter(filterItem => {
               const { id, dataSourceId } = filterItem
@@ -432,7 +434,7 @@ export default {
             return { modelCode, option, ...filterItem }
           })
 
-          echartArr.map((echartItem, i) => {
+          echartList.map((echartItem, i) => {
             const { modelCode, data } = echartItem
             // 存cpk的数据
             if (modelCode === 'CPK' && data !== null) {
@@ -444,7 +446,9 @@ export default {
             }
             this.isEchartsList[i].isVisible = data === null
           })
-          this.echartInit(echartArr)
+          console.log(JSON.stringify(echartList, null, 4))
+
+          this.echartInit(echartList)
         }).catch(() => {
           // this.$message.error(error)
           this.isBtnSearch = false
@@ -871,6 +875,7 @@ export default {
     problemSubmit () {
       this.problemList[this.problemIndex] = this.problemForm.type
       this.problemVisible = false
+      this.search()
     },
     getProblem (spcParame) {
       const {
@@ -1006,11 +1011,11 @@ export default {
             template,
           }
         })
-        .then((data) => {
-          this.$http.put('/analysis/updateDesign', data).then(() => {
+        .then((modelData) => {
+          this.$http.put('/analysis/updateDesign', modelData).then(({ data: { analysisDetails: [{ modelOption }] }}) => {
             this.$message.success('修改成功')
-            this.this.init()
-            this.clearSearch()
+            this.customData.analysisDetails[i].modelOption = modelOption
+            this.search()
           })
         })
     },
@@ -1021,7 +1026,7 @@ export default {
 .custom-wrap{
 padding: 0 20px;
  height: calc(100vh - 140px);
- overflow-y: auto;
+//  overflow-y: auto;
 }
 .customSearch {
   overflow: hidden;

@@ -113,7 +113,10 @@ export default {
     del (i) {
       this.set_state({ tagsType: 'del' })
       this.del_tags(i)
-      if (this.addLastIndex === -1 && this.lastIndex === this.activeValue) {
+      console.log('this.addLastIndex：', this.addLastIndex)
+      console.log('this.activeValue:', this.activeValue)
+      console.log(' this.lastIndex', this.lastIndex)
+      if (this.addLastIndex === -1 && this.activeValue > this.lastIndex) {
         this.setActive(i - 1)
       }
       if (!this.tags.length) this.set_state({ tagsNo: 0 })
@@ -158,7 +161,7 @@ export default {
 <style lang="scss" scoped>
 .tags {
   display: flex;
-  padding: 10px 35px 10px 20px;
+  padding: 10px 30px 10px 20px;
   align-items: center;
   height: 30px;
   background: #fff;

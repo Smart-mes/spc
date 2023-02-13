@@ -1,61 +1,63 @@
 <template>
   <div class="sidebar">
-    <el-menu
-      :collapse="isCollapse"
-      class="el-menu-vertical-demo"
-      background-color="#444c63"
-      text-color="#ffffff"
-      active-text-color="#00ccff"
-      unique-opened
-      :default-active="active"
-    >
-      <template
-        v-for="(item) in menus"
+    <el-scrollbar style="height:100%">
+      <el-menu
+        :collapse="isCollapse"
+        class="el-menu-vertical-demo"
+        background-color="#444c63"
+        text-color="#ffffff"
+        active-text-color="#00ccff"
+        unique-opened
+        :default-active="active"
       >
-        <el-submenu
-          v-if="item.children"
-          :key="item.id"
-          :index="item.path"
+        <template
+          v-for="(item) in menus"
         >
-          <template slot="title" style="background:#00ff00">
-            <div
-              @click="toPath(item)"
-            >
-              <i :class="[item.icon,'iconfont']"/>
-              <span>{{ item.title }}</span>
-            </div>
-          </template>
-          <el-menu-item-group>
-            <el-menu-item
-              v-for="(list) in item.children"
-              :key="list.id"
-              class="analyse-item"
-              :index="list.path"
-              @click="toPath(list)"
-            >
-              <span
-                class="menu-text fl"
-              > {{ list.title }}</span>
-              <i
-                class="iconfont icon-add fr"
-                @click.stop="clickAdd(list)"
-              />
-            </el-menu-item>
-          </el-menu-item-group>
-        </el-submenu>
-        <el-menu-item
-          v-if="!item.children"
-          :key="item.id"
-          :index="item.path"
-          @click="toPath(item)"
-        >
-          <template>
-            <i :class="[item.icon,'iconfont']"/>
-            <span slot="title">{{ item.title }}</span>
-          </template>
-        </el-menu-item>
-      </template>
-    </el-menu>
+          <el-submenu
+            v-if="item.children"
+            :key="item.id"
+            :index="item.path"
+          >
+            <template slot="title" style="background:#00ff00">
+              <div
+                @click="toPath(item)"
+              >
+                <i :class="[`icon-${item.icon}`,'iconfont']"/>
+                <span>{{ item.title }}</span>
+              </div>
+            </template>
+            <el-menu-item-group>
+              <el-menu-item
+                v-for="(list) in item.children"
+                :key="list.id"
+                class="analyse-item"
+                :index="list.path"
+                @click="toPath(list)"
+              >
+                <span
+                  class="menu-text fl"
+                > {{ list.title }}</span>
+                <i
+                  class="iconfont icon-add fr"
+                  @click.stop="clickAdd(list)"
+                />
+              </el-menu-item>
+            </el-menu-item-group>
+          </el-submenu>
+          <el-menu-item
+            v-if="!item.children"
+            :key="item.id"
+            :index="item.path"
+            @click="toPath(item)"
+          >
+            <template>
+              <i :class="[`icon-${item.icon}`,'iconfont']"/>
+              <span slot="title">{{ item.title }}</span>
+            </template>
+          </el-menu-item>
+        </template>
+      </el-menu>
+    </el-scrollbar>
   </div>
 </template>
 
@@ -111,7 +113,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .sidebar {
-  margin-top: 5px;
+  width: 100%;height: 100%;overflow: hidden;
   /deep/.el-menu {
     border: 0;
   }
